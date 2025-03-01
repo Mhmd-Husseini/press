@@ -4,13 +4,23 @@ import { deleteUser } from '@/app/actions/user';
 import { UserWithRoles } from '@/lib/services/user.service';
 import Link from 'next/link';
 import { useState } from 'react';
+import { DataTable, Column } from '@/components/shared/data-table';
+import { useRouter } from 'next/navigation';
 
 // Define a type that matches what we get from the server action
 type UserTableProps = {
   users: Array<Omit<UserWithRoles, 'password'>>;
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  basePath?: string;
 };
 
-export default function UserTable({ users }: UserTableProps) {
+export default function UserTable({ users, meta, basePath = '/admin/users' }: UserTableProps) {
+  const router = useRouter();
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +37,9 @@ export default function UserTable({ users }: UserTableProps) {
       
       if (!result.success) {
         setError(result.error || 'Failed to delete user');
+      } else {
+        // Refresh after successful deletion
+        router.refresh();
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -36,101 +49,135 @@ export default function UserTable({ users }: UserTableProps) {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set('page', page.toString());
+    router.push(`${basePath}?${searchParams.toString()}`);
+  };
+
+  const handleLimitChange = (limit: number) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set('limit', limit.toString());
+    searchParams.set('page', '1'); // Reset to first page when changing limit
+    router.push(`${basePath}?${searchParams.toString()}`);
+  };
+
+  const handleSearch = (search: string) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (search) {
+      searchParams.set('search', search);
+    } else {
+      searchParams.delete('search');
+    }
+    searchParams.set('page', '1'); // Reset to first page on new search
+    router.push(`${basePath}?${searchParams.toString()}`);
+  };
+
+  const columns: Column<Omit<UserWithRoles, 'password'>>[] = [
+    {
+      key: 'firstName' as keyof Omit<UserWithRoles, 'password'>,
+      label: 'Name',
+      sortable: true,
+      render: (_, user) => (
+        <div className="text-sm font-medium text-gray-900">
+          {user.firstName} {user.lastName}
+        </div>
+      ),
+    },
+    {
+      key: 'email' as keyof Omit<UserWithRoles, 'password'>,
+      label: 'Email',
+      sortable: true,
+      render: (email) => <div className="text-sm text-gray-500">{email}</div>,
+    },
+    {
+      key: 'roles' as keyof Omit<UserWithRoles, 'password'>,
+      label: 'Roles',
+      render: (roles) => (
+        <div className="flex flex-wrap gap-1">
+          {roles && Array.isArray(roles) && roles.map((role, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
+            >
+              {role.role.name}
+            </span>
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: 'isActive' as keyof Omit<UserWithRoles, 'password'>,
+      label: 'Status',
+      render: (isActive) => (
+        <span
+          className={`px-2 py-1 text-xs font-medium rounded-full ${
+            isActive
+              ? 'bg-green-100 text-green-800'
+              : 'bg-red-100 text-red-800'
+          }`}
+        >
+          {isActive ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'createdAt' as keyof Omit<UserWithRoles, 'password'>,
+      label: 'Created At',
+      sortable: true,
+      render: (createdAt) => (
+        <div className="text-sm text-gray-500">
+          {new Date(createdAt as string).toLocaleDateString()}
+        </div>
+      ),
+    },
+    {
+      key: 'id' as keyof Omit<UserWithRoles, 'password'>,
+      label: 'Actions',
+      render: (_, user) => (
+        <div className="flex justify-end gap-2">
+          <Link
+            href={`/admin/users/${user.id}`}
+            className="text-indigo-600 hover:text-indigo-900"
+          >
+            View
+          </Link>
+          <Link
+            href={`/admin/users/${user.id}/edit`}
+            className="text-blue-600 hover:text-blue-900"
+          >
+            Edit
+          </Link>
+          <button
+            onClick={() => handleDelete(user.id)}
+            disabled={isDeleting === user.id}
+            className="text-red-600 hover:text-red-900 disabled:opacity-50"
+          >
+            {isDeleting === user.id ? 'Deleting...' : 'Delete'}
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
+    <div>
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
           {error}
         </div>
       )}
       
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Name
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Email
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Roles
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Status
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Created At
-            </th>
-            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {users.map((user) => (
-            <tr key={user.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">
-                  {user.firstName} {user.lastName}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-500">{user.email}</div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex flex-wrap gap-1">
-                  {user.roles && user.roles.map((role, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
-                    >
-                      {role.role.name}
-                    </span>
-                  ))}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    user.isActive
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  {user.isActive ? 'Active' : 'Inactive'}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {new Date(user.createdAt).toLocaleDateString()}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div className="flex justify-end gap-2">
-                  <Link
-                    href={`/admin/users/${user.id}`}
-                    className="text-indigo-600 hover:text-indigo-900"
-                  >
-                    View
-                  </Link>
-                  <Link
-                    href={`/admin/users/${user.id}/edit`}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    disabled={isDeleting === user.id}
-                    className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                  >
-                    {isDeleting === user.id ? 'Deleting...' : 'Delete'}
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        columns={columns}
+        data={users}
+        total={meta?.total || users.length}
+        page={meta?.page || 1}
+        limit={meta?.limit || 10}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
+        onSearch={handleSearch}
+      />
     </div>
   );
 } 

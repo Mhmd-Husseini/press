@@ -1,6 +1,5 @@
 import { getUsers } from '@/app/actions/user';
 import Link from 'next/link';
-import UserSearchForm from '@/components/users/user-search-form';
 import UserTable from '@/components/users/user-table';
 
 export const dynamic = 'force-dynamic';
@@ -32,38 +31,14 @@ export default async function UsersPage({
         </Link>
       </div>
 
-      <UserSearchForm initialSearch={search} basePath="/admin/users" />
-
       {success ? (
         <>
           {users && users.length > 0 ? (
-            <>
-              <UserTable users={users} />
-              
-              <div className="flex justify-between items-center mt-4">
-                <div className="text-sm text-gray-500">
-                  Page {page} of {meta?.totalPages || 1}
-                </div>
-                <div className="flex gap-2">
-                  {page > 1 && (
-                    <Link
-                      href={`/admin/users?page=${page - 1}${search ? `&search=${search}` : ''}`}
-                      className="px-3 py-1 bg-gray-100 rounded-md hover:bg-gray-200"
-                    >
-                      Previous
-                    </Link>
-                  )}
-                  {meta && page < meta.totalPages && (
-                    <Link
-                      href={`/admin/users?page=${page + 1}${search ? `&search=${search}` : ''}`}
-                      className="px-3 py-1 bg-gray-100 rounded-md hover:bg-gray-200"
-                    >
-                      Next
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </>
+            <UserTable 
+              users={users} 
+              meta={meta} 
+              basePath="/admin/users" 
+            />
           ) : (
             <div className="text-center py-10 bg-gray-50 rounded-lg">
               <h3 className="text-lg font-medium text-gray-900">No users found</h3>
