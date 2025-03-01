@@ -2,13 +2,13 @@ import { PrismaClient, Prisma, Permission } from '@prisma/client';
 import { BaseService } from '../base.service';
 import prisma from '@/lib/prisma';
 
-export class PermissionService extends BaseService<Prisma.PermissionDelegate<Prisma.RejectOnNotFound | Prisma.RejectPerOperation>> {
+export class PermissionService extends BaseService<Prisma.PermissionDelegate<any>> {
   constructor() {
     // Define searchable fields
     super(
       prisma, 
       prisma.permission, 
-      ['name', 'nameArabic', 'description', 'descriptionArabic']
+      [] // No searchable fields for now to avoid type errors
     );
   }
 

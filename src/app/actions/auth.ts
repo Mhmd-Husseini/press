@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { sign, verify } from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_ACCESS_SECRET || 'your-secret-key';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -154,12 +154,34 @@ export async function login(formData: FormData) {
       };
     }
 
+    // Extract roles and permissions for the token
+    const roles = user.roles.map(r => r.role.name);
+    const permissions = [];
+    
+    // Get permissions from roles
+    for (const userRole of user.roles) {
+      if (userRole.role.permissions) {
+        const rolePermissions = userRole.role.permissions.map(p => p.permission.name);
+        permissions.push(...rolePermissions);
+      }
+    }
+    
+    // Remove duplicates from permissions
+    const uniquePermissions = [...new Set(permissions)];
+
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
     // Create JWT token and set cookie
     const token = sign(
-      { id: user.id, email: user.email },
+      { 
+        id: user.id, 
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: roles,
+        permissions: uniquePermissions
+      },
       JWT_SECRET,
       { expiresIn: '7d' }
     );

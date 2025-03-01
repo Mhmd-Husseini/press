@@ -6,10 +6,10 @@ import { RoleService } from './role.service';
 
 // Secret key for JWT
 const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'replace-this-with-a-secure-secret-key'
+  process.env.JWT_ACCESS_SECRET || 'replace-this-with-a-secure-secret-key'
 );
 
-const AUTH_COOKIE_NAME = 'auth_token';
+const AUTH_COOKIE_NAME = 'auth-token';
 
 export class AuthService {
   private userService: UserService;
@@ -55,15 +55,19 @@ export class AuthService {
 
   async verifyToken(token: string): Promise<any> {
     try {
+      console.log('Verifying token...');
       const { payload } = await jwtVerify(token, SECRET_KEY);
+      console.log('Token verified successfully');
       return payload;
     } catch (error) {
+      console.error('Token verification failed:', error instanceof Error ? error.message : error);
       return null;
     }
   }
 
   async getCurrentUser(): Promise<UserWithRoles | null> {
-    const token = cookies().get(AUTH_COOKIE_NAME)?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
     if (!token) return null;
 
     const payload = await this.verifyToken(token);
@@ -73,7 +77,8 @@ export class AuthService {
   }
 
   async setAuthCookie(token: string): Promise<void> {
-    cookies().set({
+    const cookieStore = await cookies();
+    cookieStore.set({
       name: AUTH_COOKIE_NAME,
       value: token,
       httpOnly: true,
@@ -85,24 +90,81 @@ export class AuthService {
   }
 
   async clearAuthCookie(): Promise<void> {
-    cookies().delete(AUTH_COOKIE_NAME);
+    const cookieStore = await cookies();
+    cookieStore.delete(AUTH_COOKIE_NAME);
   }
 
   async hasPermission(permission: string): Promise<boolean> {
+    console.log(`Checking permission: ${permission}`);
+    
+    // Get token directly first
+    const cookieStore = await cookies();
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+    if (!token) {
+      console.log('No auth token found, permission denied');
+      return false;
+    }
+
+    console.log('Token found, checking permissions');
+    
+    // Check token payload first (more efficient)
+    try {
+      const payload = await this.verifyToken(token);
+      if (payload) {
+        // Check for super admin role in token
+        const roles = payload.roles || [];
+        if (Array.isArray(roles)) {
+          console.log('Roles in token:', roles);
+          if (roles.includes('ADMIN') || roles.includes('SUPER_ADMIN')) {
+            console.log('User has admin role in token, permission granted');
+            return true;
+          }
+        } else {
+          console.log('Roles in token is not an array:', roles);
+        }
+
+        // Check for specific permission in token
+        const permissions = payload.permissions || [];
+        if (Array.isArray(permissions)) {
+          console.log('Permissions in token:', permissions);
+          if (permissions.includes(permission)) {
+            console.log(`User has ${permission} permission in token, permission granted`);
+            return true;
+          }
+        } else {
+          console.log('Permissions in token is not an array:', permissions);
+        }
+      } else {
+        console.log('Token verification failed, falling back to database check');
+      }
+    } catch (error) {
+      console.error('Error checking token permissions:', error);
+    }
+
+    // Fallback to database check if token check fails
+    console.log('Falling back to database check for permissions');
     const user = await this.getCurrentUser();
-    if (!user) return false;
+    if (!user) {
+      console.log('No user found in database, permission denied');
+      return false;
+    }
 
     // Check for super admin role (can do anything)
     if (user.roles.some(r => r.role.name === 'ADMIN' || r.role.name === 'SUPER_ADMIN')) {
+      console.log('User has admin role in database, permission granted');
       return true;
     }
 
     // Check each role for the specified permission
     for (const userRole of user.roles) {
       const hasPermission = await this.roleService.hasPermission(userRole.role.id, permission);
-      if (hasPermission) return true;
+      if (hasPermission) {
+        console.log(`User role ${userRole.role.name} has permission ${permission}, permission granted`);
+        return true;
+      }
     }
 
+    console.log('Permission denied after all checks');
     return false;
   }
 

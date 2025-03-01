@@ -3,7 +3,7 @@ import { jwtVerify } from 'jose';
 
 // Secret key for JWT
 const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'replace-this-with-a-secure-secret-key'
+  process.env.JWT_ACCESS_SECRET || 'replace-this-with-a-secure-secret-key'
 );
 
 // Define protected routes and required permissions
@@ -72,7 +72,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check for auth token
-  const token = request.cookies.get('auth_token')?.value;
+  const token = request.cookies.get('auth-token')?.value;
   
   // If no token and trying to access admin routes, redirect to login
   if (!token) {
