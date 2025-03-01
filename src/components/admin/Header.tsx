@@ -102,11 +102,11 @@ export default function AdminHeader() {
               </PermissionGuard>
               
               <PermissionGuard permissions={['view_roles', 'view_permissions']}>
-                <div className="relative group">
+                <div className="relative group inline-flex items-center h-full">
                   <button className={getNavLinkClass('/admin/access-control')}>
                     Access Control
                   </button>
-                  <div className="hidden group-hover:block absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <div className="hidden group-hover:block absolute left-0 top-full mt-0.5 w-48 bg-white rounded-md shadow-lg py-1 z-20">
                     <PermissionGuard permissions="view_roles">
                       <Link 
                         href="/admin/roles" 
