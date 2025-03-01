@@ -1,0 +1,224 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// ENUMS ///
+enum PostStatus {
+  DRAFT
+  WAITING_APPROVAL
+  READY_TO_PUBLISH
+  PUBLISHED
+  ARCHIVED    // Added for archiving old posts
+  DECLINED
+}
+
+enum MediaType {  // New enum for media types
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+}
+
+/// USER, ROLE & PERMISSION MODELS ///
+model User {
+  id                String      @id @default(uuid())
+  email             String      @unique
+  password          String
+  firstName         String?
+  lastName          String?
+  firstNameArabic   String?
+  lastNameArabic    String?
+  avatar            String?     // Added for user profile pictures
+  bio               String?     // Added for author bios
+  bioArabic         String?
+  languagePreference String?    @default("en")
+  isActive          Boolean     @default(true)
+  socialLinks       Json?       // Store social media links
+  roles             UserRole[]
+  posts             Post[]
+  comments          Comment[]
+  auditLogs         AuditLog[]  // Added relation
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  lastLogin         DateTime?
+  emailVerified     Boolean     @default(false)
+}
+
+model Role {
+  id                String           @id @default(uuid())
+  name              String           @unique
+  nameArabic        String?          @unique
+  description       String?
+  descriptionArabic String?
+  permissions       RolePermission[]
+  users             UserRole[]
+  createdAt         DateTime         @default(now())
+}
+
+model Permission {
+  id                String           @id @default(uuid())
+  name              String           @unique
+  nameArabic        String?          @unique
+  description       String?
+  descriptionArabic String?
+  roles             RolePermission[]
+  createdAt         DateTime         @default(now())
+}
+
+model UserRole {
+  userId    String
+  roleId    String
+  user      User     @relation(fields: [userId], references: [id])
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
+  
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  createdAt    DateTime   @default(now())
+  
+  @@id([roleId, permissionId])
+}
+
+/// CATEGORY MODEL ///
+model Category {
+  id          String                 @id @default(uuid())
+  slug        String?                @unique
+  parentId    String?
+  parent      Category?              @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[]             @relation("CategoryHierarchy")
+  order       Int                    @default(0)
+  translations CategoryTranslation[]
+  posts       Post[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  deletedAt   DateTime?
+}
+
+model CategoryTranslation {
+  id          String   @id @default(uuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  locale      String   // 'en' or 'ar'
+  name        String
+  description String?
+  slug        String   @unique
+  dir         String?  @default("ltr")
+  
+  @@unique([categoryId, locale])
+  @@index([slug])
+}
+
+/// POST MODEL ///
+model Post {
+  id              String            @id @default(uuid())
+  status          PostStatus        @default(DRAFT)
+  statusReason    String?
+  version         Int               @default(1)
+  authorId        String
+  author          User              @relation(fields: [authorId], references: [id])
+  categoryId      String
+  category        Category          @relation(fields: [categoryId], references: [id])
+  translations    PostTranslation[]
+  featured        Boolean           @default(false)
+  viewCount       Int               @default(0)
+  tags            PostTag[]
+  metaData        Json?
+  readingTime     Int?
+  publishedAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  statusUpdatedAt DateTime?
+  media           Media[]
+  comments        Comment[]
+  deletedAt       DateTime?
+}
+
+model PostTranslation {
+  id          String   @id @default(uuid())
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id])
+  locale      String   // 'en' or 'ar'
+  title       String
+  content     String
+  summary     String?
+  slug        String   @unique
+  dir         String?  @default("ltr")
+  
+  @@unique([postId, locale])
+  @@index([slug])
+}
+
+model Tag {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  nameArabic  String?
+  posts       PostTag[]
+  createdAt   DateTime  @default(now())
+}
+
+model PostTag {
+  postId    String
+  tagId     String
+  post      Post     @relation(fields: [postId], references: [id])
+  tag       Tag      @relation(fields: [tagId], references: [id])
+  
+  @@id([postId, tagId])
+}
+
+/// COMMENT MODEL ///
+model Comment {
+  id        String    @id @default(uuid())
+  content   String
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  authorId  String?
+  author    User?     @relation(fields: [authorId], references: [id])
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+/// MEDIA MODEL ///
+model Media {
+  id          String    @id @default(uuid())
+  url         String
+  type        MediaType
+  title       String?
+  altText     String?
+  caption     String?
+  size        Int?
+  mimeType    String?
+  postId      String?
+  post        Post?     @relation(fields: [postId], references: [id])
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+}
+
+/// AUDIT LOG MODEL ///
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  entityId   String
+  entityType String   // 'POST', 'COMMENT', 'CATEGORY', etc
+  oldData    Json?
+  newData    Json?
+  createdAt  DateTime @default(now())
+  ipAddress  String?
+  userAgent  String?
+} 
