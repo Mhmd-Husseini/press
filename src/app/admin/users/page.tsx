@@ -9,9 +9,11 @@ export default async function UsersPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const pageParam = searchParams.page;
-  const limitParam = searchParams.limit;
-  const searchParam = searchParams.search;
+  const params = await Promise.resolve(searchParams);
+  
+  const pageParam = params.page;
+  const limitParam = params.limit;
+  const searchParam = params.search;
   
   const page = typeof pageParam === 'string' ? parseInt(pageParam) : 1;
   const limit = typeof limitParam === 'string' ? parseInt(limitParam) : 10;
