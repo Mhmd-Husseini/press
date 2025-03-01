@@ -3,7 +3,10 @@
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
-import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { sign, verify } from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -67,6 +70,21 @@ export async function register(formData: FormData): Promise<RegisterResult> {
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
+    // Create JWT token and set cookie
+    const token = sign(
+      { id: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const cookieStore = await cookies();
+    cookieStore.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
+    });
+
     return {
       success: true,
       user: userWithoutPassword
@@ -105,7 +123,15 @@ export async function login(formData: FormData) {
       include: {
         roles: {
           include: {
-            role: true
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -128,20 +154,96 @@ export async function login(formData: FormData) {
       };
     }
 
-    // Here you would typically handle session creation
-    // Depending on your auth solution (JWT, Next-Auth, etc.)
-    
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
+
+    // Create JWT token and set cookie
+    const token = sign(
+      { id: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const cookieStore = await cookies();
+    cookieStore.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
+    });
 
     return {
       success: true,
       user: userWithoutPassword
     };
   } catch (error) {
+    console.error('Login error:', error);
     return {
       success: false,
       error: 'Login failed'
     };
+  }
+}
+
+// Logout server action
+export async function logout() {
+  // Clear the auth cookie
+  const cookieStore = await cookies();
+  cookieStore.set('auth-token', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    expires: new Date(0),
+    path: '/',
+  });
+
+  return {
+    success: true
+  };
+}
+
+// Get current user from token
+export async function getCurrentUser() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth-token')?.value;
+    
+    if (!token) {
+      return null;
+    }
+    
+    // Verify the token
+    const decoded = verify(token, JWT_SECRET) as { id: string };
+    
+    // Get the user
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    if (!user) {
+      return null;
+    }
+    
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user;
+    
+    return userWithoutPassword;
+  } catch (error) {
+    console.error('Get current user error:', error);
+    return null;
   }
 } 
