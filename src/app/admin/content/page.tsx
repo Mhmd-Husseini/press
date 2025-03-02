@@ -30,7 +30,11 @@ interface Post {
   };
   author: {
     id: string;
-    name: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    firstNameArabic?: string;
+    lastNameArabic?: string;
   };
   translations: PostTranslation[];
 }
@@ -143,6 +147,23 @@ export default function ContentPage() {
       default:
         return 'Unknown';
     }
+  };
+  
+  // Add a helper method to get author name
+  const getAuthorName = (post: Post) => {
+    if (!post.author) return 'Unknown';
+    
+    // If name property exists (for backwards compatibility)
+    if ('name' in post.author && post.author.name) {
+      return post.author.name;
+    }
+    
+    // Otherwise construct from firstName and lastName
+    const firstName = post.author.firstName || '';
+    const lastName = post.author.lastName || '';
+    
+    if (!firstName && !lastName) return 'Unknown';
+    return `${firstName} ${lastName}`.trim();
   };
   
   return (
@@ -295,7 +316,7 @@ export default function ContentPage() {
                           {post.category?.translations[0]?.name || 'Uncategorized'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {post.author?.name || 'Unknown'}
+                          {getAuthorName(post)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(post.updatedAt)}

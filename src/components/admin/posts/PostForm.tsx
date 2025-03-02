@@ -31,6 +31,9 @@ type FormData = {
   status: PostStatus;
   statusReason?: string;
   categoryId: string;
+  authorId: string;
+  authorName?: string;
+  authorNameArabic?: string;
   featured: boolean;
   metaData: Record<string, any>;
   tags: string[];
@@ -51,6 +54,9 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   const [formData, setFormData] = useState<FormData>({
     status: PostStatus.DRAFT,
     categoryId: '',
+    authorId: user?.id || '',
+    authorName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
+    authorNameArabic: user ? `${user.firstNameArabic || ''} ${user.lastNameArabic || ''}`.trim() : '',
     featured: false,
     metaData: {},
     tags: [],
@@ -98,60 +104,45 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
 
   // Initialize form data if editing
   useEffect(() => {
-    if (isEdit && post) {
-      // Prepare translations data ensuring both en and ar exist
-      const translations = [...post.translations] as Translation[];
+    if (post && isEdit) {
+      // Extract the tags IDs
+      const tags = post.tags?.map(tag => tag.tag.id) || [];
       
-      // Check if English translation exists
-      if (!translations.some(t => t.locale === 'en')) {
-        translations.push({ locale: 'en', title: '', content: '', summary: '', slug: '', dir: 'ltr' });
-      }
-      
-      // Check if Arabic translation exists
-      if (!translations.some(t => t.locale === 'ar')) {
-        translations.push({ locale: 'ar', title: '', content: '', summary: '', slug: '', dir: 'rtl' });
-      }
-      
-      // Extract tags
-      const postTags = post.tags?.map(t => t.tag.id) || [];
-      
-      // Extract metadata and ensure it's the correct type
+      // Extract metadata
       let metaData: Record<string, any> = {};
-      if (typeof post.metaData === 'object' && post.metaData !== null) {
+      if (post.metaData && typeof post.metaData === 'object') {
         metaData = post.metaData as Record<string, any>;
       }
       
-      // Update metaFields with existing data
-      if (Object.keys(metaData).length > 0) {
-        const newMetaFields = [...metaFields];
-        Object.entries(metaData).forEach(([key, value]) => {
-          const existingIndex = newMetaFields.findIndex(field => field.key === key);
-          if (existingIndex >= 0) {
-            newMetaFields[existingIndex].value = value as string;
-          } else {
-            newMetaFields.push({ key, value: value as string });
-          }
-        });
-        setMetaFields(newMetaFields);
+      // Create initial meta fields from existing metadata
+      const initialMetaFields = Object.entries(metaData).map(([key, value]) => ({
+        key,
+        value: value?.toString() || ''
+      }));
+      
+      // If we have meta fields, use them, otherwise keep defaults
+      if (initialMetaFields.length > 0) {
+        setMetaFields(initialMetaFields);
       }
       
       setFormData({
         status: post.status,
         statusReason: post.statusReason || '',
         categoryId: post.categoryId,
+        authorId: post.authorId,
+        authorName: post.authorName || (post.author ? `${post.author.firstName || ''} ${post.author.lastName || ''}`.trim() : ''),
+        authorNameArabic: post.authorNameArabic || (post.author ? `${post.author.firstNameArabic || ''} ${post.author.lastNameArabic || ''}`.trim() : ''),
         featured: post.featured,
-        metaData: metaData,
-        tags: postTags,
-        translations
+        metaData,
+        tags,
+        translations: post.translations as Translation[]
       });
-    } else if (categoryId) {
-      // Set category ID if provided in the query
-      setFormData(prev => ({
-        ...prev,
-        categoryId
-      }));
     }
-  }, [post, isEdit, categoryId]);
+    // Set initial category ID from query parameter if available
+    else if (categoryId && !formData.categoryId) {
+      setFormData(prev => ({ ...prev, categoryId }));
+    }
+  }, [post, isEdit, categoryId, formData.categoryId]);
 
   const handleChangeCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData(prev => ({
@@ -267,19 +258,29 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    
+    if (isSubmitting) return;
+    
+    // Clear previous errors
     setError(null);
+    setIsSubmitting(true);
     
     try {
-      // Filter out translations with empty titles
-      const validTranslations = formData.translations.filter(t => t.title.trim() !== '');
-      
-      if (validTranslations.length === 0) {
-        throw new Error('At least one translation with a title is required');
+      // Validate required fields
+      if (!formData.categoryId) {
+        throw new Error('Please select a category');
       }
       
-      // Convert meta fields to object
-      const metaData: Record<string, any> = {};
+      if (formData.translations.some(t => t.locale === 'en' && !t.title)) {
+        throw new Error('English title is required');
+      }
+      
+      if (formData.translations.some(t => t.locale === 'en' && !t.content)) {
+        throw new Error('English content is required');
+      }
+      
+      // Prepare metadata from fields
+      const metaData: Record<string, string> = {};
       metaFields.forEach(field => {
         if (field.key && field.value) {
           metaData[field.key] = field.value;
@@ -289,19 +290,20 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       // Prepare data for API
       const apiData = {
         ...formData,
-        metaData,
-        translations: validTranslations
+        authorId: formData.authorId || user?.id,
+        authorName: formData.authorName || '',
+        authorNameArabic: formData.authorNameArabic || '',
+        metaData
       };
       
-      // Determine URL and method based on whether we're editing or creating
-      const url = isEdit && post 
+      // Call API
+      const endpoint = isEdit && post
         ? `/api/admin/posts/${post.id}`
         : '/api/admin/posts';
       
       const method = isEdit ? 'PUT' : 'POST';
       
-      // Send request
-      const response = await fetch(url, {
+      const response = await fetch(endpoint, {
         method,
         headers: {
           'Content-Type': 'application/json'
@@ -314,13 +316,19 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         throw new Error(data.error || 'Failed to save post');
       }
       
-      const savedPost = await response.json();
+      const newPost = await response.json();
       
-      // Redirect on success
-      router.push(`/admin/content?category=${savedPost.categoryId}`);
-      
+      // Redirect to the edit page or posts list
+      if (!isEdit) {
+        router.push(`/admin/posts/${newPost.id}/edit?success=created`);
+      } else if (post) {
+        router.push(`/admin/posts/${post.id}/edit?success=updated`);
+      } else {
+        router.push('/admin/content?success=updated');
+      }
     } catch (err: any) {
-      setError(err.message || 'An error occurred while saving the post');
+      console.error('Error saving post:', err);
+      setError(err.message || 'Failed to save post');
       setIsSubmitting(false);
     }
   };
@@ -332,6 +340,20 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
 
   const currentTranslation = getTranslationByLocale(activeTab);
   
+  const handleChangeAuthorName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      authorName: e.target.value
+    }));
+  };
+
+  const handleChangeAuthorNameArabic = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      authorNameArabic: e.target.value
+    }));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
@@ -353,13 +375,12 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         <h3 className="text-lg font-medium leading-6 text-gray-900">Post Settings</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
+          <div className="mb-4">
             <label htmlFor="category" className="block text-sm font-medium text-gray-700">
               Category *
             </label>
             <select
               id="category"
-              name="category"
               value={formData.categoryId}
               onChange={handleChangeCategory}
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
@@ -374,6 +395,45 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
             </select>
           </div>
           
+          {/* Author information */}
+          <div className="mb-4">
+            <fieldset className="border border-gray-200 rounded-md p-4">
+              <legend className="text-sm font-medium text-gray-700 px-2">Author Information</legend>
+              
+              <div className="mb-4">
+                <label htmlFor="authorName" className="block text-sm font-medium text-gray-700">
+                  Author Name (English)
+                </label>
+                <input
+                  type="text"
+                  id="authorName"
+                  value={formData.authorName || ''}
+                  onChange={handleChangeAuthorName}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder={user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : ''}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Leave blank to use your account name or enter a custom author name
+                </p>
+              </div>
+              
+              <div className="mb-4">
+                <label htmlFor="authorNameArabic" className="block text-sm font-medium text-gray-700">
+                  Author Name (Arabic)
+                </label>
+                <input
+                  type="text"
+                  id="authorNameArabic"
+                  value={formData.authorNameArabic || ''}
+                  onChange={handleChangeAuthorNameArabic}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  dir="rtl"
+                  placeholder={user ? `${user.firstNameArabic || ''} ${user.lastNameArabic || ''}`.trim() : ''}
+                />
+              </div>
+            </fieldset>
+          </div>
+
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-700">
               Status

@@ -9,6 +9,8 @@ interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  firstNameArabic?: string;
+  lastNameArabic?: string;
   roles: string[];
   permissions: string[];
 }

@@ -7,6 +7,8 @@ export type PostWithRelations = Post & {
   category?: { 
     translations: { locale: string; name: string; slug: string }[]
   };
+  authorName?: string;
+  authorNameArabic?: string;
   author?: { 
     id: string; 
     email: string; 
@@ -23,12 +25,28 @@ export type PostWithRelations = Post & {
       nameArabic?: string
     } 
   }[];
+  createdBy?: {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  updatedBy?: {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+  };
 };
 
 export type PostCreateInput = {
   status?: PostStatus;
   authorId: string;
+  authorName?: string;
+  authorNameArabic?: string;
   categoryId: string;
+  createdById?: string;
+  updatedById?: string;
   featured?: boolean;
   metaData?: Record<string, any>;
   tags?: string[];

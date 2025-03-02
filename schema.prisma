@@ -41,6 +41,8 @@ model User {
   socialLinks       Json?       // Store social media links
   roles             UserRole[]
   posts             Post[]
+  createdPosts      Post[]      @relation("CreatedPosts")
+  updatedPosts      Post[]      @relation("UpdatedPosts")
   comments          Comment[]
   auditLogs         AuditLog[]  // Added relation
   createdAt         DateTime    @default(now())
@@ -127,6 +129,8 @@ model Post {
   version         Int               @default(1)
   authorId        String
   author          User              @relation(fields: [authorId], references: [id])
+  authorName      String?           // Custom author name in English
+  authorNameArabic String?          // Custom author name in Arabic
   categoryId      String
   category        Category          @relation(fields: [categoryId], references: [id])
   translations    PostTranslation[]
@@ -138,6 +142,10 @@ model Post {
   publishedAt     DateTime?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  createdById     String?
+  createdBy       User?             @relation("CreatedPosts", fields: [createdById], references: [id])
+  updatedById     String?
+  updatedBy       User?             @relation("UpdatedPosts", fields: [updatedById], references: [id])
   statusUpdatedAt DateTime?
   media           Media[]
   comments        Comment[]
