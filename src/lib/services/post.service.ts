@@ -64,9 +64,12 @@ export type PostUpdateInput = {
   status?: PostStatus;
   statusReason?: string;
   categoryId?: string;
+  authorName?: string;
+  authorNameArabic?: string;
   featured?: boolean;
   metaData?: Record<string, any>;
   tags?: string[];
+  updatedById?: string;
   translations?: {
     id?: string;
     locale: string;
@@ -109,9 +112,13 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       data: {
         status: data.status || PostStatus.DRAFT,
         authorId: data.authorId,
+        authorName: data.authorName,
+        authorNameArabic: data.authorNameArabic,
         categoryId: data.categoryId,
         featured: data.featured || false,
         metaData: data.metaData || {},
+        createdById: data.createdById,
+        updatedById: data.updatedById,
         translations: {
           create: data.translations
         },
@@ -343,8 +350,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       data: {
         ...statusData,
         ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
+        ...(data.authorName !== undefined && { authorName: data.authorName }),
+        ...(data.authorNameArabic !== undefined && { authorNameArabic: data.authorNameArabic }),
         ...(data.featured !== undefined && { featured: data.featured }),
-        ...(data.metaData !== undefined && { metaData: data.metaData })
+        ...(data.metaData !== undefined && { metaData: data.metaData }),
+        ...(data.updatedById && { updatedById: data.updatedById })
       }
     });
 

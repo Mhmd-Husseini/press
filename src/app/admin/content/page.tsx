@@ -24,6 +24,8 @@ interface Post {
   featured: boolean;
   createdAt: string;
   updatedAt: string;
+  authorName?: string;
+  authorNameArabic?: string;
   category: {
     id: string;
     translations: { locale: string; name: string }[];
@@ -151,6 +153,12 @@ export default function ContentPage() {
   
   // Add a helper method to get author name
   const getAuthorName = (post: Post) => {
+    // First check for custom author name
+    if (post.authorName) {
+      return post.authorName;
+    }
+    
+    // Then check for author object
     if (!post.author) return 'Unknown';
     
     // If name property exists (for backwards compatibility)

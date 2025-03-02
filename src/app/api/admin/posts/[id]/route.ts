@@ -44,6 +44,12 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
+    // Get user from request
+    const user = await authService.getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized - User not found' }, { status: 401 });
+    }
+
     // Parse request body
     const data = await request.json();
 
@@ -54,6 +60,19 @@ export async function PUT(
       if (!canPublishContent) {
         return NextResponse.json({ error: 'You do not have permission to publish content' }, { status: 403 });
       }
+    }
+
+    // Add the current user as the updater
+    data.updatedById = user.id;
+
+    // Ensure author name fields are properly handled
+    // If authorName/authorNameArabic is empty string, set to null to use default
+    if (data.authorName === '') {
+      data.authorName = null;
+    }
+    
+    if (data.authorNameArabic === '') {
+      data.authorNameArabic = null;
     }
 
     // Update post

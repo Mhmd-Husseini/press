@@ -78,16 +78,24 @@ export async function POST(request: NextRequest) {
       console.log('Using current user as author:', user.id);
     }
     
-    // Set default author name if not provided
-    if (!data.authorName && user.firstName) {
-      data.authorName = `${user.firstName} ${user.lastName || ''}`.trim();
-      console.log('Using default author name:', data.authorName);
+    // Set default author name if not provided or empty
+    if (!data.authorName || data.authorName.trim() === '') {
+      if (user.firstName) {
+        data.authorName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+        console.log('Using default author name:', data.authorName);
+      } else {
+        data.authorName = null; // Set to null if no name components available
+      }
     }
     
-    // Set default Arabic author name if not provided
-    if (!data.authorNameArabic && user.firstNameArabic) {
-      data.authorNameArabic = `${user.firstNameArabic} ${user.lastNameArabic || ''}`.trim();
-      console.log('Using default Arabic author name:', data.authorNameArabic);
+    // Set default Arabic author name if not provided or empty
+    if (!data.authorNameArabic || data.authorNameArabic.trim() === '') {
+      if (user.firstNameArabic) {
+        data.authorNameArabic = `${user.firstNameArabic || ''} ${user.lastNameArabic || ''}`.trim();
+        console.log('Using default Arabic author name:', data.authorNameArabic);
+      } else {
+        data.authorNameArabic = null; // Set to null if no name components available
+      }
     }
     
     // Set creator and updater
