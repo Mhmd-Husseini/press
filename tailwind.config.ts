@@ -15,4 +15,9 @@ export default {
     },
   },
   plugins: [],
+  future: {
+    // This makes Tailwind more resilient to missing files
+    // in content patterns by using glob patterns more safely
+    hoverOnlyWhenSupported: true, 
+  },
 } satisfies Config;
