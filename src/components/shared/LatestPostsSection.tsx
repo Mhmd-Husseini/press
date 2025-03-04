@@ -24,6 +24,25 @@ export const LatestPostsSection = ({
     return null;
   }
 
+  const isRTL = locale === 'ar';
+
+  // Text translations
+  const translations = {
+    en: {
+      latestNews: 'Latest News',
+      viewAll: 'View All'
+    },
+    ar: {
+      latestNews: 'أحدث الأخبار',
+      viewAll: 'عرض الكل'
+    }
+  };
+
+  // Use translated titles if no specific title is provided
+  const sectionTitle = title === 'Latest News' ? 
+    (isRTL ? translations.ar.latestNews : translations.en.latestNews) : 
+    title;
+
   // Helper functions to get localized content
   const getPostTitle = (post: PostWithRelations) => {
     return getLocalizedValue(post.translations, locale, 'en', 'title') || '';
@@ -54,21 +73,29 @@ export const LatestPostsSection = ({
   };
 
   return (
-    <section className="bg-gray-50 py-8 md:py-12">
+    <section className="bg-gray-50 py-8 md:py-12" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className={`flex items-center justify-between mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <div className="flex items-center">
-            <div className="w-1 h-6 bg-blue-600 mr-3"></div>
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            <div className={`w-1 h-6 bg-blue-600 ${isRTL ? 'ml-3' : 'mr-3'}`}></div>
+            <h2 className={`text-2xl font-bold text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
+              {sectionTitle}
+            </h2>
           </div>
           {viewAllLink && (
             <Link 
               href={viewAllLink} 
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+              className={`text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
             >
-              View All
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {isRTL ? translations.ar.viewAll : translations.en.viewAll}
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className={`h-4 w-4 ${isRTL ? 'mr-1 rotate-180' : 'ml-1'}`} 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
@@ -92,6 +119,7 @@ export const LatestPostsSection = ({
               } : undefined}
               publishedAt={post.publishedAt?.toString() || post.createdAt.toString()}
               size="medium"
+              locale={locale}
             />
           ))}
         </div>

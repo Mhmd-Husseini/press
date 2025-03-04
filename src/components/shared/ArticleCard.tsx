@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatDateLocalized } from '@/lib/utils';
@@ -21,6 +21,7 @@ interface ArticleCardProps {
   size?: 'small' | 'medium' | 'large';
   variant?: 'vertical' | 'horizontal';
   priority?: boolean;
+  locale?: string;
 }
 
 export const ArticleCard = ({
@@ -35,8 +36,41 @@ export const ArticleCard = ({
   featured = false,
   size = 'medium',
   variant = 'vertical',
-  priority = false
+  priority = false,
+  locale = 'en'
 }: ArticleCardProps) => {
+  const [currentLocale, setCurrentLocale] = useState(locale);
+  
+  useEffect(() => {
+    // Get current locale from cookie if not provided as prop
+    if (locale === 'en') {
+      const cookieLocale = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('NEXT_LOCALE='))
+        ?.split('=')[1];
+      
+      if (cookieLocale) {
+        setCurrentLocale(cookieLocale);
+      }
+    }
+  }, [locale]);
+
+  const isRTL = currentLocale === 'ar';
+
+  // Text translations
+  const translations = {
+    en: {
+      noImage: 'No image',
+      readMore: 'Read more',
+      phoenixStaff: 'Phoenix Staff',
+    },
+    ar: {
+      noImage: 'لا توجد صورة',
+      readMore: 'اقرأ المزيد',
+      phoenixStaff: 'فريق فينيكس',
+    }
+  };
+
   // Helper function for image dimensions based on size and variant
   const getImageDimensions = () => {
     switch(size) {
@@ -55,11 +89,11 @@ export const ArticleCard = ({
     const baseClasses = 'bg-white border border-gray-100 overflow-hidden transition-shadow duration-200 hover:shadow-md';
     
     if (variant === 'horizontal') {
-      return `${baseClasses} flex items-start`;
+      return `${baseClasses} flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} items-start`;
     }
     
     if (featured) {
-      return `${baseClasses} relative border-l-4 border-l-red-600`;
+      return `${baseClasses} relative ${isRTL ? 'border-r-4 border-r-red-600' : 'border-l-4 border-l-red-600'}`;
     }
     
     return baseClasses;
@@ -82,7 +116,7 @@ export const ArticleCard = ({
   
   if (variant === 'horizontal') {
     return (
-      <article className={getCardClasses()}>
+      <article className={getCardClasses()} dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Image on the left */}
         <div className="flex-shrink-0" style={{ width: imageDimensions.width }}>
           <Link href={`/posts/${slug}`} className="block relative" style={{ height: imageDimensions.height }}>
@@ -96,30 +130,30 @@ export const ArticleCard = ({
               />
             ) : (
               <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400 text-xs">No image</span>
+                <span className="text-gray-400 text-xs">{isRTL ? translations.ar.noImage : translations.en.noImage}</span>
               </div>
             )}
           </Link>
         </div>
         
         {/* Content on the right */}
-        <div className="flex-grow p-3">
+        <div className={`flex-grow p-3 ${isRTL ? 'text-right' : 'text-left'}`}>
           <h3 className={getTitleClass()}>
             <Link href={`/posts/${slug}`} className="text-gray-900 hover:text-blue-600 transition-colors">
               {title}
             </Link>
           </h3>
           
-          <div className="flex justify-between items-center text-xs text-gray-500">
+          <div className={`flex ${isRTL ? 'flex-row-reverse justify-between' : 'justify-between'} items-center text-xs text-gray-500`}>
             {category && (
               <Link 
                 href={`/categories/${category.slug}`}
-                className="text-blue-600 hover:text-blue-800 mr-2"
+                className={`text-blue-600 hover:text-blue-800 ${isRTL ? 'ml-2' : 'mr-2'}`}
               >
                 {category.name}
               </Link>
             )}
-            <span>{formatDateLocalized(publishedAt)}</span>
+            <span>{formatDateLocalized(publishedAt, currentLocale)}</span>
           </div>
         </div>
       </article>
@@ -128,7 +162,7 @@ export const ArticleCard = ({
   
   // Vertical card layout
   return (
-    <article className={getCardClasses()}>
+    <article className={getCardClasses()} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Image container */}
       <div className="relative" style={{ height: imageDimensions.height }}>
         <Link href={`/posts/${slug}`} className="block relative h-full">
@@ -142,14 +176,14 @@ export const ArticleCard = ({
             />
           ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-400">No image</span>
+              <span className="text-gray-400">{isRTL ? translations.ar.noImage : translations.en.noImage}</span>
             </div>
           )}
         </Link>
         
         {/* Category tag - displayed outside of the Link */}
         {category && (
-          <div className="absolute bottom-3 left-3 z-10">
+          <div className={`absolute bottom-3 ${isRTL ? 'right-3' : 'left-3'} z-10`}>
             <Link 
               href={`/categories/${category.slug}`}
               className="text-xs font-medium text-white hover:text-amber-300 uppercase tracking-wider bg-black bg-opacity-70 px-2 py-1 rounded-sm"
@@ -161,7 +195,7 @@ export const ArticleCard = ({
       </div>
       
       {/* Content section */}
-      <div className="p-4">
+      <div className={`p-4 ${isRTL ? 'text-right' : 'text-left'}`}>
         <h3 className={getTitleClass()}>
           <Link href={`/posts/${slug}`} className="text-gray-900 hover:text-blue-600 transition-colors">
             {title}
@@ -174,9 +208,9 @@ export const ArticleCard = ({
           </p>
         )}
         
-        <div className="flex justify-between items-center text-xs text-gray-500">
-          <span>{authorName || 'Phoenix Staff'}</span>
-          <span>{formatDateLocalized(publishedAt)}</span>
+        <div className={`flex ${isRTL ? 'flex-row-reverse' : 'flex-row'} justify-between items-center text-xs text-gray-500`}>
+          <span>{authorName || (isRTL ? translations.ar.phoenixStaff : translations.en.phoenixStaff)}</span>
+          <span>{formatDateLocalized(publishedAt, currentLocale)}</span>
         </div>
       </div>
     </article>

@@ -17,15 +17,17 @@ const HeroSection: React.FC<HeroProps> = ({
   breakingStory,
   locale = 'en'
 }) => {
+  const isRTL = locale === 'ar';
+
   // Helper functions to get localized content
   const getTitle = (story: any) => {
     if (!story) return '';
-    return getLocalizedValue(story.translations, locale, 'en', 'title') || '';
+    return getLocalizedValue(story.translations, locale, 'en', 'title' as any) || '';
   };
 
   const getSummary = (story: any) => {
     if (!story) return '';
-    return getLocalizedValue(story.translations, locale, 'en', 'summary') || '';
+    return getLocalizedValue(story.translations, locale, 'en', 'summary' as any) || '';
   };
 
   const getSlug = (story: any) => {
@@ -38,7 +40,7 @@ const HeroSection: React.FC<HeroProps> = ({
 
   const getCategoryName = (story: any) => {
     if (!story?.category?.translations) return '';
-    return getLocalizedValue(story.category.translations, locale, 'en', 'name') || '';
+    return getLocalizedValue(story.category.translations, locale, 'en', 'name' as any) || '';
   };
 
   const getCategorySlug = (story: any) => {
@@ -49,10 +51,41 @@ const HeroSection: React.FC<HeroProps> = ({
     return translation?.slug || '';
   };
 
+  // Text translations
+  const translations = {
+    en: {
+      breaking: 'BREAKING:',
+      readFullStory: 'Read Full Story',
+      liveUpdates: 'Live Updates',
+      breakingNews: 'Breaking News',
+      stayTuned: 'Stay tuned for the latest updates from around the world.',
+      news: 'News'
+    },
+    ar: {
+      breaking: 'عاجل:',
+      readFullStory: 'اقرأ القصة كاملة',
+      liveUpdates: 'تحديثات مباشرة',
+      breakingNews: 'أخبار عاجلة',
+      stayTuned: 'ترقبوا آخر التحديثات من جميع أنحاء العالم.',
+      news: 'أخبار'
+    }
+  };
+
   // If no featured story provided, use a placeholder
   const story = featuredStory || {
-    translations: [{ title: 'Breaking News', summary: 'Stay tuned for the latest updates from around the world.', locale: 'en', slug: '' }],
-    category: { translations: [{ name: 'News', slug: 'news', locale: 'en' }] },
+    translations: [{ 
+      title: isRTL ? translations.ar.breakingNews : translations.en.breakingNews, 
+      summary: isRTL ? translations.ar.stayTuned : translations.en.stayTuned, 
+      locale: isRTL ? 'ar' : 'en', 
+      slug: '' 
+    }],
+    category: { 
+      translations: [{ 
+        name: isRTL ? translations.ar.news : translations.en.news, 
+        slug: 'news', 
+        locale: isRTL ? 'ar' : 'en' 
+      }] 
+    },
     media: []
   };
 
@@ -65,16 +98,16 @@ const HeroSection: React.FC<HeroProps> = ({
 
   // Featured categories for navigation
   const featuredCategories = [
-    { name: 'World', slug: 'world' },
-    { name: 'Politics', slug: 'politics' },
-    { name: 'Business', slug: 'business' },
-    { name: 'Technology', slug: 'technology' },
-    { name: 'Entertainment', slug: 'entertainment' },
-    { name: 'Sports', slug: 'sports' }
+    { name: { en: 'World', ar: 'العالم' }, slug: 'world' },
+    { name: { en: 'Politics', ar: 'السياسة' }, slug: 'politics' },
+    { name: { en: 'Business', ar: 'الأعمال' }, slug: 'business' },
+    { name: { en: 'Technology', ar: 'التكنولوجيا' }, slug: 'technology' },
+    { name: { en: 'Entertainment', ar: 'الترفيه' }, slug: 'entertainment' },
+    { name: { en: 'Sports', ar: 'الرياضة' }, slug: 'sports' }
   ];
 
   return (
-    <section className="relative bg-gray-900 text-white">
+    <section className="relative bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Background Image */}
       <div className="relative h-[500px] md:h-[600px] w-full">
         {imageUrl ? (
@@ -95,8 +128,10 @@ const HeroSection: React.FC<HeroProps> = ({
         {breakingStory && (
           <div className="absolute top-4 left-0 right-0 z-10">
             <div className="container mx-auto px-4">
-              <div className="bg-red-600 px-4 py-2 rounded-md inline-flex items-center">
-                <span className="font-bold mr-2">BREAKING:</span>
+              <div className={`bg-red-600 px-4 py-2 rounded-md inline-flex items-center ${isRTL ? 'justify-end' : 'justify-start'}`}>
+                <span className={`font-bold ${isRTL ? 'ml-2' : 'mr-2'}`}>
+                  {isRTL ? translations.ar.breaking : translations.en.breaking}
+                </span>
                 <Link href={`/posts/${getSlug(breakingStory)}`} className="hover:underline">
                   {getTitle(breakingStory)}
                 </Link>
@@ -106,9 +141,9 @@ const HeroSection: React.FC<HeroProps> = ({
         )}
         
         {/* Hero content */}
-        <div className="absolute bottom-0 left-0 right-0 pb-8 md:pb-12 z-10">
+        <div className={`absolute bottom-0 left-0 right-0 pb-8 md:pb-12 z-10 ${isRTL ? 'text-right' : 'text-left'}`}>
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl">
+            <div className={`max-w-3xl ${isRTL ? 'mr-auto ml-0' : 'ml-0'}`}>
               {categoryName && (
                 <Link 
                   href={`/categories/${categorySlug}`}
@@ -126,12 +161,12 @@ const HeroSection: React.FC<HeroProps> = ({
                 {summary}
               </p>
               
-              <div className="flex flex-wrap gap-3">
+              <div className={`flex flex-wrap gap-3 ${isRTL ? 'justify-end' : 'justify-start'}`}>
                 <Link 
                   href={`/posts/${slug}`} 
                   className="bg-white text-gray-900 hover:bg-gray-200 px-5 py-2 rounded-md font-medium"
                 >
-                  Read Full Story
+                  {isRTL ? translations.ar.readFullStory : translations.en.readFullStory}
                 </Link>
                 
                 {breakingStory && (
@@ -139,7 +174,7 @@ const HeroSection: React.FC<HeroProps> = ({
                     href="/breaking" 
                     className="bg-transparent border border-white text-white hover:bg-white hover:text-gray-900 px-5 py-2 rounded-md font-medium transition-colors"
                   >
-                    Live Updates
+                    {isRTL ? translations.ar.liveUpdates : translations.en.liveUpdates}
                   </Link>
                 )}
               </div>
@@ -151,14 +186,14 @@ const HeroSection: React.FC<HeroProps> = ({
       {/* Featured categories navigation */}
       <div className="bg-gray-800 py-3">
         <div className="container mx-auto px-4">
-          <div className="flex items-center overflow-x-auto scrollbar-hide">
+          <div className={`flex items-center overflow-x-auto scrollbar-hide ${isRTL ? 'justify-end' : 'justify-start'}`}>
             {featuredCategories.map((category) => (
               <Link 
                 key={category.slug}
                 href={`/categories/${category.slug}`}
                 className="text-gray-300 hover:text-white whitespace-nowrap px-4 py-1 text-sm font-medium"
               >
-                {category.name}
+                {isRTL ? category.name.ar : category.name.en}
               </Link>
             ))}
           </div>

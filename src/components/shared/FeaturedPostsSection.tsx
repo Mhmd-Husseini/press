@@ -24,6 +24,25 @@ export const FeaturedPostsSection = ({
     return null;
   }
 
+  const isRTL = locale === 'ar';
+
+  // Text translations
+  const translations = {
+    en: {
+      featuredStories: 'Featured Stories',
+      viewAll: 'View All'
+    },
+    ar: {
+      featuredStories: 'قصص مميزة',
+      viewAll: 'عرض الكل'
+    }
+  };
+
+  // Use translated titles if no specific title is provided
+  const sectionTitle = title === 'Featured Stories' ? 
+    (isRTL ? translations.ar.featuredStories : translations.en.featuredStories) : 
+    title;
+
   // Helper functions to get localized content
   const getPostTitle = (post: PostWithRelations) => {
     return getLocalizedValue(post.translations, locale, 'en', 'title') || '';
@@ -59,21 +78,29 @@ export const FeaturedPostsSection = ({
   const remainingPosts = posts.slice(3);
 
   return (
-    <section className="bg-white py-6 md:py-10">
+    <section className="bg-white py-6 md:py-10" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className={`flex items-center justify-between mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <div className="flex items-center">
-            <div className="w-1 h-6 bg-red-600 mr-3"></div>
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            <div className={`w-1 h-6 bg-red-600 ${isRTL ? 'ml-3' : 'mr-3'}`}></div>
+            <h2 className={`text-2xl font-bold text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
+              {sectionTitle}
+            </h2>
           </div>
           {viewAllLink && (
             <Link 
               href={viewAllLink} 
-              className="text-red-600 hover:text-red-800 text-sm font-medium flex items-center"
+              className={`text-red-600 hover:text-red-800 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
             >
-              View All
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {isRTL ? translations.ar.viewAll : translations.en.viewAll}
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className={`h-4 w-4 ${isRTL ? 'mr-1 rotate-180' : 'ml-1'}`} 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
@@ -99,6 +126,7 @@ export const FeaturedPostsSection = ({
                 featured={true}
                 size="large"
                 priority={true}
+                locale={locale}
               />
             )}
           </div>
@@ -120,12 +148,13 @@ export const FeaturedPostsSection = ({
                 } : undefined}
                 publishedAt={post.publishedAt?.toString() || post.createdAt.toString()}
                 size="medium"
+                locale={locale}
               />
             ))}
           </div>
           
           {/* Horizontal List - Takes up third column */}
-          <div className="lg:col-span-1 border-l border-gray-100 pl-6">
+          <div className={`lg:col-span-1 ${isRTL ? 'border-r' : 'border-l'} border-gray-100 ${isRTL ? 'pr-6' : 'pl-6'}`}>
             <div className="space-y-4">
               {remainingPosts.map((post) => (
                 <ArticleCard
@@ -142,6 +171,7 @@ export const FeaturedPostsSection = ({
                   publishedAt={post.publishedAt?.toString() || post.createdAt.toString()}
                   size="small"
                   variant="horizontal"
+                  locale={locale}
                 />
               ))}
             </div>

@@ -67,11 +67,14 @@ export function getTextFromHtml(html: string): string {
 /**
  * Format a date string to a readable format
  * @param dateString The date string to format
+ * @param locale The locale for date formatting
  * @returns Formatted date string
  */
-export const formatDateLocalized = (dateString: string): string => {
+export const formatDateLocalized = (dateString: string, locale: string = 'en'): string => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-US', {
+  const localeString = locale === 'ar' ? 'ar-AE' : 'en-US';
+  
+  return new Intl.DateTimeFormat(localeString, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
