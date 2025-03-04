@@ -62,4 +62,78 @@ export function getTextFromHtml(html: string): string {
   
   // Return the text content
   return temp.textContent || temp.innerText || '';
-} 
+}
+
+/**
+ * Format a date string to a readable format
+ * @param dateString The date string to format
+ * @returns Formatted date string
+ */
+export const formatDateLocalized = (dateString: string): string => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+};
+
+/**
+ * Truncate text to a specific length and add ellipsis
+ * @param text The text to truncate
+ * @param length The maximum length
+ * @returns Truncated text
+ */
+export const truncateTextWithEllipsis = (text: string, length: number): string => {
+  if (text.length <= length) return text;
+  return text.slice(0, length) + '...';
+};
+
+/**
+ * Generate a random array of items from a larger array
+ * @param array The source array
+ * @param count The number of items to select
+ * @returns Random selection of items
+ */
+export const getRandomItems = <T>(array: T[], count: number): T[] => {
+  if (count >= array.length) return [...array];
+  
+  const result = new Set<T>();
+  const arrayCopy = [...array];
+  
+  while (result.size < count && arrayCopy.length > 0) {
+    const randomIndex = Math.floor(Math.random() * arrayCopy.length);
+    result.add(arrayCopy[randomIndex]);
+    arrayCopy.splice(randomIndex, 1);
+  }
+  
+  return [...result];
+};
+
+/**
+ * Get a localized value from an array of translations
+ * @param translations Array of objects with locale and value
+ * @param locale Current locale
+ * @param fallbackLocale Fallback locale if current not found
+ * @param field The field name to extract
+ * @returns The localized value or undefined
+ */
+export const getLocalizedValue = <T extends { locale: string }>(
+  translations: T[] | undefined,
+  locale: string,
+  fallbackLocale: string = 'en',
+  field: keyof Omit<T, 'locale'> = 'name' as any
+): string | undefined => {
+  if (!translations || translations.length === 0) return undefined;
+  
+  // Try to find the translation in the requested locale
+  const localizedItem = translations.find(t => t.locale === locale);
+  if (localizedItem) return localizedItem[field] as string;
+  
+  // Fall back to the fallback locale
+  const fallbackItem = translations.find(t => t.locale === fallbackLocale);
+  if (fallbackItem) return fallbackItem[field] as string;
+  
+  // If all else fails, return the first available translation
+  return translations[0][field] as string;
+}; 
