@@ -128,7 +128,7 @@ const HeroSection: React.FC<HeroProps> = ({
         {breakingStory && (
           <div className="absolute top-4 left-0 right-0 z-10">
             <div className="container mx-auto px-4">
-              <div className={`bg-red-600 px-4 py-2 rounded-md inline-flex items-center ${isRTL ? 'justify-end' : 'justify-start'}`}>
+              <div className={`bg-red-600 px-4 py-2 rounded-md inline-flex items-center ${isRTL ? 'float-right' : 'float-left'}`}>
                 <span className={`font-bold ${isRTL ? 'ml-2' : 'mr-2'}`}>
                   {isRTL ? translations.ar.breaking : translations.en.breaking}
                 </span>
@@ -141,42 +141,46 @@ const HeroSection: React.FC<HeroProps> = ({
         )}
         
         {/* Hero content */}
-        <div className={`absolute bottom-0 left-0 right-0 pb-8 md:pb-12 z-10 ${isRTL ? 'text-right' : 'text-left'}`}>
+        <div className="absolute bottom-0 left-0 right-0 pb-8 md:pb-12 z-10">
           <div className="container mx-auto px-4">
-            <div className={`max-w-3xl ${isRTL ? 'mr-auto ml-0' : 'ml-0'}`}>
-              {categoryName && (
-                <Link 
-                  href={`/categories/${categorySlug}`}
-                  className="inline-block bg-red-600 text-white text-sm px-3 py-1 rounded-md mb-4 font-medium"
-                >
-                  {categoryName}
-                </Link>
-              )}
-              
-              <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
-                {title}
-              </h1>
-              
-              <p className="text-gray-200 text-lg mb-6 line-clamp-2">
-                {summary}
-              </p>
-              
-              <div className={`flex flex-wrap gap-3 ${isRTL ? 'justify-end' : 'justify-start'}`}>
-                <Link 
-                  href={`/posts/${slug}`} 
-                  className="bg-white text-gray-900 hover:bg-gray-200 px-5 py-2 rounded-md font-medium"
-                >
-                  {isRTL ? translations.ar.readFullStory : translations.en.readFullStory}
-                </Link>
-                
-                {breakingStory && (
+            {/* Ensure proper content alignment for RTL */}
+            <div className={isRTL ? 'text-right' : 'text-left'}>
+              <div className={`max-w-3xl ${isRTL ? 'ml-auto' : 'mr-auto'}`}>
+                {categoryName && (
                   <Link 
-                    href="/breaking" 
-                    className="bg-transparent border border-white text-white hover:bg-white hover:text-gray-900 px-5 py-2 rounded-md font-medium transition-colors"
+                    href={`/categories/${categorySlug}`}
+                    className="inline-block bg-red-600 text-white text-sm px-3 py-1 rounded-md mb-4 font-medium"
                   >
-                    {isRTL ? translations.ar.liveUpdates : translations.en.liveUpdates}
+                    {categoryName}
                   </Link>
                 )}
+                
+                <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+                  {title}
+                </h1>
+                
+                <p className="text-gray-200 text-lg mb-6 line-clamp-2">
+                  {summary}
+                </p>
+                
+                {/* Button container with proper RTL alignment */}
+                <div className={isRTL ? 'text-right' : 'text-left'}>
+                  <Link 
+                    href={`/posts/${slug}`} 
+                    className="inline-block bg-white text-gray-900 hover:bg-gray-200 px-5 py-2 rounded-md font-medium"
+                  >
+                    {isRTL ? translations.ar.readFullStory : translations.en.readFullStory}
+                  </Link>
+                  
+                  {breakingStory && (
+                    <Link 
+                      href="/breaking" 
+                      className={`inline-block ${isRTL ? 'mr-3' : 'ml-3'} bg-transparent border border-white text-white hover:bg-white hover:text-gray-900 px-5 py-2 rounded-md font-medium transition-colors`}
+                    >
+                      {isRTL ? translations.ar.liveUpdates : translations.en.liveUpdates}
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -186,7 +190,7 @@ const HeroSection: React.FC<HeroProps> = ({
       {/* Featured categories navigation */}
       <div className="bg-gray-800 py-3">
         <div className="container mx-auto px-4">
-          <div className={`flex items-center overflow-x-auto scrollbar-hide ${isRTL ? 'justify-end' : 'justify-start'}`}>
+          <div className={`flex items-center overflow-x-auto scrollbar-hide ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
             {featuredCategories.map((category) => (
               <Link 
                 key={category.slug}

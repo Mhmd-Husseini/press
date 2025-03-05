@@ -28,15 +28,13 @@ export async function GET(request: NextRequest) {
 
     // Get posts with the specified filters
     const result = await postService.getAll({
-      status,
+      status: status || undefined,
       locale: locale || undefined,
       categoryId: categoryId || undefined,
       authorId: authorId || undefined,
-      featured,
-      tag: tag || undefined,
-      search: search || undefined,
-      page,
-      limit
+      page: page || undefined,
+      limit: limit || undefined,
+      search: search || undefined
     });
 
     return NextResponse.json(result);

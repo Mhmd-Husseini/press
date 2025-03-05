@@ -77,6 +77,9 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     { key: 'seo_description', value: '' },
     { key: 'seo_keywords', value: '' }
   ]);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [uploadedMedia, setUploadedMedia] = useState<any[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Fetch categories and tags
   useEffect(() => {
@@ -354,6 +357,58 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     }));
   };
 
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setMediaFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  // Remove a file from the list
+  const removeFile = (index: number) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Upload media files
+  const uploadMedia = async () => {
+    if (mediaFiles.length === 0) return;
+    
+    setIsUploading(true);
+    setError(null);
+    
+    try {
+      const formData = new FormData();
+      mediaFiles.forEach(file => {
+        formData.append('files', file);
+      });
+      
+      // If we're editing, add the post ID
+      if (isEdit && post?.id) {
+        formData.append('postId', post.id);
+      }
+      
+      const response = await fetch('/api/admin/media/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload media');
+      }
+      
+      const result = await response.json();
+      setUploadedMedia(result);
+      setMediaFiles([]);
+      
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      setError('Failed to upload media. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
@@ -508,18 +563,131 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
           </div>
         </div>
         
-        <div className="flex items-center">
-          <input
-            id="featured"
-            name="featured"
-            type="checkbox"
-            checked={formData.featured}
-            onChange={handleChangeFeatured}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
-            Featured Post
-          </label>
+        {/* Featured Post */}
+        <div className="mb-6">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="featured"
+              checked={formData.featured}
+              onChange={handleChangeFeatured}
+              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
+              Featured Post (will appear in featured sections)
+            </label>
+          </div>
+        </div>
+
+        {/* Media Upload Section */}
+        <div className="mb-6 border border-gray-200 rounded-md p-4">
+          <h3 className="text-lg font-medium mb-3">Post Media</h3>
+          <p className="text-sm text-gray-500 mb-4">
+            Upload images for this post. The first image will be used as the featured image.
+          </p>
+
+          {/* Display existing media if editing */}
+          {isEdit && post?.media && post.media.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium mb-2">Current Media</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {post.media.map((item: any) => (
+                  <div key={item.id} className="relative group">
+                    <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
+                      <img 
+                        src={item.url} 
+                        alt={item.altText || 'Post media'} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <button 
+                        type="button"
+                        className="bg-red-600 text-white p-1 rounded-full"
+                        onClick={() => {/* TODO: Add delete functionality */}}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* File input */}
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Add New Media
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-medium
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+              multiple
+            />
+          </div>
+
+          {/* Selected files preview */}
+          {mediaFiles.length > 0 && (
+            <div className="mb-3">
+              <h4 className="text-sm font-medium mb-2">Selected Files</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {mediaFiles.map((file, index) => (
+                  <div key={index} className="relative group">
+                    <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
+                      <img 
+                        src={URL.createObjectURL(file)} 
+                        alt={file.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <button 
+                        type="button"
+                        className="bg-red-600 text-white p-1 rounded-full"
+                        onClick={() => removeFile(index)}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Upload button */}
+          {mediaFiles.length > 0 && (
+            <button
+              type="button"
+              onClick={uploadMedia}
+              disabled={isUploading}
+              className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+            >
+              {isUploading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Uploading...
+                </>
+              ) : (
+                'Upload Files'
+              )}
+            </button>
+          )}
         </div>
       </div>
       

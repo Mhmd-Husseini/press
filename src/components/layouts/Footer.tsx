@@ -31,16 +31,6 @@ export const Footer = () => {
         { name: { en: 'Health', ar: 'الصحة' }, slug: 'health' },
       ]
     },
-    regions: {
-      title: { en: 'Regions', ar: 'المناطق' },
-      links: [
-        { name: { en: 'North America', ar: 'أمريكا الشمالية' }, slug: 'north-america' },
-        { name: { en: 'Europe', ar: 'أوروبا' }, slug: 'europe' },
-        { name: { en: 'Middle East', ar: 'الشرق الأوسط' }, slug: 'middle-east' },
-        { name: { en: 'Asia', ar: 'آسيا' }, slug: 'asia' },
-        { name: { en: 'Africa', ar: 'أفريقيا' }, slug: 'africa' },
-      ]
-    },
     company: {
       title: { en: 'Company', ar: 'الشركة' },
       links: [
@@ -160,19 +150,6 @@ export const Footer = () => {
               {footerData.categories.links.map((link) => (
                 <li key={link.slug}>
                   <Link href={`/categories/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
-                    {isRTL ? link.name.ar : link.name.en}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-            <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.regions.title.ar : footerData.regions.title.en}</h3>
-            <ul className="space-y-2">
-              {footerData.regions.links.map((link) => (
-                <li key={link.slug}>
-                  <Link href={`/regions/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
                     {isRTL ? link.name.ar : link.name.en}
                   </Link>
                 </li>
