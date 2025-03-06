@@ -4,11 +4,15 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { setLanguage } from '@/app/actions';
+import { useCategories } from '@/hooks/useCategories';
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentLocale, setCurrentLocale] = useState('en');
   const [currentDate, setCurrentDate] = useState('');
+  
+  // Fetch categories from the API using our custom hook
+  const { categories, loading, error } = useCategories(currentLocale);
 
   useEffect(() => {
     // Get current locale from cookie
@@ -48,16 +52,11 @@ export const Header = () => {
     window.location.reload();
   };
 
-  // Localized navigation categories
-  const categories = [
+  // Fallback categories in case API fails or while loading
+  const fallbackCategories = [
     { name: { en: 'World', ar: 'العالم' }, slug: 'world' },
     { name: { en: 'Politics', ar: 'السياسة' }, slug: 'politics' },
     { name: { en: 'Business', ar: 'الأعمال' }, slug: 'business' },
-    { name: { en: 'Technology', ar: 'التكنولوجيا' }, slug: 'technology' },
-    { name: { en: 'Health', ar: 'الصحة' }, slug: 'health' },
-    { name: { en: 'Science', ar: 'العلوم' }, slug: 'science' },
-    { name: { en: 'Sports', ar: 'الرياضة' }, slug: 'sports' },
-    { name: { en: 'Entertainment', ar: 'الترفيه' }, slug: 'entertainment' },
   ];
 
   const toggleMobileMenu = () => {
@@ -65,6 +64,9 @@ export const Header = () => {
   };
 
   const isRTL = currentLocale === 'ar';
+  
+  // Use database categories or fallback if loading/error
+  const displayCategories = categories.length > 0 ? categories : fallbackCategories;
 
   return (
     <header className="bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -144,16 +146,28 @@ export const Header = () => {
         <div className="container mx-auto px-4">
           <div className="hidden md:flex items-center justify-between h-12">
             <ul className={`flex ${isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'}`}>
-              {categories.map((category) => (
-                <li key={category.slug}>
-                  <Link
-                    href={`/categories/${category.slug}`}
-                    className="text-gray-300 hover:text-white transition-colors text-sm uppercase font-medium"
-                  >
-                    {isRTL ? category.name.ar : category.name.en}
-                  </Link>
-                </li>
-              ))}
+              {loading ? (
+                // Show skeleton loaders while categories are loading
+                <>
+                  {[1, 2, 3].map((i) => (
+                    <li key={i} className="animate-pulse">
+                      <div className="h-4 w-16 bg-gray-700 rounded"></div>
+                    </li>
+                  ))}
+                </>
+              ) : (
+                // Show actual categories once loaded
+                displayCategories.map((category) => (
+                  <li key={category.slug}>
+                    <Link
+                      href={`/categories/${category.slug}`}
+                      className="hover:text-primary-400 transition-colors"
+                    >
+                      {isRTL ? category.name.ar : category.name.en}
+                    </Link>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
         </div>
@@ -194,16 +208,29 @@ export const Header = () => {
             </div>
             {/* Categories */}
             <ul className={`space-y-3 pb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
-              {categories.map((category) => (
-                <li key={category.slug}>
-                  <Link
-                    href={`/categories/${category.slug}`}
-                    className="text-gray-300 hover:text-white transition-colors text-sm uppercase font-medium"
-                  >
-                    {isRTL ? category.name.ar : category.name.en}
-                  </Link>
-                </li>
-              ))}
+              {loading ? (
+                // Show skeleton loaders while categories are loading
+                <>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <li key={i} className="animate-pulse">
+                      <div className="h-4 w-24 bg-gray-700 rounded"></div>
+                    </li>
+                  ))}
+                </>
+              ) : (
+                // Show actual categories once loaded
+                displayCategories.map((category) => (
+                  <li key={category.slug}>
+                    <Link
+                      href={`/categories/${category.slug}`}
+                      className="text-gray-300 hover:text-white transition-colors"
+                      onClick={toggleMobileMenu}
+                    >
+                      {isRTL ? category.name.ar : category.name.en}
+                    </Link>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
         </div>

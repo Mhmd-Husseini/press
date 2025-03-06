@@ -3,9 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useCategories } from '@/hooks/useCategories';
 
 export const Footer = () => {
   const [currentLocale, setCurrentLocale] = useState('en');
+  
+  // Fetch categories from the API using our custom hook
+  const { categories, loading, error } = useCategories(currentLocale);
   
   useEffect(() => {
     // Get current locale from cookie
@@ -19,17 +23,23 @@ export const Footer = () => {
 
   const isRTL = currentLocale === 'ar';
 
+  // Fallback categories in case API fails
+  const fallbackCategories = [
+    { name: { en: 'World', ar: 'العالم' }, slug: 'world' },
+    { name: { en: 'Politics', ar: 'السياسة' }, slug: 'politics' },
+    { name: { en: 'Business', ar: 'الأعمال' }, slug: 'business' },
+    { name: { en: 'Technology', ar: 'التكنولوجيا' }, slug: 'technology' },
+    { name: { en: 'Health', ar: 'الصحة' }, slug: 'health' },
+  ];
+
+  // Use database categories or fallback if loading/error
+  const displayCategories = categories.length > 0 ? categories : fallbackCategories;
+
   // Localized footer data
   const footerData = {
     categories: {
       title: { en: 'Categories', ar: 'الفئات' },
-      links: [
-        { name: { en: 'World', ar: 'العالم' }, slug: 'world' },
-        { name: { en: 'Politics', ar: 'السياسة' }, slug: 'politics' },
-        { name: { en: 'Business', ar: 'الأعمال' }, slug: 'business' },
-        { name: { en: 'Technology', ar: 'التكنولوجيا' }, slug: 'technology' },
-        { name: { en: 'Health', ar: 'الصحة' }, slug: 'health' },
-      ]
+      links: displayCategories
     },
     company: {
       title: { en: 'Company', ar: 'الشركة' },
@@ -99,7 +109,7 @@ export const Footer = () => {
     <footer className="bg-gray-900 text-white pt-12 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Logo & About */}
+          {/* Logo & About - Takes 2 columns on large screens */}
           <div className="lg:col-span-2">
             <div className="flex items-center">
               <div className={`relative h-12 w-12 ${isRTL ? 'ml-3' : 'mr-3'} bg-gray-800 p-2 rounded`}>
@@ -143,20 +153,33 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Footer Links */}
+          {/* Categories Column */}
           <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
             <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.categories.title.ar : footerData.categories.title.en}</h3>
             <ul className="space-y-2">
-              {footerData.categories.links.map((link) => (
-                <li key={link.slug}>
-                  <Link href={`/categories/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
-                    {isRTL ? link.name.ar : link.name.en}
-                  </Link>
-                </li>
-              ))}
+              {loading ? (
+                // Show skeleton loaders while categories are loading
+                <>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <li key={i} className="animate-pulse">
+                      <div className="h-4 w-20 bg-gray-700 rounded"></div>
+                    </li>
+                  ))}
+                </>
+              ) : (
+                // Show actual categories once loaded
+                footerData.categories.links.map((link) => (
+                  <li key={link.slug}>
+                    <Link href={`/categories/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
+                      {isRTL ? link.name.ar : link.name.en}
+                    </Link>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
 
+          {/* Company Column */}
           <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
             <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.company.title.ar : footerData.company.title.en}</h3>
             <ul className="space-y-2">
@@ -168,8 +191,11 @@ export const Footer = () => {
                 </li>
               ))}
             </ul>
+          </div>
 
-            <h3 className="text-white font-semibold text-lg mt-6 mb-4">{isRTL ? footerData.legal.title.ar : footerData.legal.title.en}</h3>
+          {/* Legal Column */}
+          <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
+            <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.legal.title.ar : footerData.legal.title.en}</h3>
             <ul className="space-y-2">
               {footerData.legal.links.map((link) => (
                 <li key={link.slug}>
