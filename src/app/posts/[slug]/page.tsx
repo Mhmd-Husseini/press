@@ -57,8 +57,12 @@ function PostNotFound({ locale = 'en' }: { locale?: string }) {
 }
 
 // Safely fetch post without directly accessing params.slug
-async function fetchPost(slug: string, locale: string) {
+async function fetchPost(slug: string) {
   try {
+    // Get the current locale from cookies
+    const cookieStore = await cookies();
+    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+    
     console.log(`Attempting to fetch post with slug: "${slug}" for locale: "${locale}"`);
     
     // Try to decode the slug if it's URL encoded
@@ -192,9 +196,9 @@ async function fetchPost(slug: string, locale: string) {
 
 export default async function PostPage(props: PageProps) {
   try {
-    // First, get cookies
+    // First, await cookies to get the locale before accessing props.params.slug
     const cookieStore = await cookies();
-    const locale = cookieStore.get('locale')?.value || 'en';
+    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
     const isRTL = locale === 'ar';
     
     // IMPORTANT: In Next.js 15, await the params object before accessing its properties
@@ -204,7 +208,7 @@ export default async function PostPage(props: PageProps) {
     console.log(`Processing request for post with slug: "${slug}"`);
     
     // Fetch post data
-    const result = await fetchPost(slug, locale);
+    const result = await fetchPost(slug);
     
     if (!result) {
       console.log(`Returning 404 for slug: "${slug}"`);
