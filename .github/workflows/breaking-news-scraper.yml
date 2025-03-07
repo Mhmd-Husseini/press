@@ -1,0 +1,15 @@
+ name: Breaking News Scraper
+on:
+  schedule:
+    - cron: '0 */2 * * *'    # Runs every 2 hours minutes
+  workflow_dispatch:  # Allows manual triggering for testing
+
+jobs:
+  scrape-breaking-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch breaking news - English
+        run: curl -X GET "https://your-vercel-project.vercel.app/api/scraper/breaking-news?locale=en"
+        
+      - name: Fetch breaking news - Arabic
+        run: curl -X GET "https://your-vercel-project.vercel.app/api/scraper/breaking-news?locale=ar"

@@ -5,6 +5,69 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { setLanguage } from '@/app/actions';
 import { useCategories } from '@/hooks/useCategories';
+import { BreakingNewsService } from '@/lib/services/breakingNews.service';
+
+// Define the BreakingNews type
+interface BreakingNews {
+  id: string;
+  text: string;
+  url?: string | null;
+  timestamp: Date;
+  locale: string;
+}
+
+// Custom hook to fetch breaking news
+function useBreakingNews(locale: string) {
+  const [news, setNews] = useState<BreakingNews[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchBreakingNews = async () => {
+      try {
+        setLoading(true);
+        // Update the endpoint to match where breaking news is being stored
+        const response = await fetch(`/api/breaking-news?locale=${locale}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch breaking news');
+        }
+        const data = await response.json();
+        console.log(`Breaking news data received for ${locale}:`, data);
+        setNews(data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching breaking news:', err);
+        setError(err instanceof Error ? err : new Error('Unknown error'));
+        setLoading(false);
+      }
+    };
+
+    fetchBreakingNews();
+
+    // Set up a timer to rotate through breaking news items every 5 seconds (reduced from 10 for better testing)
+    const interval = setInterval(() => {
+      if (news.length > 0) {
+        setCurrentNewsIndex((prevIndex) => {
+          const nextIndex = (prevIndex + 1) % news.length;
+          console.log(`Changing news index from ${prevIndex} to ${nextIndex}`); // Debug log
+          return nextIndex;
+        });
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [locale, news.length]); // Add news.length as dependency
+
+  // Return the current news item, loading state, and error
+  return {
+    currentNews: news.length > 0 ? news[currentNewsIndex] : null,
+    allNews: news,
+    loading,
+    error,
+    currentNewsIndex
+  };
+}
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,6 +76,9 @@ export const Header = () => {
   
   // Fetch categories from the API using our custom hook
   const { categories, loading, error } = useCategories(currentLocale);
+
+  // Breaking news hook
+  const { currentNews, allNews, loading: newsLoading, currentNewsIndex } = useBreakingNews(currentLocale);
 
   useEffect(() => {
     // Get current locale from cookie
@@ -174,17 +240,41 @@ export const Header = () => {
       </nav>
 
       {/* Breaking News Bar */}
-      <div className="bg-red-600 py-2">
+      <div className="bg-red-600 py-2 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="flex items-center">
             <span className={`text-white font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-red-700 rounded`}>
               {isRTL ? 'عاجل' : 'Breaking'}
             </span>
-            <span className={`text-white text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
-              {isRTL 
-                ? 'الرئيس يعلن عن خطة جديدة للإصلاح الاقتصادي تشمل استثمارات بقيمة 50 مليار دولار' 
-                : 'President announces new economic reform plan with $50 billion investment package'}
-            </span>
+            
+            {newsLoading ? (
+              // Loading state
+              <div className="animate-pulse h-4 w-3/4 bg-red-500 rounded"></div>
+            ) : allNews.length > 0 ? (
+              // Simple news ticker without links
+              <div className="overflow-hidden relative w-full">
+                <div className="news-ticker-wrap">
+                  {allNews.map((item, index) => (
+                    <div 
+                      key={item.id}
+                      className={`news-ticker-item ${index === currentNewsIndex ? 'active' : ''}`}
+                      style={{ opacity: index === currentNewsIndex ? 1 : 0 }}
+                    >
+                      <span className={`text-white text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                        {item.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              // Fallback when no news is available
+              <span className={`text-white text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                {isRTL 
+                  ? 'الرئيس يعلن عن خطة جديدة للإصلاح الاقتصادي تشمل استثمارات بقيمة 50 مليار دولار' 
+                  : 'President announces new economic reform plan with $50 billion investment package'}
+              </span>
+            )}
           </div>
         </div>
       </div>

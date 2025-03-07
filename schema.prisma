@@ -229,4 +229,15 @@ model AuditLog {
   createdAt  DateTime @default(now())
   ipAddress  String?
   userAgent  String?
+}
+
+/// BREAKING NEWS MODEL ///
+model BreakingNews {
+  id        String   @id @default(uuid())
+  text      String
+  url       String?
+  timestamp DateTime @default(now())
+  locale    String   // 'en' or 'ar'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 } 

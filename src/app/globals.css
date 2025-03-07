@@ -74,3 +74,28 @@ html[dir="rtl"] textarea {
   text-align: right;
   direction: rtl;
 }
+
+/* News Ticker Styles - Updated for better visibility */
+.news-ticker-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  min-height: 1.5rem; /* Add minimum height to ensure visibility */
+}
+
+.news-ticker-item {
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  left: 0;
+  right: 0;
+}
+
+.news-ticker-item.active {
+  opacity: 1;
+  position: relative; /* Change to relative when active */
+}

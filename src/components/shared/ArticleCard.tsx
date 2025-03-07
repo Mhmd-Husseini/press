@@ -21,6 +21,7 @@ interface ArticleCardProps {
   size?: 'small' | 'medium' | 'large';
   variant?: 'vertical' | 'horizontal';
   priority?: boolean;
+  locale?: string;
 }
 
 export const ArticleCard = ({
@@ -35,7 +36,8 @@ export const ArticleCard = ({
   featured = false,
   size = 'medium',
   variant = 'vertical',
-  priority = false
+  priority = false,
+  locale = 'en',
 }: ArticleCardProps) => {
   // Helper function for image dimensions based on size and variant
   const getImageDimensions = () => {
@@ -78,12 +80,17 @@ export const ArticleCard = ({
     }
   };
 
+  const cardClasses = getCardClasses();
+  const titleClass = getTitleClass();
   const imageDimensions = getImageDimensions();
   const defaultImageUrl = '/images/default-post-image.svg';
   
+  // Determine if content should be RTL based on locale
+  const isRTL = locale === 'ar';
+
   if (variant === 'horizontal') {
     return (
-      <article className={getCardClasses()}>
+      <article className={cardClasses}>
         {/* Image on the left */}
         <div className="flex-shrink-0" style={{ width: imageDimensions.width }}>
           <Link href={`/posts/${slug}`} className="block relative" style={{ height: imageDimensions.height }}>
@@ -99,7 +106,7 @@ export const ArticleCard = ({
         
         {/* Content on the right */}
         <div className="flex-grow p-3">
-          <h3 className={getTitleClass()}>
+          <h3 className={titleClass}>
             <Link href={`/posts/${slug}`} className="text-gray-900 hover:text-blue-600 transition-colors">
               {title}
             </Link>
@@ -114,7 +121,9 @@ export const ArticleCard = ({
                 {category.name}
               </Link>
             )}
-            <span>{formatDateLocalized(publishedAt)}</span>
+            <span className={`text-gray-500 text-xs ${isRTL ? 'text-right' : 'text-left'}`}>
+              {formatDateLocalized(publishedAt, locale)}
+            </span>
           </div>
         </div>
       </article>
@@ -123,7 +132,7 @@ export const ArticleCard = ({
   
   // Vertical card layout
   return (
-    <article className={getCardClasses()}>
+    <article className={cardClasses}>
       {/* Image container */}
       <div className="relative" style={{ height: imageDimensions.height }}>
         <Link href={`/posts/${slug}`} className="block relative h-full">
@@ -151,7 +160,7 @@ export const ArticleCard = ({
       
       {/* Content section */}
       <div className="p-4">
-        <h3 className={getTitleClass()}>
+        <h3 className={titleClass}>
           <Link href={`/posts/${slug}`} className="text-gray-900 hover:text-blue-600 transition-colors">
             {title}
           </Link>
@@ -165,7 +174,9 @@ export const ArticleCard = ({
         
         <div className="flex justify-between items-center text-xs text-gray-500">
           <span>{authorName || 'Phoenix Staff'}</span>
-          <span>{formatDateLocalized(publishedAt)}</span>
+          <span className={`text-gray-500 text-xs ${isRTL ? 'text-right' : 'text-left'}`}>
+            {formatDateLocalized(publishedAt, locale)}
+          </span>
         </div>
       </div>
     </article>
