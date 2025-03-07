@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getLocalizedValue } from '@/lib/utils';
+import { getLocalizedValue, formatDateLocalized } from '@/lib/utils';
+import { useCategories } from '@/hooks/useCategories';
 
 // Define the props interface for the HeroSection
 export interface HeroProps {
@@ -17,6 +18,12 @@ const HeroSection: React.FC<HeroProps> = ({
   breakingStory,
   locale = 'en'
 }) => {
+  // Fetch categories from the database
+  const { categories, loading: loadingCategories } = useCategories(locale);
+  
+  // Filter to show only featured or main categories (limit to 5-6)
+  const featuredCategories = categories.slice(0, 6);
+  
   const isRTL = locale === 'ar';
 
   // Helper functions to get localized content
@@ -55,7 +62,7 @@ const HeroSection: React.FC<HeroProps> = ({
   const translations = {
     en: {
       breaking: 'BREAKING:',
-      readFullStory: 'Read Full Story',
+      readFullStory: 'View All News 📰',
       liveUpdates: 'Live Updates',
       breakingNews: 'Breaking News',
       stayTuned: 'Stay tuned for the latest updates from around the world.',
@@ -63,7 +70,7 @@ const HeroSection: React.FC<HeroProps> = ({
     },
     ar: {
       breaking: 'عاجل:',
-      readFullStory: 'اقرأ القصة كاملة',
+      readFullStory: ' 📰 عرض جميع الأخبار',
       liveUpdates: 'تحديثات مباشرة',
       breakingNews: 'أخبار عاجلة',
       stayTuned: 'ترقبوا آخر التحديثات من جميع أنحاء العالم.',
@@ -95,16 +102,6 @@ const HeroSection: React.FC<HeroProps> = ({
   const slug = getSlug(story);
   const categoryName = getCategoryName(story);
   const categorySlug = getCategorySlug(story);
-
-  // Featured categories for navigation
-  const featuredCategories = [
-    { name: { en: 'World', ar: 'العالم' }, slug: 'world' },
-    { name: { en: 'Politics', ar: 'السياسة' }, slug: 'politics' },
-    { name: { en: 'Business', ar: 'الأعمال' }, slug: 'business' },
-    { name: { en: 'Technology', ar: 'التكنولوجيا' }, slug: 'technology' },
-    { name: { en: 'Entertainment', ar: 'الترفيه' }, slug: 'entertainment' },
-    { name: { en: 'Sports', ar: 'الرياضة' }, slug: 'sports' }
-  ];
 
   return (
     <section className="relative bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -191,15 +188,25 @@ const HeroSection: React.FC<HeroProps> = ({
       <div className="bg-gray-800 py-3">
         <div className="container mx-auto px-4">
           <div className={`flex items-center overflow-x-auto scrollbar-hide ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
-            {featuredCategories.map((category) => (
-              <Link 
-                key={category.slug}
-                href={`/categories/${category.slug}`}
-                className="text-gray-300 hover:text-white whitespace-nowrap px-4 py-1 text-sm font-medium"
-              >
-                {isRTL ? category.name.ar : category.name.en}
-              </Link>
-            ))}
+            {loadingCategories ? (
+              // Show skeleton loaders while categories are loading
+              <>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="animate-pulse bg-gray-700 h-6 w-20 mx-2 rounded"></div>
+                ))}
+              </>
+            ) : (
+              // Show the categories once loaded
+              featuredCategories.map((category) => (
+                <Link 
+                  key={category.id}
+                  href={`/categories/${category.slug}`}
+                  className="text-gray-300 hover:text-white whitespace-nowrap px-4 py-1 text-sm font-medium"
+                >
+                  {isRTL ? category.name.ar : category.name.en}
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </div>

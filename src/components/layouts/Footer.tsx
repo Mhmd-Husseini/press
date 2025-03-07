@@ -46,7 +46,7 @@ export const Footer = () => {
       links: [
         { name: { en: 'About Us', ar: 'من نحن' }, slug: 'about' },
         { name: { en: 'Contact', ar: 'اتصل بنا' }, slug: 'contact' },
-        { name: { en: 'Careers', ar: 'وظائف' }, slug: 'careers' },
+        { name: { en: 'Careers', ar: 'الوظائف' }, slug: 'career' },
       ]
     },
     legal: {
