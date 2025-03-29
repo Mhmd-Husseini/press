@@ -1,22 +1,25 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getLocalizedValue, formatDateLocalized } from '@/lib/utils';
 import { useCategories } from '@/hooks/useCategories';
+import { getImageUrl, getImageAlt } from '@/lib/imageUtils';
 
 // Define the props interface for the HeroSection
 export interface HeroProps {
   featuredStory: any;
   breakingStory?: any;
   locale?: string;
+  featuredPosts?: any[]; // Add featured posts prop
 }
 
 const HeroSection: React.FC<HeroProps> = ({ 
   featuredStory,
   breakingStory,
-  locale = 'en'
+  locale = 'en',
+  featuredPosts = [] // Default to empty array
 }) => {
   // Fetch categories from the database
   const { categories, loading: loadingCategories } = useCategories(locale);
@@ -25,6 +28,41 @@ const HeroSection: React.FC<HeroProps> = ({
   const featuredCategories = categories.slice(0, 6);
   
   const isRTL = locale === 'ar';
+
+  // Use featured posts if available, otherwise use the single featuredStory
+  const slidePosts = featuredPosts.length > 0 ? 
+    featuredPosts.slice(0, 6) : // Show latest 6 featured posts
+    (featuredStory ? [featuredStory] : []);
+
+  // State for the slider
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = slidePosts.length;
+
+  // Function to advance to the next slide
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  }, [totalSlides]);
+
+  // Function to go to the previous slide
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  }, [totalSlides]);
+
+  // Function to go to a specific slide
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  // Set up auto-advancing timer (15 seconds)
+  useEffect(() => {
+    if (totalSlides <= 1) return; // Don't auto-advance if there's only one slide
+
+    const timer = setInterval(() => {
+      nextSlide();
+    }, 15000);
+
+    return () => clearInterval(timer); // Cleanup on unmount
+  }, [nextSlide, totalSlides]);
 
   // Helper functions to get localized content
   const getTitle = (story: any) => {
@@ -66,7 +104,9 @@ const HeroSection: React.FC<HeroProps> = ({
       liveUpdates: 'Live Updates',
       breakingNews: 'Breaking News',
       stayTuned: 'Stay tuned for the latest updates from around the world.',
-      news: 'News'
+      news: 'News',
+      next: 'Next',
+      previous: 'Previous'
     },
     ar: {
       breaking: 'عاجل:',
@@ -74,12 +114,14 @@ const HeroSection: React.FC<HeroProps> = ({
       liveUpdates: 'تحديثات مباشرة',
       breakingNews: 'أخبار عاجلة',
       stayTuned: 'ترقبوا آخر التحديثات من جميع أنحاء العالم.',
-      news: 'أخبار'
+      news: 'أخبار',
+      next: 'التالي',
+      previous: 'السابق'
     }
   };
 
-  // If no featured story provided, use a placeholder
-  const story = featuredStory || {
+  // If no slides are available, use a placeholder
+  const story = slidePosts[currentSlide] || {
     translations: [{ 
       title: isRTL ? translations.ar.breakingNews : translations.en.breakingNews, 
       summary: isRTL ? translations.ar.stayTuned : translations.en.stayTuned, 
@@ -107,19 +149,49 @@ const HeroSection: React.FC<HeroProps> = ({
     <section className="relative bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Background Image */}
       <div className="relative h-[500px] md:h-[600px] w-full">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={title}
-            fill
-            priority
-            className="object-cover opacity-50"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900"></div>
-        )}
+        {/* Image for current slide with fade transition */}
+        <div className="absolute inset-0 transition-opacity duration-500">
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={getImageAlt(story.media, title)}
+              fill
+              priority
+              className="object-cover w-full h-full"
+              sizes="100vw"
+              style={{ objectPosition: 'center' }}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gray-800"></div>
+          )}
+        </div>
+        
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"></div>
+        
+        {/* Navigation arrows for the slider */}
+        {totalSlides > 1 && (
+          <>
+            <button 
+              onClick={prevSlide}
+              className={`absolute z-20 top-1/2 ${isRTL ? 'right-4' : 'left-4'} -translate-y-1/2 bg-black/30 p-2 rounded-full hover:bg-black/50 transition-colors focus:outline-none`}
+              aria-label={isRTL ? translations.ar.previous : translations.en.previous}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${isRTL ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button 
+              onClick={nextSlide}
+              className={`absolute z-20 top-1/2 ${isRTL ? 'left-4' : 'right-4'} -translate-y-1/2 bg-black/30 p-2 rounded-full hover:bg-black/50 transition-colors focus:outline-none`}
+              aria-label={isRTL ? translations.ar.next : translations.en.next}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${isRTL ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
         
         {/* Breaking news alert on top */}
         {breakingStory && (
@@ -180,6 +252,22 @@ const HeroSection: React.FC<HeroProps> = ({
                 </div>
               </div>
             </div>
+            
+            {/* Slide indicators */}
+            {totalSlides > 1 && (
+              <div className="flex justify-center mt-6">
+                {slidePosts.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`h-2 w-2 mx-1 rounded-full ${
+                      currentSlide === index ? 'bg-white' : 'bg-white/50'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

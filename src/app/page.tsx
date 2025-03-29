@@ -1,7 +1,6 @@
 import React from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import HeroSection from '@/components/shared/HeroSection';
-import FeaturedPostsSection from '@/components/shared/FeaturedPostsSection';
 import LatestPostsSection from '@/components/shared/LatestPostsSection';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
@@ -84,7 +83,7 @@ export default async function Home() {
           }
         }
       },
-      take: 3
+      take: 20
     });
 
     // Get breaking news (most recent published posts marked as breaking)
@@ -120,17 +119,14 @@ export default async function Home() {
 
     return (
       <MainLayout>
-        <HeroSection featuredStory={featuredStory} breakingStory={breakingStory} locale={locale} />
+        <HeroSection 
+          featuredStory={featuredStory} 
+          breakingStory={breakingStory} 
+          locale={locale} 
+          featuredPosts={featuredPosts}
+        />
         
-        <div className="space-y-6 md:space-y-0 md:pb-6">
-          {/* Featured Stories Section */}
-          <FeaturedPostsSection 
-            posts={featuredPosts as any[]} 
-            locale={locale}
-            title="Featured Stories"
-            viewAllLink="/featured" 
-          />
-          
+        <div className="space-y-6 md:space-y-0 md:pb-6">          
           {/* Latest News Section */}
           <LatestPostsSection 
             posts={latestPosts as any[]} 

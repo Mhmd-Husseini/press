@@ -180,7 +180,8 @@ export default async function CategoryPage(props: PageProps) {
                           src={post.imageUrl}
                           alt={post.title}
                           fill
-                          style={{objectFit: 'cover'}}
+                          className="object-cover w-full h-full"
+                          style={{ objectPosition: 'center' }}
                         />
                       </div>
                     </Link>
@@ -232,4 +233,4 @@ export default async function CategoryPage(props: PageProps) {
     console.error('Error rendering category page:', error);
     return notFound();
   }
-} 
+}

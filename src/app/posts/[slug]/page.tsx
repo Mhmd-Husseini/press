@@ -255,7 +255,8 @@ export default async function PostPage(props: PageProps) {
                 src={imageUrl}
                 alt={postTranslation.title}
                 fill
-                style={{objectFit: 'cover'}}
+                className="object-cover w-full h-full"
+                style={{ objectPosition: 'center' }}
                 priority
               />
             </div>

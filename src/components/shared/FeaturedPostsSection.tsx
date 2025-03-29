@@ -117,6 +117,7 @@ export const FeaturedPostsSection = ({
                 summary={getPostSummary(mainFeaturedPost)}
                 slug={getPostSlug(mainFeaturedPost)}
                 imageUrl={mainFeaturedPost.media && mainFeaturedPost.media[0]?.url}
+                media={mainFeaturedPost.media}
                 authorName={mainFeaturedPost.authorName || getCategoryName(mainFeaturedPost)}
                 category={mainFeaturedPost.category ? {
                   name: getCategoryName(mainFeaturedPost),
@@ -141,6 +142,7 @@ export const FeaturedPostsSection = ({
                 summary={getPostSummary(post)}
                 slug={getPostSlug(post)}
                 imageUrl={post.media && post.media[0]?.url}
+                media={post.media}
                 authorName={post.authorName || getCategoryName(post)}
                 category={post.category ? {
                   name: getCategoryName(post),
@@ -163,6 +165,7 @@ export const FeaturedPostsSection = ({
                   title={getPostTitle(post)}
                   slug={getPostSlug(post)}
                   imageUrl={post.media && post.media[0]?.url}
+                  media={post.media}
                   authorName={post.authorName || getCategoryName(post)}
                   category={post.category ? {
                     name: getCategoryName(post),

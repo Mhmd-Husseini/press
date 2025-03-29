@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AuthService } from '@/lib/services/auth.service';
 import prisma from '@/lib/prisma';
 import { MediaType } from '@prisma/client';
+import { uploadToS3 } from '@/lib/s3';
 
 const authService = new AuthService();
 
@@ -12,9 +13,6 @@ export async function POST(request: NextRequest) {
     if (!canUploadMedia) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
-
-    // For this example, we'll simulate file upload
-    // In a real implementation, you would use a file storage service like AWS S3, Cloudinary, etc.
     
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];
@@ -24,16 +22,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 });
     }
     
+    console.log(`Processing ${files.length} files. PostId: ${postId || 'none'}`);
+    
     // Process each file
     const mediaItems = await Promise.all(files.map(async (file) => {
-      // In a real implementation, you would upload the file to a storage service
-      // and get back a URL. For this example, we'll create a fake URL.
       const fileName = file.name.replace(/\s+/g, '-').toLowerCase();
       const fileType = file.type;
       const fileSize = file.size;
       
       // Determine media type based on file MIME type
-      let mediaType = MediaType.IMAGE;
+      let mediaType: MediaType = MediaType.IMAGE;
       if (fileType.startsWith('video/')) {
         mediaType = MediaType.VIDEO;
       } else if (fileType.startsWith('audio/')) {
@@ -42,25 +40,46 @@ export async function POST(request: NextRequest) {
         mediaType = MediaType.DOCUMENT;
       }
       
-      // Create a fake URL for demonstration purposes
-      // In a real implementation, this would be the URL returned by your storage service
-      const fakeUrl = `/uploads/${Date.now()}-${fileName}`;
-      
-      // Create media record in database
-      const media = await prisma.media.create({
-        data: {
-          url: fakeUrl,
-          type: mediaType,
-          title: fileName,
-          altText: fileName,
-          size: fileSize,
-          mimeType: fileType,
-          postId: postId || undefined
-        }
+      try {
+        // Upload the file to AWS S3
+        const s3Url = await uploadToS3(file, 'posts');
+        
+        // Create media record in database
+        const media = await prisma.media.create({
+          data: {
+            url: s3Url,
+            type: mediaType,
+            title: fileName,
+            altText: fileName,
+            size: fileSize,
+            mimeType: fileType,
+            // Only set postId if it's provided and valid
+            ...(postId ? { postId } : {})
+          }
+        });
+        
+        return media;
+      } catch (error) {
+        console.error(`Error uploading file ${fileName}:`, error);
+        throw error;
+      }
+    }));
+    
+    // If there's a postId, update the post's featured image if it doesn't have one yet
+    if (postId && mediaItems.length > 0) {
+      const post = await prisma.post.findUnique({
+        where: { id: postId },
+        include: { media: true }
       });
       
-      return media;
-    }));
+      // If the post exists and has no media yet, update to include the first uploaded image as featured
+      if (post && (!post.media || post.media.length === 0)) {
+        console.log(`Updating post ${postId} with featured image ${mediaItems[0].id}`);
+        
+        // No need to update since the relation is already established, but 
+        // we could update other post fields related to the image if needed
+      }
+    }
     
     return NextResponse.json(mediaItems, { status: 201 });
     

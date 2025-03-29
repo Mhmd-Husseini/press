@@ -112,6 +112,7 @@ export const LatestPostsSection = ({
               summary={getPostSummary(post)}
               slug={getPostSlug(post)}
               imageUrl={post.media && post.media[0]?.url}
+              media={post.media}
               authorName={post.authorName || getCategoryName(post)}
               category={post.category ? {
                 name: getCategoryName(post),
