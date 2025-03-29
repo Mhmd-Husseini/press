@@ -72,6 +72,13 @@ export const LatestPostsSection = ({
     return translation?.slug || '';
   };
 
+  // Sort posts by publishedAt before rendering
+  const sortedPosts = [...posts].sort((a, b) => {
+    const dateA = new Date(a.publishedAt || a.createdAt);
+    const dateB = new Date(b.publishedAt || b.createdAt);
+    return dateB.getTime() - dateA.getTime(); // newest first
+  });
+
   return (
     <section className="bg-gray-50 py-8 md:py-12" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4">
@@ -104,7 +111,7 @@ export const LatestPostsSection = ({
 
         {/* Grid of posts */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {posts.map((post) => (
+          {sortedPosts.map((post) => (
             <ArticleCard
               key={post.id}
               id={post.id}
@@ -112,7 +119,6 @@ export const LatestPostsSection = ({
               summary={getPostSummary(post)}
               slug={getPostSlug(post)}
               imageUrl={post.media && post.media[0]?.url}
-              media={post.media}
               authorName={post.authorName || getCategoryName(post)}
               category={post.category ? {
                 name: getCategoryName(post),

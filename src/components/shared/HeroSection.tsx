@@ -100,7 +100,7 @@ const HeroSection: React.FC<HeroProps> = ({
   const translations = {
     en: {
       breaking: 'BREAKING:',
-      readFullStory: 'View All News 📰',
+      readFullStory: 'View Full Article 📰',
       liveUpdates: 'Live Updates',
       breakingNews: 'Breaking News',
       stayTuned: 'Stay tuned for the latest updates from around the world.',
@@ -110,7 +110,7 @@ const HeroSection: React.FC<HeroProps> = ({
     },
     ar: {
       breaking: 'عاجل:',
-      readFullStory: ' 📰 عرض جميع الأخبار',
+      readFullStory: ' 📰 عرض الخبر كاملا',
       liveUpdates: 'تحديثات مباشرة',
       breakingNews: 'أخبار عاجلة',
       stayTuned: 'ترقبوا آخر التحديثات من جميع أنحاء العالم.',
@@ -157,9 +157,8 @@ const HeroSection: React.FC<HeroProps> = ({
               alt={getImageAlt(story.media, title)}
               fill
               priority
-              className="object-cover w-full h-full"
+              className="object-fill w-full h-full"
               sizes="100vw"
-              style={{ objectPosition: 'center' }}
             />
           ) : (
             <div className="absolute inset-0 bg-gray-800"></div>

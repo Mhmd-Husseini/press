@@ -98,7 +98,7 @@ export const ArticleCard = ({
               src={imageUrl || defaultImageUrl}
               alt={title}
               fill
-              className="object-cover w-full h-full"
+              className="object-fill w-full h-full"
               priority={priority}
               style={{ objectPosition: 'center' }}
             />
@@ -141,9 +141,8 @@ export const ArticleCard = ({
             src={imageUrl || defaultImageUrl}
             alt={title}
             fill
-            className="object-cover w-full h-full"
+            className="object-fill w-full h-full"
             priority={priority}
-            style={{ objectPosition: 'center' }}
           />
         </Link>
         

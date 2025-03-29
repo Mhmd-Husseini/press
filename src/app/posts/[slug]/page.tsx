@@ -255,9 +255,10 @@ export default async function PostPage(props: PageProps) {
                 src={imageUrl}
                 alt={postTranslation.title}
                 fill
-                className="object-cover w-full h-full"
-                style={{ objectPosition: 'center' }}
+                className="object-fill w-full h-full"
                 priority
+                sizes="(max-width: 768px) 100vw, 1024px"
+                quality={90}
               />
             </div>
             

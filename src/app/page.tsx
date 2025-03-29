@@ -150,8 +150,12 @@ export default async function Home() {
                                       category.translations.find(t => t.locale === 'en')?.slug ||
                                       category.translations[0]?.slug || '';
                   
-                  // Get posts for this category
-                  const categoryPosts = category.posts || [];
+                  // Get posts for this category and ensure they're sorted by date (newest first)
+                  const categoryPosts = [...(category.posts || [])].sort((a, b) => {
+                    const dateA = new Date(a.publishedAt || a.createdAt);
+                    const dateB = new Date(b.publishedAt || b.createdAt);
+                    return dateB.getTime() - dateA.getTime();
+                  });
                   
                   return (
                     <div key={category.id} className="category-section">

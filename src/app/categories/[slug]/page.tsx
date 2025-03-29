@@ -7,6 +7,7 @@ import MainLayout from '@/components/layouts/MainLayout';
 import prisma from '@/lib/prisma';
 import { formatDateLocalized } from '@/lib/utils';
 import { MediaType } from '@prisma/client';
+import { PostStatus } from '@prisma/client';
 
 type PageProps = {
   params: Promise<{
@@ -43,41 +44,50 @@ async function fetchCategoryPosts(slug: string, locale: string) {
       },
     });
 
-    // Find posts in this category
+    // Find posts in this category with proper ordering (newest first)
     const posts = await prisma.post.findMany({
       where: {
         categoryId: categoryTranslation.categoryId,
         deletedAt: null, // Only active posts
+        status: PostStatus.PUBLISHED, // Add status filter for published posts only
       },
       include: {
         translations: true,
         media: true,
       },
       orderBy: {
-        publishedAt: 'desc',
+        publishedAt: 'desc', // Ensure newest posts appear first
       },
       take: 20, // Limit results
     });
 
     console.log(`Found ${posts.length} posts for this category`);
 
-    // Format posts with the right translations for the current locale
-    const formattedPosts = posts.map(post => {
-      const postTranslation = post.translations.find(t => t.locale === locale) || post.translations[0];
-      if (!postTranslation) return null;
+    // Format posts with the right translations for the current locale and sort by date
+    const formattedPosts = posts
+      .map(post => {
+        const postTranslation = post.translations.find(t => t.locale === locale) || post.translations[0];
+        if (!postTranslation) return null;
 
-      // Find featured image
-      const featuredImage = post.media.find(m => m.type === MediaType.IMAGE)?.url || '/images/default-post-image.svg';
+        // Find featured image
+        const featuredImage = post.media.find(m => m.type === MediaType.IMAGE)?.url || '/images/default-post-image.svg';
 
-      return {
-        id: post.id,
-        slug: postTranslation.slug,
-        title: postTranslation.title,
-        excerpt: postTranslation.excerpt || '',
-        publishedAt: post.publishedAt || post.createdAt,
-        imageUrl: featuredImage,
-      };
-    }).filter(Boolean);
+        return {
+          id: post.id,
+          slug: postTranslation.slug,
+          title: postTranslation.title,
+          excerpt: postTranslation.excerpt || '',
+          publishedAt: post.publishedAt || post.createdAt,
+          imageUrl: featuredImage,
+        };
+      })
+      .filter(Boolean)
+      // Double check sort to ensure newest first
+      .sort((a: any, b: any) => {
+        const dateA = new Date(a.publishedAt);
+        const dateB = new Date(b.publishedAt);
+        return dateB.getTime() - dateA.getTime();
+      });
 
     return {
       category: {
@@ -180,8 +190,7 @@ export default async function CategoryPage(props: PageProps) {
                           src={post.imageUrl}
                           alt={post.title}
                           fill
-                          className="object-cover w-full h-full"
-                          style={{ objectPosition: 'center' }}
+                          className="object-fill w-full h-full"
                         />
                       </div>
                     </Link>
