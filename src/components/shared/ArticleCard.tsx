@@ -93,7 +93,7 @@ export const ArticleCard = ({
       <article className={cardClasses}>
         {/* Image on the left */}
         <div className="flex-shrink-0" style={{ width: imageDimensions.width }}>
-          <Link href={`/posts/${slug}`} className="block relative" style={{ height: imageDimensions.height }}>
+          <Link href={`/posts/${encodeURIComponent(slug)}`} className="block relative" style={{ height: imageDimensions.height }}>
             <Image
               src={imageUrl || defaultImageUrl}
               alt={title}
@@ -108,7 +108,7 @@ export const ArticleCard = ({
         {/* Content on the right */}
         <div className="flex-grow p-3">
           <h3 className={titleClass}>
-            <Link href={`/posts/${slug}`} className="text-gray-900 hover:text-blue-600 transition-colors">
+            <Link href={`/posts/${encodeURIComponent(slug)}`} className="text-gray-900 hover:text-blue-600 transition-colors">
               {title}
             </Link>
           </h3>
@@ -116,7 +116,7 @@ export const ArticleCard = ({
           <div className="flex justify-between items-center text-xs text-gray-500">
             {category && (
               <Link 
-                href={`/categories/${category.slug}`}
+                href={`/categories/${encodeURIComponent(category.slug)}`}
                 className="text-blue-600 hover:text-blue-800 mr-2"
               >
                 {category.name}
@@ -136,7 +136,7 @@ export const ArticleCard = ({
     <article className={cardClasses}>
       {/* Image container */}
       <div className="relative" style={{ height: imageDimensions.height }}>
-        <Link href={`/posts/${slug}`} className="block relative h-full">
+        <Link href={`/posts/${encodeURIComponent(slug)}`} className="block relative h-full">
           <Image
             src={imageUrl || defaultImageUrl}
             alt={title}
@@ -149,9 +149,9 @@ export const ArticleCard = ({
         {/* Category tag - displayed outside of the Link */}
         {category && (
           <div className="absolute bottom-3 left-3 z-10">
-            <Link 
-              href={`/categories/${category.slug}`}
-              className="text-xs font-medium text-white hover:text-amber-300 uppercase tracking-wider bg-black bg-opacity-70 px-2 py-1 rounded-sm"
+            <Link
+              href={`/categories/${encodeURIComponent(category.slug)}`}
+              className="text-xs font-medium text-white uppercase tracking-wider bg-black/70 px-2 py-1 rounded"
             >
               {category.name}
             </Link>
@@ -162,7 +162,7 @@ export const ArticleCard = ({
       {/* Content section */}
       <div className="p-4">
         <h3 className={titleClass}>
-          <Link href={`/posts/${slug}`} className="text-gray-900 hover:text-blue-600 transition-colors">
+          <Link href={`/posts/${encodeURIComponent(slug)}`} className="text-gray-900 hover:text-blue-600 transition-colors">
             {title}
           </Link>
         </h3>

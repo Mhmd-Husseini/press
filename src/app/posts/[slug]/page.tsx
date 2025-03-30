@@ -56,48 +56,22 @@ function PostNotFound({ locale = 'en' }: { locale?: string }) {
   );
 }
 
-// Safely fetch post without directly accessing params.slug
+// Add this function to fetch the post with proper slug handling
 async function fetchPost(slug: string) {
   try {
+    // Decode the URL slug to properly handle Arabic and special characters
+    const decodedSlug = decodeURIComponent(slug);
+    
     // Get the current locale from cookies
     const cookieStore = await cookies();
     const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
     
-    console.log(`Attempting to fetch post with slug: "${slug}" for locale: "${locale}"`);
-    
-    // Try to decode the slug if it's URL encoded
-    const decodedSlug = decodeURIComponent(slug);
-    console.log(`Original slug: "${slug}"`);
-    console.log(`Decoded slug: "${decodedSlug}"`);
-    
-    // Log the total count of posts for debugging
-    const totalPosts = await prisma.post.count({
-      where: {
-        status: PostStatus.PUBLISHED,
-      }
-    });
-    console.log(`Total published posts in database: ${totalPosts}`);
-    
-    // Get all posts with translations to check what exists
-    const allPostsWithTranslations = await prisma.postTranslation.findMany({
-      take: 5, // Limit to first 5 for debugging
-      select: {
-        id: true,
-        locale: true,
-        slug: true, 
-        title: true,
-        postId: true
-      }
-    });
-    
-    console.log("Available posts (first 5):", JSON.stringify(allPostsWithTranslations, null, 2));
-    
-    // Try first with exact match
-    let post = await prisma.post.findFirst({
+    // Find post by slug through translations
+    const post = await prisma.post.findFirst({
       where: {
         translations: {
           some: {
-            slug: slug,
+            slug: decodedSlug,
           },
         },
         status: PostStatus.PUBLISHED,
@@ -109,87 +83,26 @@ async function fetchPost(slug: string) {
             translations: true,
           },
         },
-        tags: {
-          include: {
-            tag: true,
-          },
-        },
         media: true,
       },
     });
-    
-    // If not found, try with decoded slug
-    if (!post && slug !== decodedSlug) {
-      console.log(`No post found with original slug, trying decoded slug: "${decodedSlug}"`);
-      post = await prisma.post.findFirst({
-        where: {
-          translations: {
-            some: {
-              slug: decodedSlug,
-            },
-          },
-          status: PostStatus.PUBLISHED,
-        },
-        include: {
-          translations: true,
-          category: {
-            include: {
-              translations: true,
-            },
-          },
-          tags: {
-            include: {
-              tag: true,
-            },
-          },
-          media: true,
-        },
-      });
-    }
-
-    // If still not found, try by ID if the slug looks like an ID
-    if (!post && !isNaN(Number(slug))) {
-      console.log(`Trying to find post by ID: ${slug}`);
-      post = await prisma.post.findFirst({
-        where: {
-          id: slug, // Use string ID as is, no parsing needed
-          status: PostStatus.PUBLISHED,
-        },
-        include: {
-          translations: true,
-          category: {
-            include: {
-              translations: true,
-            },
-          },
-          tags: {
-            include: {
-              tag: true,
-            },
-          },
-          media: true,
-        },
-      });
-    }
 
     if (!post) {
-      console.log(`No post found with slug: "${slug}" or decoded slug: "${decodedSlug}"`);
+      console.log(`No post found with slug: "${decodedSlug}"`);
       return null;
     }
-
-    console.log(`Post found with ID: ${post.id}, title: "${post.translations[0]?.title || 'No title'}"`);
-
+    
     // Get translation for the current locale or any available locale
     const postTranslation = post.translations.find((t: PostTranslation) => t.locale === locale) || 
-                           post.translations[0];
+                          post.translations[0];
 
     // Get category translation for the current locale or any available locale
-    const categoryTranslation = post.category.translations.find((t: CategoryTranslation) => t.locale === locale) || 
-                               post.category.translations[0];
-
+    const categoryTranslation = post.category?.translations?.find((t: CategoryTranslation) => t.locale === locale) || 
+                              post.category?.translations?.[0];
+    
     return { post, postTranslation, categoryTranslation };
   } catch (error) {
-    console.error("Error fetching post:", error);
+    console.error('Error fetching post:', error);
     return null;
   }
 }
@@ -267,24 +180,6 @@ export default async function PostPage(props: PageProps) {
               className="prose max-w-none"
               dangerouslySetInnerHTML={{ __html: postTranslation.content }}
             />
-            
-            {/* Tags */}
-            {post.tags.length > 0 && (
-              <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-2">{isRTL ? 'وسوم:' : 'Tags:'}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map(({ tag }: { tag: Tag }) => (
-                    <Link 
-                      key={tag.id}
-                      href={`/tags/${tag.id}`}
-                      className="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition"
-                    >
-                      {tag.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </MainLayout>

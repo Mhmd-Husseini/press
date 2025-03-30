@@ -20,10 +20,13 @@ async function fetchCategoryPosts(slug: string, locale: string) {
   try {
     console.log(`Fetching category with slug: ${slug} for locale: ${locale}`);
     
+    // Decode the URL slug to properly handle Arabic and special characters
+    const decodedSlug = decodeURIComponent(slug);
+    
     // Find category translation by slug
     const categoryTranslation = await prisma.categoryTranslation.findUnique({
       where: {
-        slug: slug,
+        slug: decodedSlug,
       },
       include: {
         category: true,
@@ -31,7 +34,7 @@ async function fetchCategoryPosts(slug: string, locale: string) {
     });
 
     if (!categoryTranslation) {
-      console.log(`No category found with slug: ${slug}`);
+      console.log(`No category found with slug: ${decodedSlug}`);
       return null;
     }
 
@@ -184,7 +187,7 @@ export default async function CategoryPage(props: PageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {posts.map((post: any) => (
                   <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                    <Link href={`/posts/${post.slug}`}>
+                    <Link href={`/posts/${encodeURIComponent(post.slug)}`}>
                       <div className="relative h-48 w-full">
                         <Image
                           src={post.imageUrl}
@@ -195,7 +198,7 @@ export default async function CategoryPage(props: PageProps) {
                       </div>
                     </Link>
                     <div className="p-6">
-                      <Link href={`/posts/${post.slug}`} className="block">
+                      <Link href={`/posts/${encodeURIComponent(post.slug)}`} className="block">
                         <h2 className="text-xl font-semibold mb-2 hover:text-primary-600 transition-colors">
                           {post.title}
                         </h2>
@@ -207,7 +210,7 @@ export default async function CategoryPage(props: PageProps) {
                         {post.excerpt}
                       </p>
                       <Link 
-                        href={`/posts/${post.slug}`}
+                        href={`/posts/${encodeURIComponent(post.slug)}`}
                         className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
                       >
                         {isRTL ? 'اقرأ المزيد →' : 'Read More →'}
