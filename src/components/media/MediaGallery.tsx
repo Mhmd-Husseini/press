@@ -9,7 +9,6 @@ interface MediaItem {
   title: string | null;
   altText: string | null;
   type: string;
-  isFeatured: boolean;
   createdAt: string;
 }
 
@@ -37,7 +36,7 @@ export default function MediaGallery({ isOpen, onClose, onSelect, selectedId }: 
   const fetchMediaItems = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/admin/media');
+      const response = await fetch('/api/media');
       if (!response.ok) {
         throw new Error('Failed to fetch media items');
       }
