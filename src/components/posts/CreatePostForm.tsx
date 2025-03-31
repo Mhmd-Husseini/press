@@ -4,6 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import MediaGallery from '../media/MediaGallery';
+
+interface MediaItem {
+  id: string;
+  url: string;
+  title: string | null;
+  altText: string | null;
+  type: string;
+  isFeatured: boolean;
+}
 
 export default function CreatePostForm() {
   const router = useRouter();
@@ -11,11 +21,14 @@ export default function CreatePostForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showGallery, setShowGallery] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     summary: '',
-    categoryId: ''
+    categoryId: '',
+    mediaId: '',
+    isFeatured: false
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -28,8 +41,6 @@ export default function CreatePostForm() {
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
-        } else {
-          setError('Failed to load categories');
         }
       } catch (err) {
         setError('Error connecting to the server');
@@ -40,10 +51,10 @@ export default function CreatePostForm() {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
   };
 
@@ -51,11 +62,23 @@ export default function CreatePostForm() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImageFile(file);
+      setFormData(prev => ({ ...prev, mediaId: '' })); // Clear selected media ID
       
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
     }
+  };
+
+  const handleSelectFromGallery = (mediaItem: MediaItem) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      mediaId: mediaItem.id,
+      isFeatured: mediaItem.isFeatured 
+    }));
+    setImagePreview(mediaItem.url);
+    setImageFile(null);
+    setShowGallery(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,17 +99,20 @@ export default function CreatePostForm() {
       submitData.append('content', formData.content);
       submitData.append('summary', formData.summary);
       submitData.append('categoryId', formData.categoryId);
+      submitData.append('isFeatured', formData.isFeatured.toString());
       
-      // Add image if selected
+      // Add media ID if selected from gallery
+      if (formData.mediaId) {
+        submitData.append('mediaId', formData.mediaId);
+      }
+      
+      // Add image if uploaded
       if (imageFile) {
         submitData.append('image', imageFile);
-        console.log(`Including image: ${imageFile.name}, size: ${imageFile.size} bytes`);
       }
 
-      // Indicate upload is in progress
       setSuccess('Uploading your post...');
       
-      // Send to server
       const response = await fetch('/api/posts', {
         method: 'POST',
         body: submitData
@@ -98,8 +124,6 @@ export default function CreatePostForm() {
       }
 
       const result = await response.json();
-      console.log('Post created:', result);
-      
       setSuccess('Post created successfully! Redirecting to homepage...');
       
       // Reset form
@@ -107,12 +131,13 @@ export default function CreatePostForm() {
         title: '',
         content: '',
         summary: '',
-        categoryId: ''
+        categoryId: '',
+        mediaId: '',
+        isFeatured: false
       });
       setImageFile(null);
       setImagePreview(null);
       
-      // Redirect to homepage after 2 seconds
       setTimeout(() => {
         router.push('/');
       }, 2000);
@@ -215,68 +240,96 @@ export default function CreatePostForm() {
             Featured Image
           </label>
           
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors">
+          <div className="space-y-4">
             {imagePreview ? (
-              <div className="space-y-1 text-center">
-                <div className="relative w-full h-48 mb-3">
-                  <Image
-                    src={imagePreview}
-                    alt="Preview"
-                    fill
-                    className="rounded object-contain"
-                  />
-                </div>
-                <div className="flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImageFile(null);
-                      setImagePreview(null);
-                    }}
-                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200"
-                  >
-                    Remove Image
-                  </button>
+              <div className="relative w-full h-48 mb-3">
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  fill
+                  className="rounded object-contain"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageFile(null);
+                    setImagePreview(null);
+                    setFormData(prev => ({ ...prev, mediaId: '', isFeatured: false }));
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <div className="absolute bottom-2 left-2">
+                  <label className="flex items-center space-x-2 text-white bg-black bg-opacity-50 px-3 py-1 rounded-full">
+                    <input
+                      type="checkbox"
+                      name="isFeatured"
+                      checked={formData.isFeatured}
+                      onChange={handleChange}
+                      className="rounded text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span>Set as featured image</span>
+                  </label>
                 </div>
               </div>
             ) : (
-              <div className="space-y-1 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <div className="flex text-sm text-gray-600">
-                  <label
-                    htmlFor="image-upload"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors">
+                <div className="space-y-1 text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    stroke="currentColor"
+                    fill="none"
+                    viewBox="0 0 48 48"
+                    aria-hidden="true"
                   >
-                    <span>Upload an image</span>
-                    <input
-                      id="image-upload"
-                      name="image-upload"
-                      type="file"
-                      className="sr-only"
-                      accept="image/*"
-                      onChange={handleImageChange}
+                    <path
+                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
+                  </svg>
+                  <div className="flex text-sm text-gray-600">
+                    <label
+                      htmlFor="image-upload"
+                      className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                    >
+                      <span>Upload an image</span>
+                      <input
+                        id="image-upload"
+                        name="image-upload"
+                        type="file"
+                        className="sr-only"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                    <p className="pl-1">or</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowGallery(true)}
+                      className="pl-1 text-indigo-600 hover:text-indigo-500"
+                    >
+                      choose from gallery
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                 </div>
-                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
               </div>
             )}
           </div>
         </div>
+
+        {/* Media Gallery */}
+        <MediaGallery
+          isOpen={showGallery}
+          onClose={() => setShowGallery(false)}
+          onSelect={handleSelectFromGallery}
+          selectedId={formData.mediaId}
+        />
         
         <div className="flex justify-end space-x-3">
           <Link

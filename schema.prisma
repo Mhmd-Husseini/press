@@ -9,12 +9,13 @@ generator client {
 
 /// ENUMS ///
 enum PostStatus {
-  DRAFT
-  WAITING_APPROVAL
-  READY_TO_PUBLISH
-  PUBLISHED
-  ARCHIVED    // Added for archiving old posts
-  DECLINED
+  DRAFT                // Editor can create drafts
+  WAITING_APPROVAL     // Sent to senior editor for review
+  READY_TO_PUBLISH     // Approved by senior, ready to publish
+  PUBLISHED            // Live on the site
+  UNPUBLISHED          // Was published but now hidden
+  ARCHIVED             // Old content archived
+  DECLINED             // Rejected by senior editor
 }
 
 enum MediaType {  // New enum for media types
@@ -26,29 +27,35 @@ enum MediaType {  // New enum for media types
 
 /// USER, ROLE & PERMISSION MODELS ///
 model User {
-  id                String      @id @default(uuid())
-  email             String      @unique
+  id                String        @id @default(uuid())
+  email             String        @unique
   password          String
   firstName         String?
   lastName          String?
   firstNameArabic   String?
   lastNameArabic    String?
-  avatar            String?     // Added for user profile pictures
-  bio               String?     // Added for author bios
+  avatar            String?       // Added for user profile pictures
+  bio               String?       // Added for author bios
   bioArabic         String?
-  languagePreference String?    @default("en")
-  isActive          Boolean     @default(true)
-  socialLinks       Json?       // Store social media links
+  languagePreference String?      @default("en")
+  isActive          Boolean       @default(true)
+  socialLinks       Json?         // Store social media links
   roles             UserRole[]
-  posts             Post[]
-  createdPosts      Post[]      @relation("CreatedPosts")
-  updatedPosts      Post[]      @relation("UpdatedPosts")
+  posts             Post[]        // Posts authored
+  editedPosts       Post[]        @relation("EditedPosts")
+  approvedPosts     Post[]        @relation("ApprovedPosts")
+  declinedPosts     Post[]        @relation("DeclinedPosts")
+  publishedPosts    Post[]        @relation("PublishedPosts")
+  unpublishedPosts  Post[]        @relation("UnpublishedPosts")
+  createdPosts      Post[]        @relation("CreatedPosts")
+  updatedPosts      Post[]        @relation("UpdatedPosts")
   comments          Comment[]
-  auditLogs         AuditLog[]  // Added relation
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  auditLogs         AuditLog[]    // Added relation
+  postRevisions     PostRevision[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
   lastLogin         DateTime?
-  emailVerified     Boolean     @default(false)
+  emailVerified     Boolean       @default(false)
 }
 
 model Role {
@@ -131,6 +138,17 @@ model Post {
   author          User              @relation(fields: [authorId], references: [id])
   authorName      String?           // Custom author name in English
   authorNameArabic String?          // Custom author name in Arabic
+  editorId        String?           // User who edited the post
+  editor          User?             @relation("EditedPosts", fields: [editorId], references: [id])
+  approvedById    String?           // User who approved the post
+  approvedBy      User?             @relation("ApprovedPosts", fields: [approvedById], references: [id])
+  declinedById    String?           // User who declined the post
+  declinedBy      User?             @relation("DeclinedPosts", fields: [declinedById], references: [id])
+  publishedById   String?           // User who published the post
+  publishedBy     User?             @relation("PublishedPosts", fields: [publishedById], references: [id])
+  unpublishedById String?           // User who unpublished the post
+  unpublishedBy   User?             @relation("UnpublishedPosts", fields: [unpublishedById], references: [id])
+  declineReason   String?           // Reason for declining the post
   categoryId      String
   category        Category          @relation(fields: [categoryId], references: [id])
   translations    PostTranslation[]
@@ -140,6 +158,7 @@ model Post {
   metaData        Json?
   readingTime     Int?
   publishedAt     DateTime?
+  archivedAt      DateTime?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   createdById     String?
@@ -150,6 +169,7 @@ model Post {
   media           Media[]
   comments        Comment[]
   deletedAt       DateTime?
+  revisionHistory PostRevision[]    // Track changes to the post
 }
 
 model PostTranslation {
@@ -240,4 +260,22 @@ model BreakingNews {
   locale    String   // 'en' or 'ar'
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// POST REVISION MODEL ///
+model PostRevision {
+  id            String     @id @default(uuid())
+  postId        String
+  post          Post       @relation(fields: [postId], references: [id])
+  title         String
+  titleArabic   String?
+  content       String?
+  contentArabic String?
+  excerpt       String?
+  excerptArabic String?
+  status        PostStatus
+  changedById   String
+  changedBy     User       @relation(fields: [changedById], references: [id])
+  changeNote    String?
+  createdAt     DateTime   @default(now())
 } 
