@@ -119,6 +119,7 @@ export type PostUpdateInput = {
   status?: PostStatus;
   statusReason?: string;
   categoryId?: string;
+  authorId?: string;
   authorName?: string;
   authorNameArabic?: string;
   editorId?: string;
@@ -132,6 +133,7 @@ export type PostUpdateInput = {
   updatedById?: string;
   declineReason?: string;
   changeNote?: string;
+  mediaIds?: string[];
   translations?: {
     id?: string;
     locale: string;
@@ -485,23 +487,89 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       ...data,
     };
 
+    // Transform all relationship IDs to proper Prisma format
+    // Category relationship
+    if (data.categoryId) {
+      updateData.category = {
+        connect: { id: data.categoryId }
+      };
+      delete updateData.categoryId;
+    }
+
+    // Author relationship (if needed in updates)
+    if (data.authorId) {
+      updateData.author = {
+        connect: { id: data.authorId }
+      };
+      delete updateData.authorId;
+    }
+
+    // Editor relationship
+    if (data.editorId) {
+      updateData.editor = {
+        connect: { id: data.editorId }
+      };
+      delete updateData.editorId;
+    }
+
+    // ApprovedBy relationship
+    if (data.approvedById) {
+      updateData.approvedBy = {
+        connect: { id: data.approvedById }
+      };
+      delete updateData.approvedById;
+    }
+
+    // DeclinedBy relationship
+    if (data.declinedById) {
+      updateData.declinedBy = {
+        connect: { id: data.declinedById }
+      };
+      delete updateData.declinedById;
+    }
+
+    // PublishedBy relationship
+    if (data.publishedById) {
+      updateData.publishedBy = {
+        connect: { id: data.publishedById }
+      };
+      delete updateData.publishedById;
+    }
+
+    // UnpublishedBy relationship
+    if (data.unpublishedById) {
+      updateData.unpublishedBy = {
+        connect: { id: data.unpublishedById }
+      };
+      delete updateData.unpublishedById;
+    }
+
+    // UpdatedBy relationship
+    if (data.updatedById) {
+      updateData.updatedBy = {
+        connect: { id: data.updatedById }
+      };
+      delete updateData.updatedById;
+    }
+
+    // Handle mediaIds if provided
+    if (data.mediaIds && Array.isArray(data.mediaIds)) {
+      updateData.media = {
+        connect: data.mediaIds.map(mediaId => ({ id: mediaId }))
+      };
+      delete updateData.mediaIds;
+    }
+
     // Update status and record appropriate timestamps
     if (data.status) {
       switch (data.status) {
         case PostStatus.PUBLISHED:
           if (currentPost.status !== PostStatus.PUBLISHED) {
             updateData.publishedAt = new Date();
-            // If publishing, record who published it
-            if (data.updatedById) {
-              updateData.publishedById = data.updatedById;
-            }
           }
           break;
         case PostStatus.UNPUBLISHED:
-          // If unpublishing, record who unpublished it
-          if (data.updatedById) {
-            updateData.unpublishedById = data.updatedById;
-          }
+          // No additional timestamp needed
           break;
         case PostStatus.ARCHIVED:
           updateData.archivedAt = new Date();
@@ -511,26 +579,20 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
           updateData.declineReason = null;
           break;
         case PostStatus.READY_TO_PUBLISH:
-          // If approving, record who approved it
-          if (data.updatedById) {
-            updateData.approvedById = data.updatedById;
-          }
+          // No additional timestamp needed
           break;
         case PostStatus.DECLINED:
-          // If declining, record who declined it and the reason
-          if (data.updatedById) {
-            updateData.declinedById = data.updatedById;
-          }
-          if (data.declineReason) {
-            updateData.declineReason = data.declineReason;
-          }
+          // For decline reason, we use the direct field as it's not a relationship
           break;
       }
     }
 
     // If this is an edit (not just a status change), record the editor
-    if (data.translations && data.translations.length > 0 && data.updatedById) {
-      updateData.editorId = data.updatedById;
+    if (data.translations && data.translations.length > 0 && data.updatedById && !data.editorId) {
+      // Only set editorId if not explicitly provided
+      updateData.editor = {
+        connect: { id: data.updatedById }
+      };
     }
 
     // Process translations

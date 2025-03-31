@@ -137,12 +137,12 @@ export default function AdminHeader() {
                 </div>
               </PermissionGuard>
               
-              <PermissionGuard permissions="manage_settings">
+              <PermissionGuard permissions="manage_media">
                 <Link 
-                  href="/admin/settings" 
-                  className={getNavLinkClass('/admin/settings')}
+                  href="/admin/media" 
+                  className={getNavLinkClass('/admin/media')}
                 >
-                  Settings
+                  Media
                 </Link>
               </PermissionGuard>
             </nav>

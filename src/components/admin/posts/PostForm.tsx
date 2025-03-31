@@ -6,6 +6,7 @@ import { PostStatus } from '@prisma/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { PostWithRelations } from '@/lib/services/post.service';
 import dynamic from 'next/dynamic';
+import MediaGallery from '@/components/media/MediaGallery';
 
 // Import the editor component dynamically with correct options
 const RichTextEditor = dynamic(
@@ -80,6 +81,8 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [uploadedMedia, setUploadedMedia] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [showMediaGallery, setShowMediaGallery] = useState(false);
+  const [selectedMedia, setSelectedMedia] = useState<any | null>(null);
 
   // Fetch categories and tags
   useEffect(() => {
@@ -126,6 +129,11 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       // If we have meta fields, use them, otherwise keep defaults
       if (initialMetaFields.length > 0) {
         setMetaFields(initialMetaFields);
+      }
+      
+      // Set media if post has any
+      if (post.media && post.media.length > 0) {
+        setUploadedMedia(post.media);
       }
       
       setFormData({
@@ -290,13 +298,17 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         }
       });
       
+      // Get media IDs from uploadedMedia
+      const mediaIds = uploadedMedia.map(media => media.id);
+      
       // Prepare data for API
       const apiData = {
         ...formData,
         authorId: formData.authorId || user?.id,
         authorName: formData.authorName || '',
         authorNameArabic: formData.authorNameArabic || '',
-        metaData
+        metaData,
+        mediaIds // Add mediaIds to the API data
       };
       
       // Call API
@@ -436,6 +448,41 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       setError('Failed to upload media. Please try again.');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  // Add a function to handle media selection from gallery
+  const handleMediaSelect = (media: any) => {
+    setSelectedMedia(media);
+    setShowMediaGallery(false);
+    
+    // Add selected media to uploadedMedia if not already there
+    if (!uploadedMedia.some(item => item.id === media.id)) {
+      setUploadedMedia(prev => [...prev, media]);
+    }
+  };
+
+  // Add a function to handle removing media
+  const handleRemoveMedia = async (mediaId: string) => {
+    // Remove from the local state first for responsive UI
+    setUploadedMedia(prev => prev.filter(media => media.id !== mediaId));
+    if (selectedMedia?.id === mediaId) {
+      setSelectedMedia(null);
+    }
+    
+    if (isEdit && post?.id) {
+      try {
+        // Call API to disconnect media from post if editing
+        const response = await fetch(`/api/admin/posts/${post.id}/media/${mediaId}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) {
+          console.error('Failed to remove media from post');
+        }
+      } catch (error) {
+        console.error('Error removing media from post:', error);
+      }
     }
   };
 
@@ -616,17 +663,17 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
             Upload an image to represent this post. This image will be used in listings and social media shares.
           </p>
 
-          {/* Display existing media if editing */}
-          {isEdit && post?.media && post.media.length > 0 && (
+          {/* Display existing and selected media */}
+          {(uploadedMedia.length > 0 || selectedMedia) && (
             <div className="mb-4">
-              <h4 className="text-sm font-medium mb-2">Current Media</h4>
+              <h4 className="text-sm font-medium mb-2">Selected Media</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {post.media.map((item: any) => (
+                {uploadedMedia.map((item: any) => (
                   <div key={item.id} className="relative group">
                     <div className="aspect-video bg-gray-100 rounded-md overflow-hidden shadow-md hover:shadow-lg transition-all">
                       <img 
                         src={item.url} 
-                        alt={item.altText || 'Post media'} 
+                        alt={item.altText || 'Media item'} 
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -634,12 +681,15 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                       <button 
                         type="button"
                         className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                        onClick={() => {/* TODO: Add delete functionality */}}
+                        onClick={() => handleRemoveMedia(item.id)}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
+                    </div>
+                    <div className="absolute bottom-1 left-1 right-1 text-xs bg-black bg-opacity-50 text-white p-1 rounded truncate">
+                      {item.title || 'Untitled'}
                     </div>
                   </div>
                 ))}
@@ -684,6 +734,13 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                     />
                   </label>
                   <p className="pl-1">or drag and drop</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowMediaGallery(true)}
+                    className="pl-1 text-indigo-600 hover:text-indigo-500"
+                  >
+                    or choose from gallery
+                  </button>
                 </div>
                 <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
               </div>
@@ -693,7 +750,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
           {/* Selected files preview */}
           {mediaFiles.length > 0 && (
             <div className="mb-3">
-              <h4 className="text-sm font-medium mb-2">Selected Images</h4>
+              <h4 className="text-sm font-medium mb-2">Files to Upload</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {mediaFiles.map((file, index) => (
                   <div key={index} className="relative group">
@@ -982,6 +1039,14 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
           {isSubmitting ? 'Saving...' : isEdit ? 'Update Post' : 'Create Post'}
         </button>
       </div>
+
+      {/* Media Gallery */}
+      <MediaGallery
+        isOpen={showMediaGallery}
+        onClose={() => setShowMediaGallery(false)}
+        onSelect={handleMediaSelect}
+        selectedId={selectedMedia?.id}
+      />
     </form>
   );
 } 
