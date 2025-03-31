@@ -138,7 +138,7 @@ export default async function Home() {
           {/* Category Sections */}
           <div className="bg-white py-8">
             <div className="container mx-auto px-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                 {categoriesWithPosts.map((category) => {
                   // Get localized category name
                   const categoryName = category.translations.find(t => t.locale === locale)?.name || 
@@ -158,7 +158,7 @@ export default async function Home() {
                   });
                   
                   return (
-                    <div key={category.id} className="category-section">
+                    <div key={category.id} className="category-section bg-gray-50 rounded-lg p-4 shadow-sm">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center">
                           <div className="w-1 h-6 bg-gray-700 mr-2"></div>
@@ -188,22 +188,45 @@ export default async function Home() {
                                             post.translations.find(t => t.locale === 'en')?.slug ||
                                             post.translations[0]?.slug || '';
                             
+                            // Get post image if available
+                            const postImage = post.media && post.media.length > 0 ? post.media[0].url : null;
+                            
                             return (
                               <a 
                                 key={post.id}
                                 href={`/posts/${postSlug}`}
-                                className={`block pb-3 ${index < categoryPosts.length - 1 ? 'border-b border-gray-100' : ''}`}
+                                className={`flex items-start space-x-3 pb-3 hover:bg-gray-100 rounded p-2 transition-colors ${index < categoryPosts.length - 1 ? 'border-b border-gray-100' : ''}`}
                               >
-                                <h3 className="text-base font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-1">
-                                  {postTitle}
-                                </h3>
-                                <span className="text-xs text-gray-500">
-                                  {new Date(post.publishedAt || post.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-AE' : 'en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric'
-                                  })}
-                                </span>
+                                {/* Post thumbnail */}
+                                <div className="flex-shrink-0 w-20 h-16 relative bg-gray-200 rounded overflow-hidden">
+                                  {postImage ? (
+                                    <img 
+                                      src={postImage} 
+                                      alt={postTitle} 
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      </svg>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Post content */}
+                                <div className="flex-1">
+                                  <h3 className="text-sm font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-1">
+                                    {postTitle}
+                                  </h3>
+                                  <span className="text-xs text-gray-500">
+                                    {new Date(post.publishedAt || post.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-AE' : 'en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
+                                  </span>
+                                </div>
                               </a>
                             );
                           })
