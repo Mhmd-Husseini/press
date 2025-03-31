@@ -120,19 +120,36 @@ export async function scrapeBreakingNews(locale?: 'en' | 'ar') {
     
     // Determine which sources to scrape based on locale
     if (!locale || locale === 'ar') {
-      arabicNews = await scrapeArabicNews();
-      console.log(`Scraped ${arabicNews.length} Arabic news items`);
+      try {
+        arabicNews = await scrapeArabicNews();
+        console.log(`Scraped ${arabicNews.length} Arabic news items`);
+      } catch (error) {
+        console.error('Error scraping Arabic news:', error);
+        // Continue with English news even if Arabic fails
+      }
     }
     
     if (!locale || locale === 'en') {
-      englishNews = await scrapeEnglishNews();
-      console.log(`Scraped ${englishNews.length} English news items`);
+      try {
+        englishNews = await scrapeEnglishNews();
+        console.log(`Scraped ${englishNews.length} English news items`);
+      } catch (error) {
+        console.error('Error scraping English news:', error);
+        // Continue with Arabic news even if English fails
+      }
     }
     
-    // Save to database
+    // Save to database if we have any news items
     const allNews = [...arabicNews, ...englishNews];
     if (allNews.length > 0) {
-      await saveBreakingNewsToDb(allNews);
+      try {
+        await saveBreakingNewsToDb(allNews);
+      } catch (error) {
+        console.error('Error saving breaking news to database:', error);
+        // Return scraped news even if saving fails
+      }
+    } else {
+      console.log('No breaking news items found to save');
     }
     
     console.log('Breaking news scraping completed successfully');
@@ -140,6 +157,13 @@ export async function scrapeBreakingNews(locale?: 'en' | 'ar') {
   } catch (error) {
     console.error('Error in breaking news scraper:', error);
     return [];
+  } finally {
+    // Make sure we disconnect from the database
+    try {
+      await prisma.$disconnect();
+    } catch (error) {
+      console.error('Error disconnecting from Prisma:', error);
+    }
   }
 }
 
