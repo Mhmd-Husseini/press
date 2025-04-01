@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { RoleService } from '@/lib/services/role.service';
 import { AuthService } from '@/lib/services/auth.service';
 
+// This forces the route to be dynamically rendered
+export const dynamic = 'force-dynamic';
+
 const roleService = new RoleService();
 const authService = new AuthService();
 

@@ -4,25 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CategoryWithTranslations } from '@/lib/services/category.service';
 
-type Translation = {
-  locale: string;
-  name: string;
-  description: string;
-  slug: string;
-  dir?: string;
-};
-
-type FormData = {
-  parentId: string | null;
-  translations: Translation[];
-};
-
-interface CategoryFormProps {
-  category?: CategoryWithTranslations;
-  isEdit?: boolean;
-}
-
-export default function CategoryForm({ category, isEdit = false }: CategoryFormProps) {
+// Client-only component to safely use useSearchParams
+function CategoryFormContent({ category, isEdit = false }: CategoryFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const parentId = searchParams.get('parent');
@@ -74,12 +57,28 @@ export default function CategoryForm({ category, isEdit = false }: CategoryFormP
       
       // Check if English translation exists
       if (!translations.some(t => t.locale === 'en')) {
-        translations.push({ locale: 'en', name: '', description: '', slug: '', dir: 'ltr' });
+        translations.push({ 
+          id: `temp-${Date.now()}-en`,
+          locale: 'en', 
+          name: '', 
+          description: '', 
+          slug: '', 
+          dir: 'ltr',
+          categoryId: category.id
+        });
       }
       
       // Check if Arabic translation exists
       if (!translations.some(t => t.locale === 'ar')) {
-        translations.push({ locale: 'ar', name: '', description: '', slug: '', dir: 'rtl' });
+        translations.push({ 
+          id: `temp-${Date.now()}-ar`, 
+          locale: 'ar', 
+          name: '', 
+          description: '', 
+          slug: '', 
+          dir: 'rtl',
+          categoryId: category.id
+        });
       }
       
       setFormData({
@@ -298,7 +297,7 @@ export default function CategoryForm({ category, isEdit = false }: CategoryFormP
               <textarea
                 id="description-en"
                 rows={3}
-                value={getTranslationByLocale('en').description}
+                value={getTranslationByLocale('en').description || ''}
                 onChange={(e) => handleTranslationChange('en', 'description', e.target.value)}
                 className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
               />
@@ -351,7 +350,7 @@ export default function CategoryForm({ category, isEdit = false }: CategoryFormP
               <textarea
                 id="description-ar"
                 rows={3}
-                value={getTranslationByLocale('ar').description}
+                value={getTranslationByLocale('ar').description || ''}
                 onChange={(e) => handleTranslationChange('ar', 'description', e.target.value)}
                 className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
               />
@@ -378,4 +377,39 @@ export default function CategoryForm({ category, isEdit = false }: CategoryFormP
       </div>
     </form>
   );
+}
+
+type Translation = {
+  id?: string;
+  categoryId?: string;
+  locale: string;
+  name: string;
+  description: string | null;
+  slug: string;
+  dir?: string | null;
+};
+
+type FormData = {
+  parentId: string | null;
+  translations: Translation[];
+};
+
+interface CategoryFormProps {
+  category?: CategoryWithTranslations;
+  isEdit?: boolean;
+}
+
+// Main component that will be imported by other components
+export default function CategoryForm(props: CategoryFormProps) {
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
+  if (!isMounted) {
+    return <div>Loading form...</div>;
+  }
+  
+  return <CategoryFormContent {...props} />;
 } 

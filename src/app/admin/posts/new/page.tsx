@@ -1,5 +1,6 @@
 import PageHeader from '@/components/admin/PageHeader';
 import PostForm from '@/components/admin/posts/PostForm';
+import { Suspense } from 'react';
 
 export const metadata = {
   title: 'Create New Post | Admin Dashboard',
@@ -21,7 +22,9 @@ export default function NewPostPage() {
         ]}
       />
       
-      <PostForm />
+      <Suspense fallback={<div>Loading post form...</div>}>
+        <PostForm />
+      </Suspense>
     </div>
   );
 } 

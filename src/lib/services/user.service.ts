@@ -16,13 +16,15 @@ export interface UserWithRoles extends User {
   }>;
 }
 
-export class UserService extends BaseService<Prisma.UserDelegate<Prisma.RejectOnNotFound | Prisma.RejectPerOperation>> {
+export class UserService extends BaseService<typeof prisma.user> {
   constructor() {
     // Define searchable fields
     super(
       prisma, 
       prisma.user, 
-      ['email', 'firstName', 'lastName', 'firstNameArabic', 'lastNameArabic']
+      ['email', 'firstName', 'lastName', 'firstNameArabic', 'lastNameArabic'].map(
+        field => `${field}` as keyof typeof prisma.user
+      )
     );
   }
 
@@ -101,19 +103,22 @@ export class UserService extends BaseService<Prisma.UserDelegate<Prisma.RejectOn
 
       // Create new roles
       await Promise.all(
-        roles.map(roleName =>
-          this.prisma.userRole.create({
-            data: {
-              userId: id,
-              role: {
-                connectOrCreate: {
-                  where: { name: roleName },
-                  create: { name: roleName }
-                }
+        roles.map(async (roleName) => {
+          // First find the role
+          const role = await this.prisma.role.findUnique({
+            where: { name: roleName }
+          });
+          
+          if (role) {
+            // Create UserRole with roleId
+            return this.prisma.userRole.create({
+              data: {
+                userId: id,
+                roleId: role.id
               }
-            }
-          })
-        )
+            });
+          }
+        })
       );
 
       // Get updated user with new roles

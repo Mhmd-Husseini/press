@@ -1,5 +1,6 @@
 import CategoryForm from '@/components/admin/categories/CategoryForm';
 import PageHeader from '@/components/admin/PageHeader';
+import { Suspense } from 'react';
 
 export const metadata = {
   title: 'Create Category | Admin Panel',
@@ -13,7 +14,9 @@ export default function CreateCategoryPage() {
         description="Add a new content category to your site"
       />
       <div className="mt-6">
-        <CategoryForm />
+        <Suspense fallback={<div>Loading category form...</div>}>
+          <CategoryForm />
+        </Suspense>
       </div>
     </>
   );
