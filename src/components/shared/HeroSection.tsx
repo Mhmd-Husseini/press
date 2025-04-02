@@ -152,7 +152,7 @@ const HeroSection: React.FC<HeroProps> = ({
         {/* Container for the split layout - flex on desktop, stack on mobile */}
         <div className={`flex flex-col md:flex-row ${isRTL ? 'md:flex-row-reverse' : ''} h-auto md:h-[600px]`}>
           {/* Main featured story - full width on mobile, 60% on desktop */}
-          <div className="relative w-full md:w-[60%] h-[400px] md:h-full">
+          <div className="relative w-full md:w-[70%] h-[400px] md:h-full">
             {/* Current featured story */}
             <div className="relative h-full">
               {imageUrl ? (
@@ -162,7 +162,7 @@ const HeroSection: React.FC<HeroProps> = ({
                   fill
                   priority
                   className="object-cover w-full h-full"
-                  sizes="(max-width: 768px) 100vw, 60vw"
+                  sizes="(max-width: 768px) 100vw, 70vw"
                 />
               ) : (
                 <div className="absolute inset-0 bg-gray-800"></div>
@@ -236,7 +236,7 @@ const HeroSection: React.FC<HeroProps> = ({
               
               {/* List of featured headlines */}
               <div className="space-y-3 md:space-y-4">
-                {featuredPosts.slice(1, 6).map((post, index) => {
+                {featuredPosts.map((post, index) => {
                   // Skip the first post as it's shown in the main feature area
                   const postTitle = getTitle(post);
                   const postSlug = getSlug(post);
@@ -246,12 +246,12 @@ const HeroSection: React.FC<HeroProps> = ({
                   return (
                     <div 
                       key={post.id} 
-                      className={`group cursor-pointer ${index < featuredPosts.length - 2 ? 'pb-3 md:pb-4 border-b border-gray-800' : ''}`}
-                      onClick={() => goToSlide(index + 1)} // +1 because we skip the first post
+                      className={`group cursor-pointer ${index < featuredPosts.length - 1 ? 'pb-3 md:pb-4 border-b border-gray-800' : ''}`}
+                      onClick={() => goToSlide(index )}
                     >
                       <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         {/* Thumbnail image */}
-                        {post.media && post.media.length > 0 && (
+                        {post.media && post.media.length > 0 ? (
                           <div className="relative h-16 w-16 flex-shrink-0 rounded overflow-hidden">
                             <Image
                               src={post.media[0].url}
@@ -260,6 +260,13 @@ const HeroSection: React.FC<HeroProps> = ({
                               className="object-cover"
                               sizes="64px"
                             />
+                          </div>
+                        ) : (
+                          <div className="relative h-16 w-16 flex-shrink-0 rounded overflow-hidden bg-gray-700 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 13a1 1 0 110-2 1 1 0 010 2z" />
+                            </svg>
                           </div>
                         )}
                         
