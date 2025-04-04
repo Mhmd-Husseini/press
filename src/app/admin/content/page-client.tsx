@@ -17,6 +17,7 @@ interface Category {
 interface PostTranslation {
   locale: string;
   title: string;
+  slug?: string;
 }
 
 interface Post {
@@ -366,7 +367,7 @@ export default function ContentPageClient() {
                             Edit
                           </Link>
                           <Link
-                            href={`/posts/${post.id}`}
+                            href={`/posts/${(post.translations[0]?.slug || post.id)}`}
                             className="text-gray-600 hover:text-gray-900"
                             target="_blank"
                           >

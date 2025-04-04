@@ -7,12 +7,13 @@ import PostForm from '@/components/admin/posts/PostForm';
 import Skeleton from '@/components/shared/Skeleton';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import PostEditGuard from '@/components/admin/posts/PostEditGuard';
+import { PostWithRelations } from '@/lib/services/post.service';
 
 export default function EditPostPage() {
   const params = useParams();
   const postId = params.id as string;
   
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState<PostWithRelations | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,7 +67,7 @@ export default function EditPostPage() {
         <ErrorMessage message={error} />
       ) : (
         <PostEditGuard authorId={post?.authorId} postId={post?.id}>
-          <PostForm post={post} isEdit={true} />
+          <PostForm post={post || undefined} isEdit={true} />
         </PostEditGuard>
       )}
     </div>

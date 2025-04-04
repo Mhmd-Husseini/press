@@ -8,6 +8,7 @@ import { PostWithRelations } from '@/lib/services/post.service';
 import dynamic from 'next/dynamic';
 import MediaGallery from '@/components/media/MediaGallery';
 import PostStatusControl from './PostStatusControl';
+import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 // Import the editor component dynamically with correct options
 const RichTextEditor = dynamic(
@@ -84,6 +85,22 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [showMediaGallery, setShowMediaGallery] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<any | null>(null);
+
+  // Add accordion state
+  const [openSections, setOpenSections] = useState({
+    basicInfo: true,
+    content: true,
+    media: true,
+    metadata: false
+  });
+
+  // Toggle accordion section
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   // Fetch categories and tags
   useEffect(() => {
@@ -490,7 +507,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4 rounded-md">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -504,532 +521,520 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         </div>
       )}
       
-      <div className="bg-white p-6 rounded-md shadow-sm space-y-6">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Post Settings</h3>
+      {/* Basic Info Section */}
+      <div className="bg-white p-4 rounded-md shadow border border-gray-200">
+        <button 
+          type="button"
+          className="flex justify-between items-center w-full text-left px-2 py-3"
+          onClick={() => toggleSection('basicInfo')}
+        >
+          <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+          {openSections.basicInfo ? (
+            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+          ) : (
+            <ChevronRightIcon className="h-5 w-5 text-gray-500" />
+          )}
+        </button>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="mb-4">
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-              Category *
-            </label>
-            <select
-              id="category"
-              value={formData.categoryId}
-              onChange={handleChangeCategory}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-              required
-            >
-              <option value="">Select a category</option>
-              {categories.map(category => (
-                <option key={category.id} value={category.id}>
-                  {category.translations[0]?.name || 'Unnamed Category'}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          {/* Author information */}
-          <div className="mb-4">
-            <fieldset className="border border-gray-200 rounded-md p-4">
-              <legend className="text-sm font-medium text-gray-700 px-2">Author Information</legend>
-              
+        {openSections.basicInfo && (
+          <div className="mt-4 space-y-6 border-t border-gray-200 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="mb-4">
-                <label htmlFor="authorName" className="block text-sm font-medium text-gray-700">
-                  Author Name (English)
+                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                  Category *
                 </label>
-                <input
-                  type="text"
-                  id="authorName"
-                  value={formData.authorName || ''}
-                  onChange={handleChangeAuthorName}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder={user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : ''}
+                <select
+                  id="category"
+                  value={formData.categoryId}
+                  onChange={handleChangeCategory}
+                  className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.translations[0]?.name || 'Unnamed Category'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Status Control */}
+              <div className="mb-4">
+                <PostStatusControl
+                  value={formData.status}
+                  onChange={handleChangeStatus}
+                  authorId={formData.authorId}
+                  isEdit={isEdit}
                 />
+              </div>
+            </div>
+            
+            {/* Author Information */}
+            <div className="mb-4 border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Author Information</h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="authorName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Author Name (English)
+                  </label>
+                  <input
+                    type="text"
+                    id="authorName"
+                    value={formData.authorName || ''}
+                    onChange={handleChangeAuthorName}
+                    className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    placeholder={user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : ''}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Leave blank to use your account name
+                  </p>
+                </div>
+                
+                <div>
+                  <label htmlFor="authorNameArabic" className="block text-sm font-medium text-gray-700 mb-1">
+                    Author Name (Arabic)
+                  </label>
+                  <input
+                    type="text"
+                    id="authorNameArabic"
+                    value={formData.authorNameArabic || ''}
+                    onChange={handleChangeAuthorNameArabic}
+                    className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    dir="rtl"
+                    placeholder={user ? `${user.firstNameArabic || ''} ${user.lastNameArabic || ''}`.trim() : ''}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Tags */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
+                  Tags
+                </label>
+                <select
+                  id="tags"
+                  name="tags"
+                  multiple
+                  value={formData.tags}
+                  onChange={handleTagChange}
+                  className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white min-h-[100px]"
+                >
+                  {allTags.map(tag => (
+                    <option key={tag.id} value={tag.id}>
+                      {tag.name}
+                    </option>
+                  ))}
+                </select>
                 <p className="mt-1 text-xs text-gray-500">
-                  Leave blank to use your account name or enter a custom author name
+                  Hold Ctrl/Cmd to select multiple tags
                 </p>
               </div>
-              
-              <div className="mb-4">
-                <label htmlFor="authorNameArabic" className="block text-sm font-medium text-gray-700">
-                  Author Name (Arabic)
-                </label>
-                <input
-                  type="text"
-                  id="authorNameArabic"
-                  value={formData.authorNameArabic || ''}
-                  onChange={handleChangeAuthorNameArabic}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  dir="rtl"
-                  placeholder={user ? `${user.firstNameArabic || ''} ${user.lastNameArabic || ''}`.trim() : ''}
-                />
-              </div>
-            </fieldset>
-          </div>
 
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-              Status
-            </label>
-            <PostStatusControl
-              value={formData.status}
-              onChange={handleChangeStatus}
-              authorId={formData.authorId}
-              isEdit={isEdit}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
-              Tags
-            </label>
-            <select
-              id="tags"
-              name="tags"
-              multiple
-              value={formData.tags}
-              onChange={handleTagChange}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-            >
-              {allTags.map(tag => (
-                <option key={tag.id} value={tag.id}>
-                  {tag.name}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-xs text-gray-500">
-              Hold Ctrl/Cmd to select multiple tags
-            </p>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between">
-              <label htmlFor="new-tag" className="block text-sm font-medium text-gray-700">
-                Create New Tag
-              </label>
-              <button
-                type="button"
-                onClick={createNewTag}
-                className="ml-2 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Add
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              <input
-                id="new-tag"
-                type="text"
-                placeholder="Tag name (English)"
-                value={newTag.name}
-                onChange={(e) => handleNewTagChange('name', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-              <input
-                type="text"
-                placeholder="Tag name (Arabic)"
-                value={newTag.nameArabic}
-                onChange={(e) => handleNewTagChange('nameArabic', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-          </div>
-        </div>
-        
-        {/* Featured Post */}
-        <div className="mb-6">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="featured"
-              checked={formData.featured}
-              onChange={handleChangeFeatured}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
-              Featured Post (will appear in featured sections)
-            </label>
-          </div>
-        </div>
-
-        {/* Media Upload Section */}
-        <div className="mb-6 border border-gray-200 rounded-md p-4 bg-gray-50">
-          <h3 className="text-lg font-medium mb-3 text-gray-800">Featured Image</h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Upload an image to represent this post. This image will be used in listings and social media shares.
-          </p>
-
-          {/* Display existing and selected media */}
-          {(uploadedMedia.length > 0 || selectedMedia) && (
-            <div className="mb-4">
-              <h4 className="text-sm font-medium mb-2">Selected Media</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {uploadedMedia.map((item: any) => (
-                  <div key={item.id} className="relative group">
-                    <div className="aspect-video bg-gray-100 rounded-md overflow-hidden shadow-md hover:shadow-lg transition-all">
-                      <img 
-                        src={item.url} 
-                        alt={item.altText || 'Media item'} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <button 
-                        type="button"
-                        className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                        onClick={() => handleRemoveMedia(item.id)}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                    <div className="absolute bottom-1 left-1 right-1 text-xs bg-black bg-opacity-50 text-white p-1 rounded truncate">
-                      {item.title || 'Untitled'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* File input - Styled version */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select Image
-            </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors cursor-pointer">
-              <div className="space-y-1 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <div className="flex text-sm text-gray-600">
-                  <label
-                    htmlFor="file-upload"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                  >
-                    <span>Upload a file</span>
-                    <input
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      className="sr-only"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label htmlFor="new-tag" className="block text-sm font-medium text-gray-700">
+                    Create New Tag
                   </label>
-                  <p className="pl-1">or drag and drop</p>
                   <button
                     type="button"
-                    onClick={() => setShowMediaGallery(true)}
-                    className="pl-1 text-indigo-600 hover:text-indigo-500"
+                    onClick={createNewTag}
+                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    or choose from gallery
+                    Add
                   </button>
                 </div>
-                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    id="new-tag"
+                    type="text"
+                    placeholder="Tag name (English)"
+                    value={newTag.name}
+                    onChange={(e) => handleNewTagChange('name', e.target.value)}
+                    className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Tag name (Arabic)"
+                    value={newTag.nameArabic}
+                    onChange={(e) => handleNewTagChange('nameArabic', e.target.value)}
+                    className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Featured Post */}
+            <div className="mb-6">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  checked={formData.featured}
+                  onChange={handleChangeFeatured}
+                  className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <label htmlFor="featured" className="ml-2 block text-sm text-gray-700">
+                  Featured Post (will appear in featured sections)
+                </label>
               </div>
             </div>
           </div>
-
-          {/* Selected files preview */}
-          {mediaFiles.length > 0 && (
-            <div className="mb-3">
-              <h4 className="text-sm font-medium mb-2">Files to Upload</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {mediaFiles.map((file, index) => (
-                  <div key={index} className="relative group">
-                    <div className="aspect-video bg-gray-100 rounded-md overflow-hidden shadow-md">
-                      <img 
-                        src={URL.createObjectURL(file)} 
-                        alt={file.name} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <button 
-                        type="button"
-                        className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                        onClick={() => removeFile(index)}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                    <div className="absolute bottom-1 left-1 right-1 text-xs bg-black bg-opacity-50 text-white p-1 rounded truncate">
-                      {file.name}
-                    </div>
-                  </div>
+        )}
+      </div>
+      
+      {/* Content Section */}
+      <div className="bg-white p-4 rounded-md shadow border border-gray-200">
+        <button 
+          type="button"
+          className="flex justify-between items-center w-full text-left px-2 py-3"
+          onClick={() => toggleSection('content')}
+        >
+          <h3 className="text-lg font-medium text-gray-900">Content</h3>
+          {openSections.content ? (
+            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+          ) : (
+            <ChevronRightIcon className="h-5 w-5 text-gray-500" />
+          )}
+        </button>
+        
+        {openSections.content && (
+          <div className="mt-4 space-y-6 border-t border-gray-200 pt-4">
+            {/* Content Tabs */}
+            <div className="border-b border-gray-200">
+              <div className="flex">
+                {formData.translations.map(translation => (
+                  <button
+                    key={translation.locale}
+                    type="button"
+                    onClick={() => setActiveTab(translation.locale)}
+                    className={`${
+                      activeTab === translation.locale
+                        ? 'border-indigo-500 text-indigo-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    } px-4 py-2 text-sm font-medium border-b-2`}
+                  >
+                    {translation.locale === 'en' ? 'English' : 'العربية'}
+                  </button>
                 ))}
               </div>
             </div>
-          )}
-
-          {/* Upload button */}
-          {mediaFiles.length > 0 && (
-            <button
-              type="button"
-              onClick={uploadMedia}
-              disabled={isUploading}
-              className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 transition-colors"
-            >
-              {isUploading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Uploading...
-                </>
-              ) : (
-                'Upload Images'
-              )}
-            </button>
-          )}
-        </div>
-      </div>
-      
-      <div className="bg-white p-6 rounded-md shadow-sm">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-4" aria-label="Translations">
-            <button
-              type="button"
-              onClick={() => setActiveTab('en')}
-              className={`${
-                activeTab === 'en'
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm`}
-            >
-              English
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('ar')}
-              className={`${
-                activeTab === 'ar'
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap pb-3 px-1 border-b-2 font-medium text-sm`}
-            >
-              العربية (Arabic)
-            </button>
-          </nav>
-        </div>
-        
-        {activeTab === 'en' ? (
-          <div className="space-y-4 mt-4">
-            <div>
-              <label htmlFor="title-en" className="block text-sm font-medium text-gray-700">
-                Title (English) *
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  id="title-en"
-                  value={getTranslationByLocale('en').title}
-                  onChange={(e) => handleTranslationChange('en', 'title', e.target.value)}
-                  onBlur={() => generateSlug('en')}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-            </div>
             
-            <div>
-              <label htmlFor="slug-en" className="block text-sm font-medium text-gray-700">
-                Slug (English) *
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  id="slug-en"
-                  value={getTranslationByLocale('en').slug}
-                  onChange={(e) => handleTranslationChange('en', 'slug', e.target.value)}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  required
-                />
+            {/* Translation Panels */}
+            {formData.translations.map(translation => (
+              <div
+                key={translation.locale}
+                className={`transition-opacity duration-200 ${
+                  activeTab === translation.locale ? 'block' : 'hidden'
+                }`}
+                dir={translation.dir}
+              >
+                <div className="mb-4">
+                  <label htmlFor={`title-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
+                    Title {translation.locale === 'en' ? '*' : ''}
+                  </label>
+                  <input
+                    type="text"
+                    id={`title-${translation.locale}`}
+                    value={translation.title}
+                    onChange={(e) => handleTranslationChange(translation.locale, 'title', e.target.value)}
+                    className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    required={translation.locale === 'en'}
+                    dir={translation.dir}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label htmlFor={`slug-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
+                    Slug {translation.locale === 'en' ? '*' : ''}
+                  </label>
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      id={`slug-${translation.locale}`}
+                      value={translation.slug}
+                      onChange={(e) => handleTranslationChange(translation.locale, 'slug', e.target.value)}
+                      className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                      required={translation.locale === 'en'}
+                      dir="ltr"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => generateSlug(translation.locale)}
+                      className="ml-2 px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Generate
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <label htmlFor={`summary-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
+                    Summary
+                  </label>
+                  <textarea
+                    id={`summary-${translation.locale}`}
+                    value={translation.summary}
+                    onChange={(e) => handleTranslationChange(translation.locale, 'summary', e.target.value)}
+                    rows={3}
+                    className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    dir={translation.dir}
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label htmlFor={`content-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
+                    Content {translation.locale === 'en' ? '*' : ''}
+                  </label>
+                  <RichTextEditor
+                    value={translation.content}
+                    onChange={(value) => handleTranslationChange(translation.locale, 'content', value)}
+                    placeholder="Write your post content here..."
+                    locale={translation.locale}
+                  />
+                </div>
               </div>
-              <p className="mt-1 text-xs text-gray-500">
-                Used in URLs. Click out of the title field to auto-generate.
-              </p>
-            </div>
-            
-            <div>
-              <label htmlFor="summary-en" className="block text-sm font-medium text-gray-700">
-                Summary (English)
-              </label>
-              <div className="mt-1">
-                <textarea
-                  id="summary-en"
-                  rows={3}
-                  value={getTranslationByLocale('en').summary}
-                  onChange={(e) => handleTranslationChange('en', 'summary', e.target.value)}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                Brief description of the post. Used in search results and social media previews.
-              </p>
-            </div>
-            
-            <div>
-              <label htmlFor="content-en" className="block text-sm font-medium text-gray-700">
-                Content (English) *
-              </label>
-              <div className="mt-1" key={`editor-en-${activeTab === 'en'}`}>
-                <RichTextEditor
-                  value={getTranslationByLocale('en').content}
-                  onChange={(value) => handleTranslationChange('en', 'content', value)}
-                  placeholder="Write your post content here..."
-                  locale="en"
-                />
-              </div>
-            </div>
+            ))}
           </div>
-        ) : activeTab === 'ar' ? (
-          <div className="space-y-4 mt-4" dir="rtl">
-            <div>
-              <label htmlFor="title-ar" className="block text-sm font-medium text-gray-700">
-                العنوان (Arabic)
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  id="title-ar"
-                  value={getTranslationByLocale('ar').title}
-                  onChange={(e) => handleTranslationChange('ar', 'title', e.target.value)}
-                  onBlur={() => generateSlug('ar')}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="slug-ar" className="block text-sm font-medium text-gray-700">
-                الرابط (Slug)
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  id="slug-ar"
-                  value={getTranslationByLocale('ar').slug}
-                  onChange={(e) => handleTranslationChange('ar', 'slug', e.target.value)}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                يُستخدم في عناوين URL. انقر خارج حقل العنوان للإنشاء التلقائي.
-              </p>
-            </div>
-            
-            <div>
-              <label htmlFor="summary-ar" className="block text-sm font-medium text-gray-700">
-                ملخص (Summary)
-              </label>
-              <div className="mt-1">
-                <textarea
-                  id="summary-ar"
-                  rows={3}
-                  value={getTranslationByLocale('ar').summary}
-                  onChange={(e) => handleTranslationChange('ar', 'summary', e.target.value)}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                وصف موجز للمقال. يُستخدم في نتائج البحث ومعاينات وسائل التواصل الاجتماعي.
-              </p>
-            </div>
-            
-            <div>
-              <label htmlFor="content-ar" className="block text-sm font-medium text-gray-700">
-                المحتوى (Content)
-              </label>
-              <div className="mt-1" key={`editor-ar-${activeTab === 'ar'}`}>
-                <RichTextEditor
-                  value={getTranslationByLocale('ar').content}
-                  onChange={(value) => handleTranslationChange('ar', 'content', value)}
-                  placeholder="اكتب محتوى مقالك هنا..."
-                  dir="rtl"
-                  locale="ar"
-                />
-              </div>
-            </div>
-          </div>
-        ) : null}
+        )}
       </div>
       
-      <div className="bg-white p-6 rounded-md shadow-sm">
-        <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Metadata (SEO)</h3>
-        
-        <div className="space-y-4">
-          {metaFields.map((field, index) => (
-            <div key={index} className="flex items-start space-x-2">
-              <div className="w-1/3">
-                <input
-                  type="text"
-                  placeholder="Field name"
-                  value={field.key}
-                  onChange={(e) => handleMetaFieldChange(index, 'key', e.target.value)}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="flex-grow">
-                <input
-                  type="text"
-                  placeholder="Field value"
-                  value={field.value}
-                  onChange={(e) => handleMetaFieldChange(index, 'value', e.target.value)}
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-              </div>
-              {index > 2 && (
-                <button
-                  type="button"
-                  onClick={() => removeMetaField(index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-            </div>
-          ))}
-          
-          <button
-            type="button"
-            onClick={addMetaField}
-            className="mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Add Field
-          </button>
-        </div>
-      </div>
-      
-      <div className="flex justify-end">
-        <button
+      {/* Media Section */}
+      <div className="bg-white p-4 rounded-md shadow border border-gray-200">
+        <button 
           type="button"
-          onClick={() => router.back()}
-          className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex justify-between items-center w-full text-left px-2 py-3"
+          onClick={() => toggleSection('media')}
         >
-          Cancel
+          <h3 className="text-lg font-medium text-gray-900">Featured Image</h3>
+          {openSections.media ? (
+            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+          ) : (
+            <ChevronRightIcon className="h-5 w-5 text-gray-500" />
+          )}
         </button>
+        
+        {openSections.media && (
+          <div className="mt-4 space-y-6 border-t border-gray-200 pt-4">
+            <p className="text-sm text-gray-500 mb-4">
+              Upload an image to represent this post. This image will be used in listings and social media shares.
+            </p>
+
+            {/* Display existing and selected media */}
+            {(uploadedMedia.length > 0 || selectedMedia) && (
+              <div className="mb-4">
+                <h4 className="text-sm font-medium mb-2">Selected Media</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {uploadedMedia.map((item: any) => (
+                    <div key={item.id} className="relative group">
+                      <div className="aspect-video bg-gray-100 rounded-md overflow-hidden shadow-md hover:shadow-lg transition-all">
+                        <img 
+                          src={item.url} 
+                          alt={item.altText || 'Media item'} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <button 
+                          type="button"
+                          className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
+                          onClick={() => handleRemoveMedia(item.id)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="absolute bottom-1 left-1 right-1 text-xs bg-black bg-opacity-50 text-white p-1 rounded truncate">
+                        {item.title || 'Untitled'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* File input - Styled version */}
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Image
+              </label>
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors cursor-pointer">
+                <div className="space-y-1 text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    stroke="currentColor"
+                    fill="none"
+                    viewBox="0 0 48 48"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <div className="flex text-sm text-gray-600">
+                    <label
+                      htmlFor="file-upload"
+                      className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                    >
+                      <span>Upload a file</span>
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        className="sr-only"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowMediaGallery(true)}
+                      className="pl-1 text-indigo-600 hover:text-indigo-500"
+                    >
+                      or choose from gallery
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Selected files preview */}
+            {mediaFiles.length > 0 && (
+              <div className="mb-3">
+                <h4 className="text-sm font-medium mb-2">Files to Upload</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {mediaFiles.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <div className="aspect-video bg-gray-100 rounded-md overflow-hidden shadow-md">
+                        <img 
+                          src={URL.createObjectURL(file)} 
+                          alt={file.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <button 
+                          type="button"
+                          className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
+                          onClick={() => removeFile(index)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="absolute bottom-1 left-1 right-1 text-xs bg-black bg-opacity-50 text-white p-1 rounded truncate">
+                        {file.name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Upload button */}
+            {mediaFiles.length > 0 && (
+              <button
+                type="button"
+                onClick={uploadMedia}
+                disabled={isUploading}
+                className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 transition-colors"
+              >
+                {isUploading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Uploading...
+                  </>
+                ) : (
+                  'Upload Images'
+                )}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+      
+      {/* Metadata Section */}
+      <div className="bg-white p-4 rounded-md shadow border border-gray-200">
+        <button 
+          type="button"
+          className="flex justify-between items-center w-full text-left px-2 py-3"
+          onClick={() => toggleSection('metadata')}
+        >
+          <h3 className="text-lg font-medium text-gray-900">SEO & Metadata</h3>
+          {openSections.metadata ? (
+            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+          ) : (
+            <ChevronRightIcon className="h-5 w-5 text-gray-500" />
+          )}
+        </button>
+        
+        {openSections.metadata && (
+          <div className="mt-4 space-y-6 border-t border-gray-200 pt-4">
+            <div className="space-y-3">
+              {metaFields.map((field, index) => (
+                <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
+                  <div className="md:col-span-2">
+                    <input
+                      type="text"
+                      value={field.key}
+                      onChange={(e) => handleMetaFieldChange(index, 'key', e.target.value)}
+                      placeholder="Meta key"
+                      className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    />
+                  </div>
+                  <div className="md:col-span-3">
+                    <input
+                      type="text"
+                      value={field.value}
+                      onChange={(e) => handleMetaFieldChange(index, 'value', e.target.value)}
+                      placeholder="Meta value"
+                      className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    />
+                  </div>
+                  <div className="md:col-span-1 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => removeMetaField(index)}
+                      className="inline-flex items-center p-1.5 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addMetaField}
+                className="mt-2 inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Add Metadata Field
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Submit Button */}
+      <div className="flex justify-end">
         <button
           type="submit"
           disabled={isSubmitting}
-          className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
         >
           {isSubmitting ? 'Saving...' : isEdit ? 'Update Post' : 'Create Post'}
         </button>
