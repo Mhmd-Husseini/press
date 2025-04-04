@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { DataTable, Column } from '@/components/shared/data-table';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Define a type that matches what we get from the server action
 type UserTableProps = {
@@ -17,12 +18,25 @@ type UserTableProps = {
     totalPages: number;
   };
   basePath?: string;
+  allowEditing?: string[]; // List of roles that can edit/delete users
 };
 
-export default function UserTable({ users, meta, basePath = '/admin/users' }: UserTableProps) {
+export default function UserTable({ 
+  users, 
+  meta, 
+  basePath = '/admin/users',
+  allowEditing 
+}: UserTableProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  // Check if the current user has a role that allows editing
+  const canEditUsers = () => {
+    if (!allowEditing || !user || !user.roles) return true; // Default to true if not specified
+    return allowEditing.some(role => user.roles.includes(role));
+  };
 
   const handleDelete = async (userId: string) => {
     if (!confirm('Are you sure you want to delete this user?')) {
@@ -142,19 +156,23 @@ export default function UserTable({ users, meta, basePath = '/admin/users' }: Us
           >
             View
           </Link>
-          <Link
-            href={`/admin/users/${user.id}/edit`}
-            className="text-blue-600 hover:text-blue-900"
-          >
-            Edit
-          </Link>
-          <button
-            onClick={() => handleDelete(user.id)}
-            disabled={isDeleting === user.id}
-            className="text-red-600 hover:text-red-900 disabled:opacity-50"
-          >
-            {isDeleting === user.id ? 'Deleting...' : 'Delete'}
-          </button>
+          {canEditUsers() && (
+            <Link
+              href={`/admin/users/${user.id}/edit`}
+              className="text-blue-600 hover:text-blue-900"
+            >
+              Edit
+            </Link>
+          )}
+          {canEditUsers() && (
+            <button
+              onClick={() => handleDelete(user.id)}
+              disabled={isDeleting === user.id}
+              className="text-red-600 hover:text-red-900 disabled:opacity-50"
+            >
+              {isDeleting === user.id ? 'Deleting...' : 'Delete'}
+            </button>
+          )}
         </div>
       ),
     },
