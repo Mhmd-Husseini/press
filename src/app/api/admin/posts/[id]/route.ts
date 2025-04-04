@@ -34,20 +34,13 @@ export async function GET(
 
     // Check role-based permissions
     const userRoles = user.roles || [];
-    const isAdmin = userRoles.includes('SUPER_ADMIN') || 
-                    userRoles.includes('EDITOR_IN_CHIEF') || 
-                    userRoles.includes('EDITORIAL');
-    const isSeniorEditor = userRoles.includes('SENIOR_EDITOR');
-    const isEditor = userRoles.includes('EDITOR');
+    const isAdmin = userRoles.some(r => r.role?.name === 'SUPER_ADMIN' || 
+                                    r.role?.name === 'EDITOR_IN_CHIEF' || 
+                                    r.role?.name === 'EDITORIAL');
+    const isSeniorEditor = userRoles.some(r => r.role?.name === 'SENIOR_EDITOR');
+    const isEditor = userRoles.some(r => r.role?.name === 'EDITOR');
     const isAuthor = post.authorId === user.id;
     
-    // Editors can only view their own posts
-    if (isEditor && !isAdmin && !isSeniorEditor && !isAuthor) {
-      return NextResponse.json({ 
-        error: 'As an Editor, you can only view your own posts' 
-      }, { status: 403 });
-    }
-
     return NextResponse.json(post);
   } catch (error) {
     console.error('Error fetching post:', error);
@@ -83,11 +76,11 @@ export async function PUT(
     
     // Check role-based permissions
     const userRoles = user.roles || [];
-    const isAdmin = userRoles.includes('SUPER_ADMIN') || 
-                   userRoles.includes('EDITOR_IN_CHIEF') || 
-                   userRoles.includes('EDITORIAL');
-    const isSeniorEditor = userRoles.includes('SENIOR_EDITOR');
-    const isEditor = userRoles.includes('EDITOR');
+    const isAdmin = userRoles.some(r => r.role?.name === 'SUPER_ADMIN' || 
+                                    r.role?.name === 'EDITOR_IN_CHIEF' || 
+                                    r.role?.name === 'EDITORIAL');
+    const isSeniorEditor = userRoles.some(r => r.role?.name === 'SENIOR_EDITOR');
+    const isEditor = userRoles.some(r => r.role?.name === 'EDITOR');
     const isAuthor = currentPost.authorId === user.id;
     
     // Editors can only edit their own posts

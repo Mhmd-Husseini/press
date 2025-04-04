@@ -6,9 +6,9 @@ import UserTable from '@/components/users/user-table';
 import RoleGuard from '@/components/shared/RoleGuard';
 import PermissionGuard from '@/components/shared/PermissionGuard';
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 
-export default function UsersPage() {
+function UsersContent() {
   const searchParams = useSearchParams();
   const [users, setUsers] = useState<any[]>([]);
   const [meta, setMeta] = useState<any>(null);
@@ -108,5 +108,15 @@ export default function UsersPage() {
         )}
       </div>
     </RoleGuard>
+  );
+}
+
+export default function UsersPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-6">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+    </div>}>
+      <UsersContent />
+    </Suspense>
   );
 } 

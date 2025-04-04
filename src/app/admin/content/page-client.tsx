@@ -84,7 +84,9 @@ export default function ContentPageClient() {
           params.append('categoryId', selectedCategoryId);
         }
         
+        // Remove the editor restriction
         // For Editor role, only show their own posts
+        /*
         if (user && user.roles && user.roles.includes('EDITOR') && 
             !user.roles.includes('SUPER_ADMIN') && 
             !user.roles.includes('EDITOR_IN_CHIEF') && 
@@ -92,6 +94,16 @@ export default function ContentPageClient() {
             !user.roles.includes('SENIOR_EDITOR')) {
           params.append('authorId', user.id);
         }
+        */
+        
+        // If we need to check roles in the future, use this structure:
+        /*
+        if (user && user.roles && 
+            user.roles.some(r => r.role?.name === 'EDITOR') && 
+            !user.roles.some(r => ['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL', 'SENIOR_EDITOR'].includes(r.role?.name))) {
+          params.append('authorId', user.id);
+        }
+        */
         
         // Add parameters to URL if we have any
         if (params.toString()) {
@@ -179,7 +191,7 @@ export default function ContentPageClient() {
     if (!post.author) return 'Unknown';
     
     // If name property exists (for backwards compatibility)
-    if ('name' in post.author && post.author.name) {
+    if ('name' in post.author && typeof post.author.name === 'string' && post.author.name) {
       return post.author.name;
     }
     

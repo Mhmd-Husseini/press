@@ -34,24 +34,18 @@ export async function GET(request: NextRequest) {
 
     // Check role-based permissions
     const userRoles = user.roles || [];
-    const isAdmin = userRoles.includes('SUPER_ADMIN') || 
-                    userRoles.includes('EDITOR_IN_CHIEF') || 
-                    userRoles.includes('EDITORIAL');
-    const isSeniorEditor = userRoles.includes('SENIOR_EDITOR');
-    const isEditor = userRoles.includes('EDITOR');
+    const isAdmin = userRoles.some(r => r.role?.name === 'SUPER_ADMIN' || 
+                                   r.role?.name === 'EDITOR_IN_CHIEF' || 
+                                   r.role?.name === 'EDITORIAL');
+    const isSeniorEditor = userRoles.some(r => r.role?.name === 'SENIOR_EDITOR');
+    const isEditor = userRoles.some(r => r.role?.name === 'EDITOR');
     
-    // If user is an editor (and not higher role), restrict to only their posts
-    let effectiveAuthorId = authorId;
-    if (isEditor && !isAdmin && !isSeniorEditor) {
-      effectiveAuthorId = user.id; // Force filter by current user
-    }
-
     // Get posts with the specified filters
     const result = await postService.getAll({
       status: status || undefined,
       locale: locale || undefined,
       categoryId: categoryId || undefined,
-      authorId: effectiveAuthorId || undefined,
+      authorId: authorId || undefined,
       page: page || undefined,
       limit: limit || undefined,
       search: search || undefined,
