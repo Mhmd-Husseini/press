@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prisma:seed": "ts-node -P prisma/tsconfig.json prisma/seed.ts",
+    "prisma:seed": "npx prisma db seed",
     "seed": "node seed-db.js",
     "fix-media": "node -r dotenv/config src/scripts/fix-media-associations.js"
   },

@@ -81,6 +81,11 @@ export class UserService extends BaseService<typeof prisma.user> {
   }
 
   async update(id: string, userData: any, roles?: string[]): Promise<UserWithRoles | null> {
+    // Hash password if it's being updated
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 10);
+    }
+
     // Update user data
     const updatedUser = await this.prisma.user.update({
       where: { id },

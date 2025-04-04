@@ -124,24 +124,6 @@ async function main() {
     },
   });
   
-  const adminRole = await prisma.role.upsert({
-    where: { name: 'ADMIN' },
-    update: {},
-    create: {
-      name: 'ADMIN',
-      description: 'Administrator with limited admin access',
-    },
-  });
-  
-  const userRole = await prisma.role.upsert({
-    where: { name: 'USER' },
-    update: {},
-    create: {
-      name: 'USER',
-      description: 'Regular user with basic access',
-    },
-  });
-  
   // Assign all permissions to SUPER_ADMIN role
   console.log('Assigning permissions to roles...');
   for (const permission of createdPermissions) {
@@ -213,7 +195,8 @@ async function main() {
   
   const superAdmin = await prisma.user.upsert({
     where: { email: 'superadmin@gmail.com' },
-    update: {},
+    update: {
+    },
     create: {
       email: 'superadmin@gmail.com',
       password: hashedPassword,

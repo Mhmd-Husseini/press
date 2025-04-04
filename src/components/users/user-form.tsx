@@ -2,8 +2,15 @@
 
 import { UserWithRoles } from '@/lib/services/user.service';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormState } from 'react-dom';
+
+interface Role {
+  id: string;
+  name: string;
+  nameArabic?: string | null;
+  description?: string | null;
+}
 
 type UserFormProps = {
   user?: Omit<UserWithRoles, 'password'>;
@@ -15,10 +22,39 @@ export default function UserForm({ user, onSubmit, submitButtonText }: UserFormP
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [availableRoles] = useState(['ADMIN', 'USER', 'EDITOR']);
+  const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
+  const [loadingRoles, setLoadingRoles] = useState(true);
   const [selectedRoles, setSelectedRoles] = useState<string[]>(
     user?.roles?.map(r => r.role.name) || ['USER']
   );
+
+  // Fetch roles from the database
+  useEffect(() => {
+    async function fetchRoles() {
+      try {
+        setLoadingRoles(true);
+        const response = await fetch('/api/admin/roles');
+        if (!response.ok) {
+          throw new Error('Failed to fetch roles');
+        }
+        const roles = await response.json();
+        setAvailableRoles(roles);
+      } catch (err) {
+        console.error('Error fetching roles:', err);
+        setError('Failed to load roles. Using default roles instead.');
+        // Fallback to default roles if API fails
+        setAvailableRoles([
+          { id: '1', name: 'ADMIN', description: 'Administrator' },
+          { id: '2', name: 'USER', description: 'Regular user' },
+          { id: '3', name: 'EDITOR', description: 'Content editor' }
+        ]);
+      } finally {
+        setLoadingRoles(false);
+      }
+    }
+
+    fetchRoles();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -201,22 +237,31 @@ export default function UserForm({ user, onSubmit, submitButtonText }: UserFormP
       {/* Roles */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">User Roles</h3>
-        <div className="flex flex-wrap gap-3">
-          {availableRoles.map(role => (
-            <button
-              key={role}
-              type="button"
-              onClick={() => toggleRole(role)}
-              className={`px-4 py-2 rounded-md ${
-                selectedRoles.includes(role)
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700'
-              }`}
-            >
-              {role}
-            </button>
-          ))}
-        </div>
+        {loadingRoles ? (
+          <div className="flex gap-3">
+            <div className="h-10 w-20 bg-gray-200 animate-pulse rounded-md"></div>
+            <div className="h-10 w-20 bg-gray-200 animate-pulse rounded-md"></div>
+            <div className="h-10 w-20 bg-gray-200 animate-pulse rounded-md"></div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            {availableRoles.map(role => (
+              <button
+                key={role.id}
+                type="button"
+                onClick={() => toggleRole(role.name)}
+                className={`px-4 py-2 rounded-md ${
+                  selectedRoles.includes(role.name)
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
+                title={role.description || role.name}
+              >
+                {role.name}
+              </button>
+            ))}
+          </div>
+        )}
         {selectedRoles.length === 0 && (
           <p className="text-sm text-red-500">Please select at least one role</p>
         )}

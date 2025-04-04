@@ -1,25 +1,12 @@
-'use client';
-
 import { getUserById, updateUser } from '@/app/actions/user';
-import UserForm from '@/components/users/user-form';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
+import UserFormWrapper from './user-form-wrapper'
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+// This is a Server Component
+export default async function EditUserPage({ params }: { params: { id: string } }) {
   const userId = params.id;
   
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Edit User</h1>
-      
-      <Suspense fallback={<div>Loading user information...</div>}>
-        <EditUserForm userId={userId} />
-      </Suspense>
-    </div>
-  );
-}
-
-async function EditUserForm({ userId }: { userId: string }) {
+  // Fetch user data on the server
   const { success, user, error } = await getUserById(userId);
   
   if (!success || !user) {
@@ -27,10 +14,11 @@ async function EditUserForm({ userId }: { userId: string }) {
   }
   
   return (
-    <UserForm 
-      user={user}
-      onSubmit={updateUser}
-      submitButtonText="Update User"
-    />
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Edit User</h1>
+      
+      {/* Client component for form handling */}
+      <UserFormWrapper user={user} />
+    </div>
   );
-} 
+}
