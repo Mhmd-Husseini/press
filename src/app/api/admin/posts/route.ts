@@ -14,27 +14,49 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
+    // Get user from request
+    const user = await authService.getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized - User not found' }, { status: 401 });
+    }
+
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status') as PostStatus | null;
     const locale = searchParams.get('locale');
-    const categoryId = searchParams.get('category');
-    const authorId = searchParams.get('author');
+    const categoryId = searchParams.get('categoryId') || searchParams.get('category'); // Accept both forms
+    const authorId = searchParams.get('authorId') || searchParams.get('author'); // Accept both forms
     const featured = searchParams.has('featured') ? searchParams.get('featured') === 'true' : undefined;
     const tag = searchParams.get('tag');
     const search = searchParams.get('search');
     const page = searchParams.has('page') ? parseInt(searchParams.get('page') || '1', 10) : 1;
     const limit = searchParams.has('limit') ? parseInt(searchParams.get('limit') || '10', 10) : 10;
 
+    // Check role-based permissions
+    const userRoles = user.roles || [];
+    const isAdmin = userRoles.includes('SUPER_ADMIN') || 
+                    userRoles.includes('EDITOR_IN_CHIEF') || 
+                    userRoles.includes('EDITORIAL');
+    const isSeniorEditor = userRoles.includes('SENIOR_EDITOR');
+    const isEditor = userRoles.includes('EDITOR');
+    
+    // If user is an editor (and not higher role), restrict to only their posts
+    let effectiveAuthorId = authorId;
+    if (isEditor && !isAdmin && !isSeniorEditor) {
+      effectiveAuthorId = user.id; // Force filter by current user
+    }
+
     // Get posts with the specified filters
     const result = await postService.getAll({
       status: status || undefined,
       locale: locale || undefined,
       categoryId: categoryId || undefined,
-      authorId: authorId || undefined,
+      authorId: effectiveAuthorId || undefined,
       page: page || undefined,
       limit: limit || undefined,
-      search: search || undefined
+      search: search || undefined,
+      tag: tag || undefined,
+      featured: featured
     });
 
     return NextResponse.json(result);

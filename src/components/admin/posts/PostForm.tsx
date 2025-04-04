@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PostWithRelations } from '@/lib/services/post.service';
 import dynamic from 'next/dynamic';
 import MediaGallery from '@/components/media/MediaGallery';
+import PostStatusControl from './PostStatusControl';
 
 // Import the editor component dynamically with correct options
 const RichTextEditor = dynamic(
@@ -570,18 +571,12 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
             <label htmlFor="status" className="block text-sm font-medium text-gray-700">
               Status
             </label>
-            <select
-              id="status"
-              name="status"
+            <PostStatusControl
               value={formData.status}
               onChange={handleChangeStatus}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-            >
-              <option value={PostStatus.DRAFT}>Draft</option>
-              <option value={PostStatus.READY_TO_PUBLISH}>Ready to Publish</option>
-              <option value={PostStatus.WAITING_APPROVAL}>Waiting Approval</option>
-              <option value={PostStatus.PUBLISHED}>Published</option>
-            </select>
+              authorId={formData.authorId}
+              isEdit={isEdit}
+            />
           </div>
 
           <div>

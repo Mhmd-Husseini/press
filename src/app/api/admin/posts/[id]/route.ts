@@ -16,6 +16,12 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
+    // Get user from request
+    const user = await authService.getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized - User not found' }, { status: 401 });
+    }
+
     // Get locale parameter from query if present
     const { searchParams } = new URL(request.url);
     const locale = searchParams.get('locale');
@@ -24,6 +30,22 @@ export async function GET(
     
     if (!post) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
+    // Check role-based permissions
+    const userRoles = user.roles || [];
+    const isAdmin = userRoles.includes('SUPER_ADMIN') || 
+                    userRoles.includes('EDITOR_IN_CHIEF') || 
+                    userRoles.includes('EDITORIAL');
+    const isSeniorEditor = userRoles.includes('SENIOR_EDITOR');
+    const isEditor = userRoles.includes('EDITOR');
+    const isAuthor = post.authorId === user.id;
+    
+    // Editors can only view their own posts
+    if (isEditor && !isAdmin && !isSeniorEditor && !isAuthor) {
+      return NextResponse.json({ 
+        error: 'As an Editor, you can only view your own posts' 
+      }, { status: 403 });
     }
 
     return NextResponse.json(post);
@@ -50,16 +72,75 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized - User not found' }, { status: 401 });
     }
 
+    // Get the current post to check ownership
+    const currentPost = await postService.getById(params.id);
+    if (!currentPost) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
     // Parse request body
     const data = await request.json();
-
-    // Check if the user is trying to publish the post
-    if (data.status === 'PUBLISHED') {
-      // Check if user has permission to publish posts
-      const canPublishContent = await authService.hasPermission(request, 'publish_content');
-      if (!canPublishContent) {
-        return NextResponse.json({ error: 'You do not have permission to publish content' }, { status: 403 });
+    
+    // Check role-based permissions
+    const userRoles = user.roles || [];
+    const isAdmin = userRoles.includes('SUPER_ADMIN') || 
+                   userRoles.includes('EDITOR_IN_CHIEF') || 
+                   userRoles.includes('EDITORIAL');
+    const isSeniorEditor = userRoles.includes('SENIOR_EDITOR');
+    const isEditor = userRoles.includes('EDITOR');
+    const isAuthor = currentPost.authorId === user.id;
+    
+    // Editors can only edit their own posts
+    if (isEditor && !isAdmin && !isSeniorEditor && !isAuthor) {
+      return NextResponse.json({ 
+        error: 'As an Editor, you can only edit your own posts' 
+      }, { status: 403 });
+    }
+    
+    // Check status change permissions
+    if (data.status) {
+      // If status is being changed to PUBLISHED or DECLINED
+      if (data.status === 'PUBLISHED' || data.status === 'DECLINED') {
+        // Only admins can publish or decline
+        if (!isAdmin) {
+          return NextResponse.json({ 
+            error: 'You do not have permission to publish or decline content' 
+          }, { status: 403 });
+        }
+        
+        // Set the publisher or decliner ID
+        if (data.status === 'PUBLISHED') {
+          data.publishedById = user.id;
+          data.publishedAt = new Date();
+        } else if (data.status === 'DECLINED') {
+          data.declinedById = user.id;
+        }
       }
+      
+      // If status is being changed to READY_TO_PUBLISH
+      else if (data.status === 'READY_TO_PUBLISH') {
+        // Only admins and senior editors can mark as ready to publish
+        if (!isAdmin && !isSeniorEditor) {
+          return NextResponse.json({ 
+            error: 'You do not have permission to mark content as ready to publish' 
+          }, { status: 403 });
+        }
+        
+        // Set the approver ID
+        data.approvedById = user.id;
+      }
+      
+      // Editors can only set to DRAFT or WAITING_APPROVAL
+      else if (isEditor && !isAdmin && !isSeniorEditor) {
+        if (data.status !== 'DRAFT' && data.status !== 'WAITING_APPROVAL') {
+          return NextResponse.json({ 
+            error: 'As an Editor, you can only set status to Draft or Waiting Approval' 
+          }, { status: 403 });
+        }
+      }
+      
+      // Set status update timestamp
+      data.statusUpdatedAt = new Date();
     }
 
     // Add the current user as the updater

@@ -7,6 +7,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import PageHeader from '@/components/admin/PageHeader';
 import { PostStatus } from '@prisma/client';
 import { formatDate, truncateText } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Category {
   id: string;
@@ -45,6 +46,7 @@ export default function ContentPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedCategoryId = searchParams.get('category');
+  const { user } = useAuth();
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -76,9 +78,24 @@ export default function ContentPageClient() {
       
       try {
         let url = '/api/admin/posts';
+        const params = new URLSearchParams();
         
         if (selectedCategoryId) {
-          url += `?categoryId=${selectedCategoryId}`;
+          params.append('categoryId', selectedCategoryId);
+        }
+        
+        // For Editor role, only show their own posts
+        if (user && user.roles && user.roles.includes('EDITOR') && 
+            !user.roles.includes('SUPER_ADMIN') && 
+            !user.roles.includes('EDITOR_IN_CHIEF') && 
+            !user.roles.includes('EDITORIAL') &&
+            !user.roles.includes('SENIOR_EDITOR')) {
+          params.append('authorId', user.id);
+        }
+        
+        // Add parameters to URL if we have any
+        if (params.toString()) {
+          url += `?${params.toString()}`;
         }
         
         const response = await fetch(url);
@@ -95,7 +112,7 @@ export default function ContentPageClient() {
     };
     
     fetchPosts();
-  }, [selectedCategoryId]);
+  }, [selectedCategoryId, user]);
   
   const handleCategoryChange = (categoryId?: string) => {
     if (categoryId) {

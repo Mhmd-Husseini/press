@@ -6,6 +6,7 @@ import PageHeader from '@/components/admin/PageHeader';
 import PostForm from '@/components/admin/posts/PostForm';
 import Skeleton from '@/components/shared/Skeleton';
 import ErrorMessage from '@/components/shared/ErrorMessage';
+import PostEditGuard from '@/components/admin/posts/PostEditGuard';
 
 export default function EditPostPage() {
   const params = useParams();
@@ -64,7 +65,9 @@ export default function EditPostPage() {
       ) : error ? (
         <ErrorMessage message={error} />
       ) : (
-        <PostForm post={post} isEdit={true} />
+        <PostEditGuard authorId={post?.authorId} postId={post?.id}>
+          <PostForm post={post} isEdit={true} />
+        </PostEditGuard>
       )}
     </div>
   );
