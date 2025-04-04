@@ -9,6 +9,7 @@ import { CategoryWithTranslations } from '@/lib/services/category.service';
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { PencilIcon, TrashIcon, ViewColumnsIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import PermissionGuard from '@/components/shared/PermissionGuard';
+import RoleGuard from '@/components/shared/RoleGuard';
 
 export default function CategoryList() {
   const router = useRouter();
@@ -159,7 +160,7 @@ export default function CategoryList() {
               </PermissionGuard>
               
               {/* Add subcategory */}
-              <PermissionGuard permissions="create_categories">
+              <RoleGuard roles={['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL']}>
                 <Link 
                   href={`/admin/categories/new?parent=${category.id}`}
                   className="text-gray-500 hover:text-gray-700"
@@ -167,10 +168,10 @@ export default function CategoryList() {
                 >
                   <PlusCircleIcon className="h-5 w-5" />
                 </Link>
-              </PermissionGuard>
+              </RoleGuard>
               
               {/* Edit category */}
-              <PermissionGuard permissions="update_categories">
+              <RoleGuard roles={['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL']}>
                 <Link 
                   href={`/admin/categories/${category.id}/edit`}
                   className="text-gray-500 hover:text-gray-700"
@@ -178,10 +179,10 @@ export default function CategoryList() {
                 >
                   <PencilIcon className="h-5 w-5" />
                 </Link>
-              </PermissionGuard>
+              </RoleGuard>
               
               {/* Delete category */}
-              <PermissionGuard permissions="delete_categories">
+              <RoleGuard roles={['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL']}>
                 <button
                   onClick={() => handleDelete(category.id)}
                   className="text-red-500 hover:text-red-700"
@@ -189,7 +190,7 @@ export default function CategoryList() {
                 >
                   <TrashIcon className="h-5 w-5" />
                 </button>
-              </PermissionGuard>
+              </RoleGuard>
             </div>
           </div>
           
@@ -327,7 +328,7 @@ export default function CategoryList() {
                             </PermissionGuard>
                             
                             {/* Add subcategory */}
-                            <PermissionGuard permissions="create_categories">
+                            <RoleGuard roles={['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL']}>
                               <Link 
                                 href={`/admin/categories/new?parent=${category.id}`}
                                 className="text-gray-500 hover:text-gray-700"
@@ -335,10 +336,10 @@ export default function CategoryList() {
                               >
                                 <PlusCircleIcon className="h-5 w-5" />
                               </Link>
-                            </PermissionGuard>
+                            </RoleGuard>
                             
                             {/* Edit category */}
-                            <PermissionGuard permissions="update_categories">
+                            <RoleGuard roles={['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL']}>
                               <Link 
                                 href={`/admin/categories/${category.id}/edit`}
                                 className="text-gray-500 hover:text-gray-700"
@@ -346,10 +347,10 @@ export default function CategoryList() {
                               >
                                 <PencilIcon className="h-5 w-5" />
                               </Link>
-                            </PermissionGuard>
+                            </RoleGuard>
                             
                             {/* Delete category */}
-                            <PermissionGuard permissions="delete_categories">
+                            <RoleGuard roles={['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL']}>
                               <button
                                 onClick={() => handleDelete(category.id)}
                                 className="text-red-500 hover:text-red-700"
@@ -357,7 +358,7 @@ export default function CategoryList() {
                               >
                                 <TrashIcon className="h-5 w-5" />
                               </button>
-                            </PermissionGuard>
+                            </RoleGuard>
                           </div>
                         </div>
                         

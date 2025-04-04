@@ -5,6 +5,8 @@ import { useParams } from 'next/navigation';
 import CategoryForm from '@/components/admin/categories/CategoryForm';
 import PageHeader from '@/components/admin/PageHeader';
 import { CategoryWithTranslations } from '@/lib/services/category.service';
+import Link from 'next/link';
+import RoleGuard from '@/components/shared/RoleGuard';
 
 export default function EditCategoryPage() {
   const params = useParams();
@@ -72,8 +74,22 @@ export default function EditCategoryPage() {
 
   const categoryName = category.translations?.[0]?.name || 'Unnamed Category';
 
+  // Unauthorized access message
+  const unauthorizedFallback = (
+    <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-8 rounded-lg text-center">
+      <h3 className="text-lg font-medium">Access Denied</h3>
+      <p className="mt-2">You don't have permission to edit categories.</p>
+      <Link href="/admin/categories" className="mt-4 inline-block text-blue-600 hover:underline">
+        Return to Categories
+      </Link>
+    </div>
+  );
+
   return (
-    <>
+    <RoleGuard
+      roles={['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL']}
+      fallback={unauthorizedFallback}
+    >
       <PageHeader 
         title={`Edit Category: ${categoryName}`}
         description="Update your category information"
@@ -81,6 +97,6 @@ export default function EditCategoryPage() {
       <div className="mt-6">
         <CategoryForm category={category} isEdit={true} />
       </div>
-    </>
+    </RoleGuard>
   );
 } 

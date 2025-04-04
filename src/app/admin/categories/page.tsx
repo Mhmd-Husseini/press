@@ -1,5 +1,5 @@
-import CategoryList from '@/components/admin/categories/CategoryList';
-import PageHeader from '@/components/admin/PageHeader';
+import { Suspense } from 'react';
+import CategoryManagementClient from './CategoryManagementClient';
 
 export const metadata = {
   title: 'Categories Management | Admin Panel',
@@ -7,17 +7,8 @@ export const metadata = {
 
 export default function CategoriesPage() {
   return (
-    <>
-      <PageHeader 
-        title="Categories" 
-        description="Manage your content categories"
-        buttonText="Add Category"
-        buttonHref="/admin/categories/new"
-        buttonPermission="create_categories"
-      />
-      <div className="mt-6">
-        <CategoryList />
-      </div>
-    </>
+    <Suspense fallback={<div>Loading categories...</div>}>
+      <CategoryManagementClient />
+    </Suspense>
   );
 } 
