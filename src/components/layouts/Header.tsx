@@ -145,21 +145,21 @@ export const Header = () => {
   const displayCategories = categories.length > 0 ? categories : fallbackCategories;
 
   return (
-    <header className="bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
+    <header className="bg-white text-gray-800" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Bar */}
-      <div className="bg-gray-950 py-2">
+      <div className="bg-gray-800 py-2">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
             <div className={`text-sm text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
               {currentDate}
             </div>
             <div className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} text-sm`}>
-              <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
+              <Link href="/contact" className="text-gray-400 hover:text-gray-900 transition-colors">
                 {isRTL ? 'اتصل بنا' : 'Contact Us'}
               </Link>
               <button
                 onClick={() => switchLanguage(isRTL ? 'en' : 'ar')}
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-gray-900 transition-colors"
               >
                 {isRTL ? 'English' : 'العربية'}
               </button>
@@ -167,9 +167,10 @@ export const Header = () => {
           </div>
         </div>
       </div>
+      <div className='bg-red-400 h-[1px]'></div>
 
       {/* Main Header */}
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-3 bg-gray-800 border-b border-gray-200">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center">
@@ -184,8 +185,8 @@ export const Header = () => {
                 />
               </div>
               <div>
-                <span className="text-l tracking-tight text-gray-400">Phoenix</span>
-                <span className={`text-l text-gray-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+                <span className="text-l font-bold tracking-tight text-gray-400">Phoenix</span>
+                <span className={`text-l font-bold text-gray-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
               </div>
             </Link>
           </div>
@@ -196,7 +197,7 @@ export const Header = () => {
               <input
                 type="text"
                 placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
-                className={`bg-gray-800 text-white px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                className={`bg-gray-800 text-gray-300 px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -204,7 +205,7 @@ export const Header = () => {
                 type="submit"
                 className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
@@ -213,7 +214,7 @@ export const Header = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button onClick={toggleMobileMenu} className="text-white">
+            <button onClick={toggleMobileMenu} className="text-gray-800">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
@@ -223,7 +224,7 @@ export const Header = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="bg-gray-800">
+      <nav className="bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="hidden md:flex items-center justify-between h-12">
             <ul className={`flex ${isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'}`}>
@@ -232,7 +233,7 @@ export const Header = () => {
                 <>
                   {[1, 2, 3].map((i) => (
                     <li key={i} className="animate-pulse">
-                      <div className="h-4 w-16 bg-gray-700 rounded"></div>
+                      <div className="h-4 w-16 bg-gray-200 rounded"></div>
                     </li>
                   ))}
                 </>
@@ -242,7 +243,7 @@ export const Header = () => {
                   <li key={category.slug}>
                     <Link
                       href={`/categories/${category.slug}`}
-                      className="hover:text-primary-400 transition-colors"
+                      className="text-gray-700 hover:text-amber-600 transition-colors"
                     >
                       {isRTL ? category.name.ar : category.name.en}
                     </Link>
@@ -296,14 +297,14 @@ export const Header = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-gray-800">
+        <div className="md:hidden bg-white border-t border-gray-200">
           <div className="container mx-auto px-4 py-4">
             {/* Search */}
             <form onSubmit={handleSearch} className="relative mb-4">
               <input
                 type="text"
                 placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
-                className={`bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                className={`bg-gray-100 text-gray-800 px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -311,7 +312,7 @@ export const Header = () => {
                 type="submit"
                 className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
@@ -323,7 +324,7 @@ export const Header = () => {
                 <>
                   {[1, 2, 3, 4, 5].map((i) => (
                     <li key={i} className="animate-pulse">
-                      <div className="h-4 w-24 bg-gray-700 rounded"></div>
+                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
                     </li>
                   ))}
                 </>
@@ -333,7 +334,7 @@ export const Header = () => {
                   <li key={category.slug}>
                     <Link
                       href={`/categories/${category.slug}`}
-                      className="text-gray-300 hover:text-white transition-colors"
+                      className="text-gray-700 hover:text-amber-600 transition-colors"
                       onClick={toggleMobileMenu}
                     >
                       {isRTL ? category.name.ar : category.name.en}
