@@ -73,12 +73,22 @@ export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentLocale, setCurrentLocale] = useState('en');
   const [currentDate, setCurrentDate] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Fetch categories from the API using our custom hook
   const { categories, loading, error } = useCategories(currentLocale);
 
   // Breaking news hook
   const { currentNews, allNews, loading: newsLoading, currentNewsIndex } = useBreakingNews(currentLocale);
+
+  // Handle search submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Open search in a new tab
+      window.open(`/search?q=${encodeURIComponent(searchQuery)}&locale=${currentLocale}`, '_blank');
+    }
+  };
 
   useEffect(() => {
     // Get current locale from cookie
@@ -182,18 +192,23 @@ export const Header = () => {
 
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex items-center">
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
                 placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
                 className={`bg-gray-800 text-white px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}>
+              <button 
+                type="submit"
+                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
-            </div>
+            </form>
           </div>
 
           {/* Mobile Menu Button */}
@@ -284,18 +299,23 @@ export const Header = () => {
         <div className="md:hidden bg-gray-800">
           <div className="container mx-auto px-4 py-4">
             {/* Search */}
-            <div className="relative mb-4">
+            <form onSubmit={handleSearch} className="relative mb-4">
               <input
                 type="text"
                 placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
                 className={`bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}>
+              <button 
+                type="submit"
+                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
-            </div>
+            </form>
             {/* Categories */}
             <ul className={`space-y-3 pb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
               {loading ? (
