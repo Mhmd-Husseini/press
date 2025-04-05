@@ -169,23 +169,23 @@ export const Header = () => {
       </div>
 
       {/* Main Header */}
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <div className={`relative h-10 w-10 ${isRTL ? 'ml-2' : 'mr-2'}`}>
+              <div className={` ${isRTL ? 'ml-2' : 'mr-2'}`}>
                 <Image
                   src="/phoenix-logo.svg"
                   alt="Phoenix Press"
-                  width={40}
+                  width={70}
                   height={40}
                   className="object-contain"
                 />
               </div>
               <div>
-                <span className="text-xl font-bold tracking-tight">Phoenix</span>
-                <span className={`text-amber-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+                <span className="text-l tracking-tight text-gray-400">Phoenix</span>
+                <span className={`text-l text-gray-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
               </div>
             </Link>
           </div>

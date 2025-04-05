@@ -63,6 +63,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/phoenix-logo.svg" type="image/svg+xml" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${cairoFont.variable} antialiased bg-gray-50`}
       >

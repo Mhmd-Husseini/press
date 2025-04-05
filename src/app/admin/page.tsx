@@ -132,10 +132,10 @@ export default function AdminHomePage() {
           >
             Try Again
           </button>
-        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (!stats) {
     return null;

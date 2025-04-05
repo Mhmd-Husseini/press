@@ -126,7 +126,7 @@ export const Footer = () => {
               </div>
             </div>
 
-            <p className={`mt-4 text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+            <p className={`mt-4 text-gray-400 max-w-lg ${isRTL ? 'text-right' : 'text-left'}`}>
               {isRTL 
                 ? 'فينيكس بريس هي مؤسسة إخبارية عالمية تقدم تغطية شاملة وتحليلات متعمقة للأحداث العالمية والمحلية.' 
                 : 'Phoenix Press is a global news organization providing comprehensive coverage and in-depth analysis of world and local events.'}
@@ -152,64 +152,67 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Categories Column */}
-          <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-            <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.categories.title.ar : footerData.categories.title.en}</h3>
-            <ul className="space-y-2">
-              {loading ? (
-                // Show skeleton loaders while categories are loading
-                <>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <li key={i} className="animate-pulse">
-                      <div className="h-4 w-20 bg-gray-700 rounded"></div>
-                    </li>
-                  ))}
-                </>
-              ) : (
-                // Show actual categories once loaded
-                footerData.categories.links.map((link) => (
+          {/* Three equal columns with equal gaps */}
+          <div className="lg:ml-44 lg:col-span-3 grid grid-cols-3 gap-4">
+
+            {/* Company Column */}
+            <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
+              <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.company.title.ar : footerData.company.title.en}</h3>
+              <ul className="space-y-2">
+                {footerData.company.links.map((link) => (
                   <li key={link.slug}>
-                    <Link href={`/categories/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
+                    <Link href={`/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
                       {isRTL ? link.name.ar : link.name.en}
                     </Link>
                   </li>
-                ))
-              )}
-            </ul>
-          </div>
+                ))}
+              </ul>
+            </div>
 
-          {/* Company Column */}
-          <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-            <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.company.title.ar : footerData.company.title.en}</h3>
-            <ul className="space-y-2">
-              {footerData.company.links.map((link) => (
-                <li key={link.slug}>
-                  <Link href={`/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
-                    {isRTL ? link.name.ar : link.name.en}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal Column */}
-          <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-            <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.legal.title.ar : footerData.legal.title.en}</h3>
-            <ul className="space-y-2">
-              {footerData.legal.links.map((link) => (
-                <li key={link.slug}>
-                  <Link href={`/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
-                    {isRTL ? link.name.ar : link.name.en}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {/* Legal Column */}
+            <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
+              <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.legal.title.ar : footerData.legal.title.en}</h3>
+              <ul className="space-y-2">
+                {footerData.legal.links.map((link) => (
+                  <li key={link.slug}>
+                    <Link href={`/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
+                      {isRTL ? link.name.ar : link.name.en}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Categories Column */}
+            <div className={`hidden md:block ${isRTL ? 'text-right' : 'text-left'}`}>
+              <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.categories.title.ar : footerData.categories.title.en}</h3>
+              {loading ? (
+                // Show skeleton loaders while categories are loading
+                <div className="grid grid-cols-2 gap-x-2 gap-y-2">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-4 w-20 bg-gray-700 rounded"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                // Show actual categories in two columns
+                <div className="grid grid-cols-2 gap-x-2 gap-y-2">
+                  {footerData.categories.links.map((link) => (
+                    <div key={link.slug}>
+                      <Link href={`/categories/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
+                        {isRTL ? link.name.ar : link.name.en}
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              )} 
+            </div>
           </div>
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className={`flex flex-col md:flex-row justify-between items-center ${isRTL ? 'text-right' : 'text-left'}`}>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500">
               &copy; {new Date().getFullYear()} Phoenix Press. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
             </p>
             <p className="text-gray-500 text-sm mt-2 md:mt-0">
