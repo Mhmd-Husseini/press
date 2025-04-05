@@ -167,7 +167,7 @@ export const Header = () => {
           </div>
         </div>
       </div>
-      <div className='bg-red-400 h-[1px]'></div>
+      <div className='bg-red-800 h-[0.4px] opacity-70'></div>
 
       {/* Main Header */}
       <div className="container mx-auto px-4 py-3 bg-gray-800 border-b border-gray-200">
@@ -259,8 +259,9 @@ export const Header = () => {
       <div className="bg-red-600 py-2 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="flex items-center">
-            <span className={`text-white font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-red-700 rounded`}>
-              {isRTL ? 'عاجل' : 'Breaking'}
+            <span className={`text-white font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-red-700 rounded flex items-center justify-center`}>
+              <span className="hidden md:inline">{isRTL ? 'عاجل' : 'Breaking'}</span>
+              <span className="md:hidden">!</span>
             </span>
             
             {newsLoading ? (
