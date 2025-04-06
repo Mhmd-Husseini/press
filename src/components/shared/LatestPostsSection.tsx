@@ -85,7 +85,7 @@ export const LatestPostsSection = ({
         {/* Section Header */}
         <div className={`flex items-center justify-between mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <div className="flex items-center">
-            <div className={`w-1 h-6 bg-blue-600 ${isRTL ? 'ml-3' : 'mr-3'}`}></div>
+            <div className={`w-1 h-6 bg-red-800 ${isRTL ? 'ml-3' : 'mr-3'}`}></div>
             <h2 className={`text-2xl font-bold text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
               {sectionTitle}
             </h2>
@@ -93,7 +93,7 @@ export const LatestPostsSection = ({
           {viewAllLink && (
             <Link 
               href={viewAllLink} 
-              className={`text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
+              className={`text-red-800 hover:text-red-900 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
             >
               {isRTL ? translations.ar.viewAll : translations.en.viewAll}
               <svg 

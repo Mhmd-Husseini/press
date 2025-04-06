@@ -201,7 +201,7 @@ const HeroSection: React.FC<HeroProps> = ({
                   {categoryName && (
                     <Link 
                       href={`/categories/${categorySlug}`}
-                      className="inline-block bg-amber-600 text-white text-sm px-3 py-1 rounded-md mb-2 font-medium"
+                      className="inline-block bg-red-800 text-white text-sm px-3 py-1 rounded-md mb-2 font-medium"
                     >
                       {categoryName}
                     </Link>
@@ -273,12 +273,12 @@ const HeroSection: React.FC<HeroProps> = ({
                         {/* Post details */}
                         <div className={`flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
                           {postCategoryName && (
-                            <span className="text-xs text-amber-600 font-medium mb-1 block">
+                            <span className="text-xs text-red-800 font-medium mb-1 block">
                               {postCategoryName}
                             </span>
                           )}
                           
-                          <h3 className="text-sm md:text-base font-medium text-gray-800 group-hover:text-amber-600 transition-colors line-clamp-2">
+                          <h3 className="text-sm md:text-base font-medium text-gray-800 group-hover:text-red-800 transition-colors line-clamp-2">
                             {postTitle}
                           </h3>
                           
@@ -303,7 +303,7 @@ const HeroSection: React.FC<HeroProps> = ({
         {breakingStory && (
           <div className="absolute top-4 left-0 right-0 z-10">
             <div className="container mx-auto px-4">
-              <div className={`bg-amber-600 px-4 py-2 rounded-md inline-flex items-center ${isRTL ? 'float-right' : 'float-left'}`}>
+              <div className={`bg-red-800 px-4 py-2 rounded-md inline-flex items-center ${isRTL ? 'float-right' : 'float-left'}`}>
                 <span className={`font-bold ${isRTL ? 'ml-2' : 'mr-2'}`}>
                   {isRTL ? translations.ar.breaking : translations.en.breaking}
                 </span>
@@ -333,7 +333,7 @@ const HeroSection: React.FC<HeroProps> = ({
                 <Link 
                   key={category.id}
                   href={`/categories/${category.slug}`}
-                  className="text-gray-600 hover:text-amber-600 whitespace-nowrap px-4 py-1 text-sm font-medium"
+                  className="text-gray-600 hover:text-red-800 whitespace-nowrap px-4 py-1 text-sm font-medium"
                 >
                   {isRTL ? category.name.ar : category.name.en}
                 </Link>
