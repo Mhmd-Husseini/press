@@ -155,7 +155,7 @@ export const Header = () => {
   return (
     <header className="bg-white text-gray-800" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Bar */}
-      <div className="bg-gray-800 py-2">
+      <div className="w-full bg-gray-800 py-2">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
             <div className={`text-sm text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -178,69 +178,71 @@ export const Header = () => {
       <div className='bg-red-800 h-[0.4px] opacity-70'></div>
 
       {/* Main Header */}
-      <div className="container mx-auto px-4 py-3 bg-gray-800 border-b border-gray-200">
-        <div className="flex justify-between items-center">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <div className={` ${isRTL ? 'ml-2' : 'mr-2'}`}>
-                <Image
-                  src="/phoenix-logo.svg"
-                  alt="Phoenix Press"
-                  width={70}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
-              <div>
-                <span className="text-l font-semibold  text-gray-400">Phoenix</span>
-                <span className={`text-l font-senibold text-gray-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
-              </div>
-            </Link>
-          </div>
+      <div className="w-full px-4 py-3 bg-gray-800 border-b border-gray-200">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-center">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center">
+                <div className={` ${isRTL ? 'ml-2' : 'mr-2'}`}>
+                  <Image
+                    src="/phoenix-logo.svg"
+                    alt="Phoenix Press"
+                    width={60}
+                    height={32}
+                    className="object-contain"
+                  />
+                </div>
+                <div>
+                  <span className="text-l text-gray-400">Phoenix</span>
+                  <span className={`text-l text-gray-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+                </div>
+              </Link>
+            </div>
 
-          {/* Search Bar - Desktop */}
-          <div className="hidden md:flex items-center">
-            <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
-                className={`bg-gray-800 text-gray-300 border border-gray-600 px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button 
-                type="submit"
-                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5 text-gray-300 hover:text-white`}
-              >
+            {/* Search Bar - Desktop */}
+            <div className="hidden md:flex items-center">
+              <form onSubmit={handleSearch} className="relative">
+                <input
+                  type="text"
+                  placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
+                  className={`bg-gray-800 text-gray-300 border border-gray-600 px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button 
+                  type="submit"
+                  className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5 text-gray-300 hover:text-white`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </form>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center space-x-4">
+              {/* Search Icon */}
+              <button onClick={toggleMobileSearch} className="text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
-            </form>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-4">
-            {/* Search Icon */}
-            <button onClick={toggleMobileSearch} className="text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-            
-            {/* Menu Icon */}
-            <button onClick={toggleMobileMenu} className="text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+              
+              {/* Menu Icon */}
+              <button onClick={toggleMobileMenu} className="text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="bg-gray-50">
+      <nav className="w-full bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="hidden md:flex items-center justify-between h-12">
             <ul className={`flex ${isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'}`}>
@@ -272,7 +274,7 @@ export const Header = () => {
       </nav>
 
       {/* Breaking News Bar */}
-      <div className="bg-red-600 py-2 overflow-hidden">
+      <div className="w-full bg-red-600 py-2 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="flex items-center">
             <span className={`text-white font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-red-700 rounded flex items-center justify-center`}>
@@ -314,7 +316,7 @@ export const Header = () => {
 
       {/* Mobile Search - Dropdown */}
       {mobileSearchOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 py-3 shadow-md">
+        <div className="w-full md:hidden bg-white border-t border-gray-200 py-3 shadow-md">
           <div className="container mx-auto px-4">
             <form onSubmit={handleSearch} className="relative">
               <input
@@ -340,7 +342,7 @@ export const Header = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
+        <div className="w-full md:hidden bg-white border-t border-gray-200">
           <div className="container mx-auto px-4 py-4">
             {/* Search */}
             <form onSubmit={handleSearch} className="relative mb-4">
