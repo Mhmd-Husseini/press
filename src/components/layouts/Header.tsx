@@ -193,8 +193,8 @@ export const Header = () => {
                 />
               </div>
               <div>
-                <span className="text-l font-bold tracking-tight text-gray-400">Phoenix</span>
-                <span className={`text-l font-bold text-gray-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+                <span className="text-l font-semibold  text-gray-400">Phoenix</span>
+                <span className={`text-l font-senibold text-gray-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
               </div>
             </Link>
           </div>
@@ -205,15 +205,15 @@ export const Header = () => {
               <input
                 type="text"
                 placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
-                className={`bg-gray-800 text-gray-300 px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                className={`bg-gray-800 text-white border border-gray-600 px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button 
                 type="submit"
-                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}
+                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5 text-gray-400 hover:text-white`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
@@ -320,16 +320,16 @@ export const Header = () => {
               <input
                 type="text"
                 placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
-                className={`bg-gray-100 text-gray-800 px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                className={`bg-gray-200 text-gray-800 border border-gray-300 px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
               />
               <button 
                 type="submit"
-                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}
+                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5 text-gray-600 hover:text-gray-900`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
@@ -347,15 +347,15 @@ export const Header = () => {
               <input
                 type="text"
                 placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
-                className={`bg-gray-100 text-gray-800 px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                className={`bg-gray-200 text-gray-800 border border-gray-300 px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button 
                 type="submit"
-                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}
+                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5 text-gray-600 hover:text-gray-900`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
