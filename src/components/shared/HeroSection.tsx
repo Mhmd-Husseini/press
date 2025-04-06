@@ -303,7 +303,7 @@ const HeroSection: React.FC<HeroProps> = ({
         {breakingStory && (
           <div className="absolute top-4 left-0 right-0 z-10">
             <div className="container mx-auto px-4">
-              <div className={`bg-red-800 px-4 py-2 rounded-md inline-flex items-center ${isRTL ? 'float-right' : 'float-left'}`}>
+              <div className={`px-4 py-2 rounded-md inline-flex items-center ${isRTL ? 'float-right' : 'float-left'}`} style={{ backgroundColor: '#DF1919' }}>
                 <span className={`font-bold ${isRTL ? 'ml-2' : 'mr-2'}`}>
                   {isRTL ? translations.ar.breaking : translations.en.breaking}
                 </span>

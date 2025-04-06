@@ -11,6 +11,7 @@ interface ArticleCardProps {
   summary?: string;
   slug: string;
   imageUrl?: string;
+  media?: { id: string; url: string; title: string | null; caption: string | null; type: string; mimeType: string | null; }[];
   authorName?: string;
   category?: {
     name: string;
@@ -30,6 +31,7 @@ export const ArticleCard = ({
   summary,
   slug,
   imageUrl,
+  media,
   authorName,
   category,
   publishedAt,
@@ -151,7 +153,7 @@ export const ArticleCard = ({
           <div className="absolute bottom-3 left-3 z-10">
             <Link
               href={`/categories/${encodeURIComponent(category.slug)}`}
-              className="text-xs font-medium text-white uppercase tracking-wider bg-black/70 px-2 py-1 rounded"
+              className="text-xs font-medium text-white uppercase tracking-wider bg-red-800 px-2 py-1 rounded"
             >
               {category.name}
             </Link>
