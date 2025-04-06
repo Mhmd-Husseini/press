@@ -71,6 +71,7 @@ function useBreakingNews(locale: string) {
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [currentLocale, setCurrentLocale] = useState('en');
   const [currentDate, setCurrentDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +88,7 @@ export const Header = () => {
     if (searchQuery.trim()) {
       // Open search in a new tab
       window.open(`/search?q=${encodeURIComponent(searchQuery)}&locale=${currentLocale}`, '_blank');
+      setMobileSearchOpen(false);
     }
   };
 
@@ -137,6 +139,12 @@ export const Header = () => {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+    if (!mobileMenuOpen) setMobileSearchOpen(false);
+  };
+
+  const toggleMobileSearch = () => {
+    setMobileSearchOpen(!mobileSearchOpen);
+    if (!mobileSearchOpen) setMobileMenuOpen(false);
   };
 
   const isRTL = currentLocale === 'ar';
@@ -213,8 +221,16 @@ export const Header = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button onClick={toggleMobileMenu} className="text-gray-800">
+          <div className="md:hidden flex items-center space-x-4">
+            {/* Search Icon */}
+            <button onClick={toggleMobileSearch} className="text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+            
+            {/* Menu Icon */}
+            <button onClick={toggleMobileMenu} className="text-white">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
@@ -295,6 +311,32 @@ export const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Search - Dropdown */}
+      {mobileSearchOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200 py-3 shadow-md">
+          <div className="container mx-auto px-4">
+            <form onSubmit={handleSearch} className="relative">
+              <input
+                type="text"
+                placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
+                className={`bg-gray-100 text-gray-800 px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-amber-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+              />
+              <button 
+                type="submit"
+                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
