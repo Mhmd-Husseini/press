@@ -105,45 +105,45 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white pt-12 pb-8" dir={isRTL ? 'rtl' : 'ltr'}>
+    <footer className="bg-primary-bg text-text-light pt-10 pb-6" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-8">
           {/* Logo & About - Takes 2 columns on large screens */}
-          <div className="lg:col-span-2">
+          <div className="md:col-span-1">
             <div className="flex items-center">
-              <div className={`relative h-12 w-12 ${isRTL ? 'ml-3' : 'mr-3'} bg-gray-800 p-2 rounded`}>
+              <div className={`relative h-10 w-10 ${isRTL ? 'ml-2' : 'mr-2'} bg-white/10 p-1 rounded`}>
                 <Image
                   src="/phoenix-logo.svg"
                   alt="Phoenix Press"
-                  width={48}
-                  height={48}
+                  width={36}
+                  height={36}
                   className="object-contain"
                 />
               </div>
               <div>
-                <span className="text-2xl font-bold tracking-tight">Phoenix</span>
-                <span className={`text-amber-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+                <span className="text-xl font-bold tracking-tight text-white">Phoenix</span>
+                <span className={`text-accent font-bold ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
               </div>
             </div>
 
-            <p className={`mt-4 text-gray-400 max-w-lg ${isRTL ? 'text-right' : 'text-left'}`}>
+            <p className={`mt-4 text-gray-400 text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
               {isRTL 
                 ? 'فينيكس بريس هي مؤسسة إخبارية عالمية تقدم تغطية شاملة وتحليلات متعمقة للأحداث العالمية والمحلية.' 
                 : 'Phoenix Press is a global news organization providing comprehensive coverage and in-depth analysis of world and local events.'}
             </p>
 
             <div className={`mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
-              <p className="font-semibold text-white">
+              <p className="font-semibold text-white text-sm">
                 {isRTL ? 'تابعنا على' : 'Follow us on'}
               </p>
-              <div className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} mt-2`}>
+              <div className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} mt-3`}>
                 {socialLinks.map((social) => (
                   <a
                     key={social.name}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-accent transition-colors"
                   >
                     {getSocialIcon(social.name)}
                   </a>
@@ -153,15 +153,15 @@ export const Footer = () => {
           </div>
 
           {/* Three equal columns with equal gaps */}
-          <div className="lg:ml-44 lg:col-span-3 grid grid-cols-3 gap-4">
+          <div className="md:col-span-3 grid grid-cols-3 gap-8">
 
             {/* Company Column */}
             <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-              <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.company.title.ar : footerData.company.title.en}</h3>
-              <ul className="space-y-2">
+              <h3 className="text-white font-semibold text-base mb-4 pb-2 border-b border-gray-700">{isRTL ? footerData.company.title.ar : footerData.company.title.en}</h3>
+              <ul className="space-y-3">
                 {footerData.company.links.map((link) => (
                   <li key={link.slug}>
-                    <Link href={`/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
+                    <Link href={`/${link.slug}`} className="text-gray-400 hover:text-accent text-sm transition-colors">
                       {isRTL ? link.name.ar : link.name.en}
                     </Link>
                   </li>
@@ -171,11 +171,11 @@ export const Footer = () => {
 
             {/* Legal Column */}
             <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-              <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.legal.title.ar : footerData.legal.title.en}</h3>
-              <ul className="space-y-2">
+              <h3 className="text-white font-semibold text-base mb-4 pb-2 border-b border-gray-700">{isRTL ? footerData.legal.title.ar : footerData.legal.title.en}</h3>
+              <ul className="space-y-3">
                 {footerData.legal.links.map((link) => (
                   <li key={link.slug}>
-                    <Link href={`/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
+                    <Link href={`/${link.slug}`} className="text-gray-400 hover:text-accent text-sm transition-colors">
                       {isRTL ? link.name.ar : link.name.en}
                     </Link>
                   </li>
@@ -184,10 +184,10 @@ export const Footer = () => {
             </div>
             {/* Categories Column */}
             <div className={`hidden md:block ${isRTL ? 'text-right' : 'text-left'}`}>
-              <h3 className="text-white font-semibold text-lg mb-4">{isRTL ? footerData.categories.title.ar : footerData.categories.title.en}</h3>
+              <h3 className="text-white font-semibold text-base mb-4 pb-2 border-b border-gray-700">{isRTL ? footerData.categories.title.ar : footerData.categories.title.en}</h3>
               {loading ? (
                 // Show skeleton loaders while categories are loading
-                <div className="grid grid-cols-2 gap-x-2 gap-y-2">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                   {[1, 2, 3, 4, 5, 6].map((i) => (
                     <div key={i} className="animate-pulse">
                       <div className="h-4 w-20 bg-gray-700 rounded"></div>
@@ -196,10 +196,10 @@ export const Footer = () => {
                 </div>
               ) : (
                 // Show actual categories in two columns
-                <div className="grid grid-cols-2 gap-x-2 gap-y-2">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                   {footerData.categories.links.map((link) => (
                     <div key={link.slug}>
-                      <Link href={`/categories/${link.slug}`} className="text-gray-400 hover:text-white transition-colors">
+                      <Link href={`/categories/${link.slug}`} className="text-gray-400 hover:text-accent text-sm transition-colors">
                         {isRTL ? link.name.ar : link.name.en}
                       </Link>
                     </div>
@@ -210,12 +210,12 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8">
+        <div className="border-t border-gray-700/50 mt-10 pt-6">
           <div className={`flex flex-col md:flex-row justify-between items-center ${isRTL ? 'text-right' : 'text-left'}`}>
-            <p className="text-gray-500">
+            <p className="text-gray-500 text-sm">
               &copy; {new Date().getFullYear()} Phoenix Press. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
             </p>
-            <p className="text-gray-500 text-sm mt-2 md:mt-0">
+            <p className="text-gray-500 text-xs mt-2 md:mt-0">
               {isRTL ? 'تم تصميمه وتطويره بواسطة فريق فينيكس المبدع' : 'Designed and developed by the Phoenix Creative Team'}
             </p>
           </div>

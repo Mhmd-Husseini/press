@@ -24,8 +24,8 @@ const HeroSection: React.FC<HeroProps> = ({
   // Fetch categories from the database
   const { categories, loading: loadingCategories } = useCategories(locale);
   
-  // Filter to show only featured or main categories (limit to 5-6)
-  const featuredCategories = categories.slice(0, 6);
+  // Filter to show only featured or main categories (limit to 6)
+  const featuredCategories = categories.slice(0, 8);
   
   const isRTL = locale === 'ar';
 
@@ -53,13 +53,13 @@ const HeroSection: React.FC<HeroProps> = ({
     setCurrentSlide(index);
   };
 
-  // Set up auto-advancing timer (15 seconds)
+  // Set up auto-advancing timer (10 seconds - a bit faster for news)
   useEffect(() => {
     if (totalSlides <= 1) return; // Don't auto-advance if there's only one slide
 
     const timer = setInterval(() => {
       nextSlide();
-    }, 15000);
+    }, 10000);
 
     return () => clearInterval(timer); // Cleanup on unmount
   }, [nextSlide, totalSlides]);
@@ -100,23 +100,27 @@ const HeroSection: React.FC<HeroProps> = ({
   const translations = {
     en: {
       breaking: 'BREAKING:',
-      readFullStory: 'View Full Article 📰',
+      readFullStory: 'Read More',
       liveUpdates: 'Live Updates',
       breakingNews: 'Breaking News',
       stayTuned: 'Stay tuned for the latest updates from around the world.',
       news: 'News',
       next: 'Next',
-      previous: 'Previous'
+      previous: 'Previous',
+      featuredStories: 'Featured Stories',
+      topStories: 'Top Stories'
     },
     ar: {
       breaking: 'عاجل:',
-      readFullStory: ' 📰 عرض الخبر كاملا',
+      readFullStory: 'اقرأ المزيد',
       liveUpdates: 'تحديثات مباشرة',
       breakingNews: 'أخبار عاجلة',
       stayTuned: 'ترقبوا آخر التحديثات من جميع أنحاء العالم.',
       news: 'أخبار',
       next: 'التالي',
-      previous: 'السابق'
+      previous: 'السابق',
+      featuredStories: 'القصص المميزة',
+      topStories: 'أهم الأخبار'
     }
   };
 
@@ -145,200 +149,208 @@ const HeroSection: React.FC<HeroProps> = ({
   const categoryName = getCategoryName(story);
   const categorySlug = getCategorySlug(story);
 
+  // Split featured posts for different sections
+  const mainPosts = slidePosts.slice(0, Math.min(5, slidePosts.length));
+  
   return (
-    <section className="relative bg-gray-100 text-gray-800" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Hero Section with 60/40 split */}
-      <div className="relative w-full">
-        {/* Container for the split layout - flex on desktop, stack on mobile */}
-        <div className={`flex flex-col md:flex-row ${isRTL ? 'md:flex-row-reverse' : ''} h-auto md:h-[525px]`}>
-          {/* Main featured story - full width on mobile, 60% on desktop */}
-          <div className="relative w-full md:w-[70%] h-[400px] md:h-full">
-            {/* Current featured story */}
-            <div className="relative h-full">
-              {imageUrl ? (
-                <Image
-                  src={imageUrl}
-                  alt={getImageAlt(story.media, title)}
-                  fill
-                  priority
-                  className="object-cover w-full h-full"
-                  sizes="(max-width: 768px) 100vw, 70vw"
-                />
-              ) : (
-                <div className="absolute inset-0 bg-gray-200"></div>
-              )}
-              
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/60 to-transparent"></div>
-              
-              {/* Navigation arrows for the slider only on mobile */}
-              {totalSlides > 1 && (
-                <div className="md:hidden">
-                  <button 
-                    onClick={prevSlide}
-                    className={`absolute z-20 top-1/2 ${isRTL ? 'right-4' : 'left-4'} -translate-y-1/2 bg-white/70 p-2 rounded-full hover:bg-white/90 transition-colors focus:outline-none`}
-                    aria-label={isRTL ? translations.ar.previous : translations.en.previous}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 text-gray-800 ${isRTL ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button 
-                    onClick={nextSlide}
-                    className={`absolute z-20 top-1/2 ${isRTL ? 'left-4' : 'right-4'} -translate-y-1/2 bg-white/70 p-2 rounded-full hover:bg-white/90 transition-colors focus:outline-none`}
-                    aria-label={isRTL ? translations.ar.next : translations.en.next}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 text-gray-800 ${isRTL ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-              
-              {/* Content overlay for the main story */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
-                <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-                  {categoryName && (
-                    <Link 
-                      href={`/categories/${categorySlug}`}
-                      className="inline-block bg-red-800 text-white text-sm px-3 py-1 rounded-md mb-2 font-medium"
-                    >
-                      {categoryName}
-                    </Link>
-                  )}
-                  
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 leading-tight text-white">
-                    {title}
-                  </h1>
-                  
-                  <p className="text-gray-100 text-sm md:text-base mb-4 line-clamp-2">
-                    {summary}
-                  </p>
-                  
-                  <Link 
-                    href={`/posts/${slug}`} 
-                    className="inline-block bg-white text-gray-800 hover:bg-gray-200 px-4 py-2 text-sm md:text-base rounded-md font-medium"
-                  >
-                    {isRTL ? translations.ar.readFullStory : translations.en.readFullStory}
-                  </Link>
-                </div>
+    <section className="bg-white" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Breaking news bar - Al Arabiya Style */}
+      {breakingStory && (
+        <div className="bg-accent py-2 sticky top-0 z-50 shadow-md">
+          <div className="container mx-auto px-4">
+            <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className="bg-primary-bg text-white px-3 py-1 font-bold text-sm">
+                {isRTL ? translations.ar.breaking : translations.en.breaking}
               </div>
-            </div>
-          </div>
-          
-          {/* Featured headlines sidebar - full width on mobile, 40% on desktop */}
-          <div className="relative w-full md:w-[40%] bg-white border-l border-gray-200">
-            <div className="p-4 md:p-6">
-              {/* Section heading */}
-              <h2 className={`text-xl font-bold mb-4 pb-2 border-b border-gray-300 ${isRTL ? 'text-right' : 'text-left'}`}>
-                {isRTL ? 'أبرز العناوين' : 'Featured Headlines'}
-              </h2>
-              
-              {/* List of featured headlines */}
-              <div className="space-y-3 md:space-y-4">
-                {featuredPosts.map((post, index) => {
-                  // Skip the first post as it's shown in the main feature area
-                  const postTitle = getTitle(post);
-                  const postSlug = getSlug(post);
-                  const postCategoryName = getCategoryName(post);
-                  const postDate = post.publishedAt || post.createdAt;
-                  
-                  return (
-                    <div 
-                      key={post.id} 
-                      className={`group cursor-pointer ${index < featuredPosts.length - 1 ? 'pb-3 md:pb-4 border-b border-gray-200' : ''}`}
-                      onClick={() => goToSlide(index )}
-                    >
-                      <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                        {/* Thumbnail image */}
-                        {post.media && post.media.length > 0 ? (
-                          <div className="relative h-16 w-16 flex-shrink-0 rounded overflow-hidden">
-                            <Image
-                              src={post.media[0].url}
-                              alt={getImageAlt(post.media, postTitle)}
-                              fill
-                              className="object-cover"
-                              sizes="64px"
-                            />
-                          </div>
-                        ) : (
-                          <div className="relative h-16 w-16 flex-shrink-0 rounded overflow-hidden bg-gray-200 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 13a1 1 0 110-2 1 1 0 010 2z" />
-                            </svg>
-                          </div>
-                        )}
-                        
-                        {/* Post details */}
-                        <div className={`flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
-                          {postCategoryName && (
-                            <span className="text-xs text-red-800 font-medium mb-1 block">
-                              {postCategoryName}
-                            </span>
-                          )}
-                          
-                          <h3 className="text-sm md:text-base font-medium text-gray-800 group-hover:text-red-800 transition-colors line-clamp-2">
-                            {postTitle}
-                          </h3>
-                          
-                          <span className="text-xs text-gray-500 mt-1 block">
-                            {formatDateLocalized(postDate, locale)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              
-              {/* View all link */}
-              <div className={`mt-4 ${isRTL ? 'text-left' : 'text-right'}`}>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Breaking news alert on top */}
-        {breakingStory && (
-          <div className="absolute top-4 left-0 right-0 z-10">
-            <div className="container mx-auto px-4">
-              <div className={`px-4 py-2 rounded-md inline-flex items-center ${isRTL ? 'float-right' : 'float-left'}`} style={{ backgroundColor: '#DF1919' }}>
-                <span className={`font-bold ${isRTL ? 'ml-2' : 'mr-2'}`}>
-                  {isRTL ? translations.ar.breaking : translations.en.breaking}
-                </span>
-                <Link href={`/posts/${getSlug(breakingStory)}`} className="hover:underline">
+              <div className="mx-3 flex-1 overflow-hidden">
+                <Link 
+                  href={`/posts/${getSlug(breakingStory)}`} 
+                  className="text-white font-medium hover:underline text-sm md:text-base inline-block whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
+                >
                   {getTitle(breakingStory)}
                 </Link>
               </div>
+              <Link 
+                href="/breaking" 
+                className="text-white text-xs hover:underline md:inline-block hidden"
+              >
+                {isRTL ? 'المزيد من الأخبار العاجلة' : 'More Breaking News'}
+              </Link>
             </div>
           </div>
-        )}
-      </div>
-      
-      {/* Featured categories navigation */}
-      <div className="bg-gray-50 border-t border-gray-200 py-3">
-        <div className="container mx-auto px-4">
-          <div className={`flex items-center overflow-x-auto scrollbar-hide ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
-            {loadingCategories ? (
-              // Show skeleton loaders while categories are loading
-              <>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="animate-pulse bg-gray-200 h-6 w-20 mx-2 rounded"></div>
+        </div>
+      )}
+
+      {/* Al Arabiya style top categories navigation */}
+
+
+      {/* Main hero layout - Al Arabiya style with 70/30 split */}
+      <div className="container mx-auto px-4 py-4">
+        <div className={`grid grid-cols-1 md:grid-cols-12 gap-6`}>
+          {/* Featured story - Takes 8 columns on desktop */}
+          <div className="md:col-span-7">
+            {/* Main featured story with navigation controls */}
+            <div className="relative overflow-hidden rounded-sm">
+              {/* Full-width image */}
+              <div className="relative h-[470px] w-full">
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt={title}
+                    fill
+                    priority
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 66vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gray-200"></div>
+                )}
+                
+                {/* Dark gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                
+                {/* Category badge */}
+                {categoryName && (
+                  <Link 
+                    href={`/categories/${categorySlug}`}
+                    className="absolute top-4 left-4 bg-accent text-white text-xs px-3 py-1 font-medium z-10"
+                  >
+                    {categoryName}
+                  </Link>
+                )}
+                
+                {/* Navigation controls for desktop */}
+                {totalSlides > 1 && (
+                  <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between px-4 z-10">
+                    <button 
+                      onClick={prevSlide}
+                      className="bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors focus:outline-none"
+                      aria-label={isRTL ? translations.ar.previous : translations.en.previous}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button 
+                      onClick={nextSlide}
+                      className="bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors focus:outline-none"
+                      aria-label={isRTL ? translations.ar.next : translations.en.next}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                
+                {/* Content overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                  <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 leading-tight text-white">
+                      {title}
+                    </h1>
+                    
+                    <p className="text-gray-200 text-sm md:text-base mb-4 line-clamp-2 md:line-clamp-3">
+                      {summary}
+                    </p>
+                    
+                    <div className="flex items-center text-gray-300 text-xs mb-4">
+                      <span className="mr-2">
+                        {formatDateLocalized(story.publishedAt || story.createdAt, locale)}
+                      </span>
+                    </div>
+                    
+                    <Link 
+                      href={`/posts/${slug}`} 
+                      className="inline-block bg-accent hover:bg-accent/90 text-white px-4 py-2 text-sm font-medium transition-colors"
+                    >
+                      {isRTL ? translations.ar.readFullStory : translations.en.readFullStory}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Slider dots navigation */}
+            {totalSlides > 1 && (
+              <div className="flex justify-center mt-4 space-x-2">
+                {slidePosts.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`h-2 rounded-full transition-all ${
+                      currentSlide === index 
+                        ? 'w-6 bg-accent' 
+                        : 'w-2 bg-gray-300 hover:bg-gray-400'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
                 ))}
-              </>
-            ) : (
-              // Show the categories once loaded
-              featuredCategories.map((category) => (
-                <Link 
-                  key={category.id}
-                  href={`/categories/${category.slug}`}
-                  className="text-gray-600 hover:text-red-800 whitespace-nowrap px-4 py-1 text-sm font-medium"
-                >
-                  {isRTL ? category.name.ar : category.name.en}
-                </Link>
-              ))
+              </div>
             )}
+          </div>
+          
+          {/* Side stories column - Takes 5 columns on desktop */}
+          <div className="md:col-span-5 flex flex-col">
+            <div className="bg-white pb-2 mb-4 border-b-2 border-primary-bg">
+              <h2 className="text-primary-bg font-bold text-lg">
+                {isRTL ? translations.ar.topStories : translations.en.topStories}
+              </h2>
+            </div>
+            
+            <div className="flex flex-col space-y-4 flex-grow">
+              {/* Side stories */}
+              {mainPosts.map((post, index) => {
+                if (index === currentSlide) return null; // Skip currently displayed slide
+                
+                const postTitle = getTitle(post);
+                const postSlug = getSlug(post);
+                const postCategoryName = getCategoryName(post);
+                const postDate = post.publishedAt || post.createdAt;
+                
+                return (
+                  <div 
+                    key={post.id} 
+                    className={`group cursor-pointer border-b border-gray-200 pb-4 last:border-0`}
+                    onClick={() => goToSlide(index)}
+                  >
+                    <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      {/* Thumbnail */}
+                      {post.media && post.media.length > 0 ? (
+                        <div className="relative h-20 w-28 flex-shrink-0 overflow-hidden">
+                          <Image
+                            src={post.media[0].url}
+                            alt={postTitle}
+                            fill
+                            className="object-cover"
+                            sizes="112px"
+                          />
+                        </div>
+                      ) : (
+                        <div className="relative h-20 w-28 flex-shrink-0 bg-gray-200"></div>
+                      )}
+                      
+                      {/* Post details */}
+                      <div className={`flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
+                        {postCategoryName && (
+                          <span className="text-xs text-accent font-medium mb-1 block">
+                            {postCategoryName}
+                          </span>
+                        )}
+                        
+                        <h3 className="text-sm font-medium text-primary-bg group-hover:text-accent transition-colors line-clamp-3">
+                          {postTitle}
+                        </h3>
+                        
+                        <span className="text-xs text-gray-500 mt-1 block">
+                          {formatDateLocalized(postDate, locale)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

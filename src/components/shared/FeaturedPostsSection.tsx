@@ -29,7 +29,7 @@ export const FeaturedPostsSection = ({
   // Text translations
   const translations = {
     en: {
-      featuredStories: 'Featured Stories',
+      featuredStories: 'Featured News',
       viewAll: 'View All'
     },
     ar: {

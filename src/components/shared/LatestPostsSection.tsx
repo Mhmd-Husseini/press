@@ -79,21 +79,23 @@ export const LatestPostsSection = ({
     return dateB.getTime() - dateA.getTime(); // newest first
   });
 
+  // Split posts for different layouts - Al Arabiya style
+  const mainPost = sortedPosts[0]; // Main featured post
+  const secondaryPosts = sortedPosts.slice(1, 3); // Two secondary posts
+  const remainingPosts = sortedPosts.slice(3); // Rest of the posts
+
   return (
-    <section className="bg-gray-50 py-8 md:py-12" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section className="bg-white py-6 border-t border-gray-200" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className={`flex items-center justify-between mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <div className="flex items-center">
-            <div className={`w-1 h-6 bg-red-800 ${isRTL ? 'ml-3' : 'mr-3'}`}></div>
-            <h2 className={`text-2xl font-bold text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
-              {sectionTitle}
-            </h2>
-          </div>
+        {/* Section Header - Al Arabiya style with blue background */}
+        <div className="mb-4 border-b-2 border-primary-bg pb-2 flex items-center justify-between">
+          <h2 className={`text-xl font-bold text-primary-bg ${isRTL ? 'text-right' : 'text-left'}`}>
+            {sectionTitle}
+          </h2>
           {viewAllLink && (
             <Link 
               href={viewAllLink} 
-              className={`text-red-800 hover:text-red-900 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
+              className={`text-accent hover:text-accent/80 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
             >
               {isRTL ? translations.ar.viewAll : translations.en.viewAll}
               <svg 
@@ -109,26 +111,124 @@ export const LatestPostsSection = ({
           )}
         </div>
 
-        {/* Grid of posts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {sortedPosts.map((post) => (
-            <ArticleCard
-              key={post.id}
-              id={post.id}
-              title={getPostTitle(post)}
-              summary={getPostSummary(post)}
-              slug={getPostSlug(post)}
-              imageUrl={post.media && post.media[0]?.url}
-              authorName={post.authorName || getCategoryName(post)}
-              category={post.category ? {
-                name: getCategoryName(post),
-                slug: getCategorySlug(post)
-              } : undefined}
-              publishedAt={post.publishedAt?.toString() || post.createdAt.toString()}
-              size="medium"
-              locale={locale}
-            />
-          ))}
+        {/* Al Arabiya style layout with one main post and multiple smaller posts */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Main featured post - Spans 5 columns */}
+          {mainPost && (
+            <div className="lg:col-span-5 h-full">
+              <div className="h-full flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="relative h-64 w-full">
+                  {mainPost.media && mainPost.media[0]?.url ? (
+                    <Image
+                      src={mainPost.media[0].url}
+                      alt={getPostTitle(mainPost)}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  ) : (
+                    <div className="bg-gray-200 h-full w-full flex items-center justify-center">
+                      <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </div>
+                  )}
+                  {getCategoryName(mainPost) && (
+                    <Link 
+                      href={`/categories/${getCategorySlug(mainPost)}`}
+                      className="absolute top-3 left-3 bg-accent text-white text-xs px-2 py-1 font-medium z-10"
+                    >
+                      {getCategoryName(mainPost)}
+                    </Link>
+                  )}
+                </div>
+                <div className="p-4 flex-grow flex flex-col">
+                  <Link href={`/posts/${getPostSlug(mainPost)}`}>
+                    <h3 className="text-lg font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors">
+                      {getPostTitle(mainPost)}
+                    </h3>
+                  </Link>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {getPostSummary(mainPost)}
+                  </p>
+                  <div className="mt-auto text-xs text-gray-500">
+                    {formatDateLocalized(mainPost.publishedAt || mainPost.createdAt, locale)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Two medium-sized secondary posts - Each spans 3 columns */}
+          <div className="lg:col-span-4 flex flex-col space-y-6">
+            {secondaryPosts.map((post) => (
+              <div key={post.id} className="border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="relative h-48 w-full">
+                  {post.media && post.media[0]?.url ? (
+                    <Image
+                      src={post.media[0].url}
+                      alt={getPostTitle(post)}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  ) : (
+                    <div className="bg-gray-200 h-full w-full flex items-center justify-center">
+                      <svg className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </div>
+                  )}
+                  {getCategoryName(post) && (
+                    <Link 
+                      href={`/categories/${getCategorySlug(post)}`}
+                      className="absolute top-3 left-3 bg-accent text-white text-xs px-2 py-1 font-medium z-10"
+                    >
+                      {getCategoryName(post)}
+                    </Link>
+                  )}
+                </div>
+                <div className="p-3">
+                  <Link href={`/posts/${getPostSlug(post)}`}>
+                    <h3 className="text-base font-bold text-primary-bg mb-1 line-clamp-2 hover:text-accent transition-colors">
+                      {getPostTitle(post)}
+                    </h3>
+                  </Link>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {formatDateLocalized(post.publishedAt || post.createdAt, locale)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* List of smaller articles - Spans 3 columns */}
+          <div className="lg:col-span-3 border-l border-gray-200 pl-4">
+            <h3 className="text-sm font-semibold text-primary-bg mb-3 pb-2 border-b border-gray-200">
+              {isRTL ? 'آخر الأخبار' : 'More News'}
+            </h3>
+            <div className="space-y-4">
+              {remainingPosts.map((post) => (
+                <div key={post.id} className="border-b border-gray-100 pb-4 last:border-0">
+                  <Link href={`/posts/${getPostSlug(post)}`}>
+                    <h4 className="text-sm font-medium text-gray-800 hover:text-accent transition-colors line-clamp-2">
+                      {getPostTitle(post)}
+                    </h4>
+                  </Link>
+                  <div className="flex items-center mt-1 space-x-2">
+                    {getCategoryName(post) && (
+                      <span className="text-xs text-accent font-medium">
+                        {getCategoryName(post)}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500">
+                      {formatDateLocalized(post.publishedAt || post.createdAt, locale)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

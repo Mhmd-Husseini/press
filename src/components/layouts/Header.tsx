@@ -153,21 +153,21 @@ export const Header = () => {
   const displayCategories = categories.length > 0 ? categories : fallbackCategories;
 
   return (
-    <header className="bg-white text-gray-800" dir={isRTL ? 'rtl' : 'ltr'}>
+    <header className="bg-white text-text-dark" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Bar */}
-      <div className="w-full bg-gray-800 py-2">
-        <div className="container mx-auto px-4">
+      <div className="w-full py-2 bg-primary-bg border-b border-gray-700">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="flex justify-between items-center">
-            <div className={`text-sm text-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}>
+            <div className={`text-sm text-text-light ${isRTL ? 'text-right' : 'text-left'}`}>
               {currentDate}
             </div>
             <div className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} text-sm`}>
-              <Link href="/contact" className="text-gray-400 hover:text-gray-900 transition-colors">
+              <Link href="/contact" className="text-text-light hover:text-gray-300 transition-colors">
                 {isRTL ? 'اتصل بنا' : 'Contact Us'}
               </Link>
               <button
                 onClick={() => switchLanguage(isRTL ? 'en' : 'ar')}
-                className="text-gray-400 hover:text-gray-900 transition-colors"
+                className="text-text-light hover:text-gray-300 transition-colors"
               >
                 {isRTL ? 'English' : 'العربية'}
               </button>
@@ -175,27 +175,26 @@ export const Header = () => {
           </div>
         </div>
       </div>
-      <div className='bg-red-800 h-[0.4px] opacity-70'></div>
 
       {/* Main Header */}
-      <div className="w-full px-4 py-3 bg-gray-800 border-b border-gray-200">
-        <div className="container mx-auto">
+      <div className="w-full px-4 py-4 bg-white border-b border-border">
+        <div className="container mx-auto md:px-6">
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center">
-                <div className={` ${isRTL ? 'ml-2' : 'mr-2'}`}>
+                <div className={`${isRTL ? 'ml-3' : 'mr-3'}`}>
                   <Image
                     src="/phoenix-logo.svg"
                     alt="Phoenix Press"
-                    width={60}
-                    height={32}
+                    width={50}
+                    height={50}
                     className="object-contain"
                   />
                 </div>
                 <div>
-                  <span className="text-l text-gray-400">Phoenix</span>
-                  <span className={`text-l text-gray-400 ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+                  <span className="text-xl font-bold text-primary-bg">Phoenix</span>
+                  <span className={`text-xl font-bold text-accent ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
                 </div>
               </Link>
             </div>
@@ -206,13 +205,13 @@ export const Header = () => {
                 <input
                   type="text"
                   placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
-                  className={`bg-gray-800 text-gray-300 border border-gray-600 px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}
+                  className={`bg-secondary-bg text-text-dark border border-border px-4 py-2 rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-accent placeholder-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <button 
                   type="submit"
-                  className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5 text-gray-300 hover:text-white`}
+                  className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5 text-gray-500 hover:text-accent`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -224,14 +223,14 @@ export const Header = () => {
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-4">
               {/* Search Icon */}
-              <button onClick={toggleMobileSearch} className="text-white">
+              <button onClick={toggleMobileSearch} className="text-primary-bg">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
               
               {/* Menu Icon */}
-              <button onClick={toggleMobileMenu} className="text-white">
+              <button onClick={toggleMobileMenu} className="text-primary-bg">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
@@ -242,15 +241,15 @@ export const Header = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="w-full bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="hidden md:flex items-center justify-between h-12">
-            <ul className={`flex ${isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'}`}>
+      <nav className="w-full bg-white border-b border-border shadow-sm">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className={`hidden md:flex items-center justify-between h-12`}>
+            <ul className={`flex ${isRTL ? 'space-x-reverse space-x-8' : 'space-x-8'}`}>
               {loading ? (
                 // Show skeleton loaders while categories are loading
                 <>
-                  {[1, 2, 3].map((i) => (
-                    <li key={i} className="animate-pulse">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <li key={i} className="animate-pulse py-3">
                       <div className="h-4 w-16 bg-gray-200 rounded"></div>
                     </li>
                   ))}
@@ -258,10 +257,10 @@ export const Header = () => {
               ) : (
                 // Show actual categories once loaded
                 displayCategories.map((category) => (
-                  <li key={category.slug}>
+                  <li key={category.slug} className="relative group">
                     <Link
                       href={`/categories/${category.slug}`}
-                      className="text-gray-700 hover:text-amber-600 transition-colors"
+                      className="text-text-dark font-medium hover:text-accent py-3 inline-block border-b-2 border-transparent group-hover:border-accent transition-colors"
                     >
                       {isRTL ? category.name.ar : category.name.en}
                     </Link>
@@ -274,17 +273,17 @@ export const Header = () => {
       </nav>
 
       {/* Breaking News Bar */}
-      <div className="w-full bg-red-600 py-2 overflow-hidden">
-        <div className="container mx-auto px-4">
+      <div className="w-full bg-accent py-2 overflow-hidden">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center">
-            <span className={`text-white font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-red-700 rounded flex items-center justify-center`}>
+            <span className={`text-text-light font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-primary-bg rounded flex items-center justify-center`}>
               <span className="hidden md:inline">{isRTL ? 'عاجل' : 'Breaking'}</span>
               <span className="md:hidden">!</span>
             </span>
             
             {newsLoading ? (
               // Loading state
-              <div className="animate-pulse h-4 w-3/4 bg-red-500 rounded"></div>
+              <div className="animate-pulse h-4 w-3/4 bg-red-700 rounded"></div>
             ) : allNews.length > 0 ? (
               // Simple news ticker without links
               <div className="overflow-hidden relative w-full">
@@ -295,7 +294,7 @@ export const Header = () => {
                       className={`news-ticker-item ${index === currentNewsIndex ? 'active' : ''}`}
                       style={{ opacity: index === currentNewsIndex ? 1 : 0 }}
                     >
-                      <span className={`text-white text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                      <span className={`text-text-light text-sm font-medium ${isRTL ? 'text-right' : 'text-left'}`}>
                         {item.text}
                       </span>
                     </div>
@@ -304,7 +303,7 @@ export const Header = () => {
               </div>
             ) : (
               // Fallback when no news is available
-              <span className={`text-white text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+              <span className={`text-text-light text-sm font-medium ${isRTL ? 'text-right' : 'text-left'}`}>
                 {isRTL 
                   ? 'الرئيس يعلن عن خطة جديدة للإصلاح الاقتصادي تشمل استثمارات بقيمة 50 مليار دولار' 
                   : 'President announces new economic reform plan with $50 billion investment package'}
