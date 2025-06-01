@@ -162,7 +162,7 @@ const HeroSection: React.FC<HeroProps> = ({
               <div className="bg-primary-bg text-white px-3 py-1 font-bold text-sm">
                 {isRTL ? translations.ar.breaking : translations.en.breaking}
               </div>
-              <div className="mx-3 flex-1 overflow-hidden">
+              <div className={`mx-3 flex-1 overflow-hidden ${isRTL ? 'text-right' : 'text-left'}`}>
                 <Link 
                   href={`/posts/${getSlug(breakingStory)}`} 
                   className="text-white font-medium hover:underline text-sm md:text-base inline-block whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
@@ -254,8 +254,8 @@ const HeroSection: React.FC<HeroProps> = ({
                       {summary}
                     </p>
                     
-                    <div className="flex items-center text-gray-300 text-xs mb-4">
-                      <span className="mr-2">
+                    <div className={`flex items-center text-gray-300 text-xs mb-4 ${isRTL ? 'justify-end' : ''}`}>
+                      <span className={isRTL ? 'ml-2' : 'mr-2'}>
                         {formatDateLocalized(story.publishedAt || story.createdAt, locale)}
                       </span>
                     </div>
@@ -273,7 +273,7 @@ const HeroSection: React.FC<HeroProps> = ({
             
             {/* Slider dots navigation */}
             {totalSlides > 1 && (
-              <div className="flex justify-center mt-4 space-x-2">
+              <div className={`flex justify-center mt-4 ${isRTL ? 'space-x-reverse' : ''} space-x-2`}>
                 {slidePosts.map((_, index) => (
                   <button
                     key={index}
@@ -293,7 +293,7 @@ const HeroSection: React.FC<HeroProps> = ({
           {/* Side stories column - Takes 5 columns on desktop */}
           <div className="md:col-span-5 flex flex-col">
             <div className="bg-white pb-2 mb-4 border-b-2 border-primary-bg">
-              <h2 className="text-primary-bg font-bold text-lg">
+              <h2 className={`text-primary-bg font-bold text-lg ${isRTL ? 'text-right' : ''}`}>
                 {isRTL ? translations.ar.topStories : translations.en.topStories}
               </h2>
             </div>

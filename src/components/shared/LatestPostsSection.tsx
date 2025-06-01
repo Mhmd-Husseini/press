@@ -136,13 +136,13 @@ export const LatestPostsSection = ({
                   {getCategoryName(mainPost) && (
                     <Link 
                       href={`/categories/${getCategorySlug(mainPost)}`}
-                      className="absolute top-3 left-3 bg-accent text-white text-xs px-2 py-1 font-medium z-10"
+                      className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} bg-accent text-white text-xs px-2 py-1 font-medium z-10`}
                     >
                       {getCategoryName(mainPost)}
                     </Link>
                   )}
                 </div>
-                <div className="p-4 flex-grow flex flex-col">
+                <div className={`p-4 flex-grow flex flex-col ${isRTL ? 'text-right' : 'text-left'}`}>
                   <Link href={`/posts/${getPostSlug(mainPost)}`}>
                     <h3 className="text-lg font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors">
                       {getPostTitle(mainPost)}
@@ -152,7 +152,7 @@ export const LatestPostsSection = ({
                     {getPostSummary(mainPost)}
                   </p>
                   <div className="mt-auto text-xs text-gray-500">
-                    {formatDateLocalized(mainPost.publishedAt || mainPost.createdAt, locale)}
+                    {formatDateLocalized(String(mainPost.publishedAt || mainPost.createdAt), locale)}
                   </div>
                 </div>
               </div>
@@ -182,20 +182,20 @@ export const LatestPostsSection = ({
                   {getCategoryName(post) && (
                     <Link 
                       href={`/categories/${getCategorySlug(post)}`}
-                      className="absolute top-3 left-3 bg-accent text-white text-xs px-2 py-1 font-medium z-10"
+                      className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} bg-accent text-white text-xs px-2 py-1 font-medium z-10`}
                     >
                       {getCategoryName(post)}
                     </Link>
                   )}
                 </div>
-                <div className="p-3">
+                <div className={`p-3 ${isRTL ? 'text-right' : 'text-left'}`}>
                   <Link href={`/posts/${getPostSlug(post)}`}>
                     <h3 className="text-base font-bold text-primary-bg mb-1 line-clamp-2 hover:text-accent transition-colors">
                       {getPostTitle(post)}
                     </h3>
                   </Link>
                   <div className="text-xs text-gray-500 mt-1">
-                    {formatDateLocalized(post.publishedAt || post.createdAt, locale)}
+                    {formatDateLocalized(String(post.publishedAt || post.createdAt), locale)}
                   </div>
                 </div>
               </div>
@@ -203,26 +203,26 @@ export const LatestPostsSection = ({
           </div>
 
           {/* List of smaller articles - Spans 3 columns */}
-          <div className="lg:col-span-3 border-l border-gray-200 pl-4">
-            <h3 className="text-sm font-semibold text-primary-bg mb-3 pb-2 border-b border-gray-200">
+          <div className={`lg:col-span-3 border-${isRTL ? 'r' : 'l'} border-gray-200 ${isRTL ? 'pr-4' : 'pl-4'}`}>
+            <h3 className={`text-sm font-semibold text-primary-bg mb-3 pb-2 border-b border-gray-200 ${isRTL ? 'text-right' : 'text-left'}`}>
               {isRTL ? 'آخر الأخبار' : 'More News'}
             </h3>
             <div className="space-y-4">
               {remainingPosts.map((post) => (
                 <div key={post.id} className="border-b border-gray-100 pb-4 last:border-0">
                   <Link href={`/posts/${getPostSlug(post)}`}>
-                    <h4 className="text-sm font-medium text-gray-800 hover:text-accent transition-colors line-clamp-2">
+                    <h4 className={`text-sm font-medium text-gray-800 hover:text-accent transition-colors line-clamp-2 ${isRTL ? 'text-right' : 'text-left'}`}>
                       {getPostTitle(post)}
                     </h4>
                   </Link>
-                  <div className="flex items-center mt-1 space-x-2">
+                  <div className={`flex items-center mt-1 ${isRTL ? 'space-x-reverse' : ''} space-x-2`}>
                     {getCategoryName(post) && (
                       <span className="text-xs text-accent font-medium">
                         {getCategoryName(post)}
                       </span>
                     )}
                     <span className="text-xs text-gray-500">
-                      {formatDateLocalized(post.publishedAt || post.createdAt, locale)}
+                      {formatDateLocalized(String(post.publishedAt || post.createdAt), locale)}
                     </span>
                   </div>
                 </div>

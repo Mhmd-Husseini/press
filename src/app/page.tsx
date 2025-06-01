@@ -10,6 +10,21 @@ import { getLocalizedValue } from '@/lib/utils';
 export default async function Home() {
   const cookieStore = await cookies();
   const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const isRTL = locale === 'ar';
+  
+  // Text translations
+  const translations = {
+    en: {
+      latestNews: "Latest News",
+      noPostsInCategory: "No posts in this category yet.",
+      more: "More"
+    },
+    ar: {
+      latestNews: "أحدث الأخبار",
+      noPostsInCategory: "لا توجد منشورات في هذه الفئة حتى الآن.",
+      more: "المزيد"
+    }
+  };
   
   try {
     // Get featured posts (published & featured)
@@ -126,12 +141,12 @@ export default async function Home() {
           featuredPosts={featuredPosts}
         />
         
-        <div className="space-y-6 md:space-y-0 md:pb-6">          
+        <div className="space-y-6 md:space-y-0 md:pb-6" dir={isRTL ? 'rtl' : 'ltr'}>          
           {/* Latest News Section */}
           <LatestPostsSection 
             posts={latestPosts as any[]} 
             locale={locale}
-            title="Latest News"
+            title={isRTL ? translations.ar.latestNews : translations.en.latestNews}
             viewAllLink="/news"
           />
           
@@ -159,17 +174,17 @@ export default async function Home() {
                   
                   return (
                     <div key={category.id} className="category-section bg-gray-50 rounded-lg p-4 shadow-sm">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center">
-                          <div className="w-1 h-6 bg-gray-700 mr-2"></div>
+                      <div className={`flex items-center justify-between mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <div className={`w-1 h-6 bg-gray-700 ${isRTL ? 'ml-2' : 'mr-2'}`}></div>
                           <h2 className="text-xl font-bold text-gray-900">{categoryName}</h2>
                         </div>
                         <a 
                           href={`/categories/${categorySlug}`} 
-                          className="text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center"
+                          className={`text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
                         >
-                          More
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          {isRTL ? translations.ar.more : translations.en.more}
+                          <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${isRTL ? 'ml-1 rotate-180' : 'mr-1'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </a>
@@ -195,10 +210,10 @@ export default async function Home() {
                               <a 
                                 key={post.id}
                                 href={`/posts/${postSlug}`}
-                                className={`flex items-start space-x-3 pb-3 hover:bg-gray-100 rounded p-2 transition-colors ${index < categoryPosts.length - 1 ? 'border-b border-gray-100' : ''}`}
+                                className={`flex items-start ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} pb-3 hover:bg-gray-100 rounded p-2 transition-colors ${index < categoryPosts.length - 1 ? 'border-b border-gray-100' : ''}`}
                               >
                                 {/* Post thumbnail */}
-                                <div className="flex-shrink-0 w-20 h-16 relative bg-gray-200 rounded overflow-hidden">
+                                <div className={`flex-shrink-0 w-20 h-16 relative bg-gray-200 rounded overflow-hidden`}>
                                   {postImage ? (
                                     <img 
                                       src={postImage} 
@@ -216,10 +231,10 @@ export default async function Home() {
                                 
                                 {/* Post content */}
                                 <div className="flex-1">
-                                  <h3 className="text-sm font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-1">
+                                  <h3 className={`text-sm font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>
                                     {postTitle}
                                   </h3>
-                                  <span className="text-xs text-gray-500">
+                                  <span className={`text-xs text-gray-500 ${isRTL ? 'text-right block' : 'text-left'}`}>
                                     {new Date(post.publishedAt || post.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-AE' : 'en-US', {
                                       month: 'short',
                                       day: 'numeric',
@@ -231,7 +246,9 @@ export default async function Home() {
                             );
                           })
                         ) : (
-                          <p className="text-gray-500 text-sm">No posts in this category yet.</p>
+                          <p className="text-gray-500 text-sm">
+                            {isRTL ? translations.ar.noPostsInCategory : translations.en.noPostsInCategory}
+                          </p>
                         )}
                       </div>
                     </div>
