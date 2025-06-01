@@ -48,16 +48,13 @@ html[dir="rtl"] .flex-row {
 html[dir="rtl"] .mr-1, 
 html[dir="rtl"] .mr-2, 
 html[dir="rtl"] .mr-3, 
-html[dir="rtl"] .mr-4 {
-  margin-right: 0;
-}
+html[dir="rtl"] .mr-4 
 
 html[dir="rtl"] .ml-1, 
 html[dir="rtl"] .ml-2, 
 html[dir="rtl"] .ml-3, 
-html[dir="rtl"] .ml-4 {
-  margin-left: 0;
-}
+html[dir="rtl"] .ml-4 
+  /* margin-left: 0; *
 
 html[dir="rtl"] .space-x-1 > *, 
 html[dir="rtl"] .space-x-2 > *, 

@@ -174,19 +174,42 @@ export default async function Home() {
                   
                   return (
                     <div key={category.id} className="category-section bg-gray-50 rounded-lg p-4 shadow-sm">
-                      <div className={`flex items-center justify-between mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <div className="flex items-center justify-between mb-4">
+                        {/* Category title section */}
                         <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-                          <div className={`w-1 h-6 bg-gray-700 ${isRTL ? 'ml-2' : 'mr-2'}`}></div>
-                          <h2 className="text-xl font-bold text-gray-900">{categoryName}</h2>
+                          {isRTL ? (
+                            <>
+                              <h2 className="text-xl font-bold text-gray-900 text-right pr-3">{categoryName}</h2>
+                              <div className="w-1 h-6 bg-gray-700 ml-3"></div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="w-1 h-6 bg-gray-700 mr-3"></div>
+                              <h2 className="text-xl font-bold text-gray-900 text-left">{categoryName}</h2>
+                            </>
+                          )}
                         </div>
+                        
+                        {/* More link section */}
                         <a 
                           href={`/categories/${categorySlug}`} 
-                          className={`text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
+                          className="text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center transition-colors"
                         >
-                          {isRTL ? translations.ar.more : translations.en.more}
-                          <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${isRTL ? 'ml-1 rotate-180' : 'mr-1'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                          {isRTL ? (
+                            <>
+                              <span>{translations.ar.more}</span>
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </>
+                          ) : (
+                            <>
+                              <span>{translations.en.more}</span>
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </>
+                          )}
                         </a>
                       </div>
                       
