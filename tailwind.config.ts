@@ -41,9 +41,9 @@ export default {
       fontFamily: {
         // Enhanced font families
         'sans': ['Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        'arabic': ['Cairo', 'Tajawal', 'Amiri', 'Noto Sans Arabic', 'Arial', 'sans-serif'],
+        'arabic': ['Noto Naskh Arabic', 'Cairo', 'Tajawal', 'Amiri', 'Noto Sans Arabic', 'Arial', 'sans-serif'],
         'heading': ['Inter', 'Segoe UI', 'system-ui', 'sans-serif'],
-        'arabic-heading': ['Cairo', 'Tajawal', 'Amiri', 'sans-serif'],
+        'arabic-heading': ['Noto Naskh Arabic', 'Cairo', 'Tajawal', 'Amiri', 'sans-serif'],
       },
       fontWeight: {
         'light': '300',

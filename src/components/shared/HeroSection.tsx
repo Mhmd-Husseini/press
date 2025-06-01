@@ -150,7 +150,7 @@ const HeroSection: React.FC<HeroProps> = ({
   const categorySlug = getCategorySlug(story);
 
   // Split featured posts for different sections
-  const mainPosts = slidePosts.slice(0, Math.min(5, slidePosts.length));
+  const mainPosts = slidePosts.slice(0, Math.min(6, slidePosts.length));
   
   return (
     <section className="bg-white" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -298,58 +298,68 @@ const HeroSection: React.FC<HeroProps> = ({
               </h2>
             </div>
             
-            <div className="flex flex-col space-y-4 flex-grow">
-              {/* Side stories */}
-              {mainPosts.map((post, index) => {
-                if (index === currentSlide) return null; // Skip currently displayed slide
-                
-                const postTitle = getTitle(post);
-                const postSlug = getSlug(post);
-                const postCategoryName = getCategoryName(post);
-                const postDate = post.publishedAt || post.createdAt;
-                
-                return (
-                  <div 
-                    key={post.id} 
-                    className={`group cursor-pointer border-b border-gray-200 pb-4 last:border-0`}
-                    onClick={() => goToSlide(index)}
-                  >
-                    <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      {/* Thumbnail */}
-                      {post.media && post.media.length > 0 ? (
-                        <div className="relative h-20 w-28 flex-shrink-0 overflow-hidden">
-                          <Image
-                            src={post.media[0].url}
-                            alt={postTitle}
-                            fill
-                            className="object-cover"
-                            sizes="112px"
-                          />
+            {/* Fixed height container to prevent layout shifts */}
+            <div className="flex flex-col h-[470px] overflow-hidden">
+              <div className="flex flex-col space-y-4 flex-grow">
+                {/* Side stories - Always show exactly 4 posts */}
+                {(() => {
+                  // Get all posts except the current slide, then take the first 4
+                  const sideStories = mainPosts
+                    .map((post, index) => ({ post, originalIndex: index }))
+                    .filter(({ originalIndex }) => originalIndex !== currentSlide)
+                    .slice(0, 4) // Always show exactly 4 posts
+                    .map(({ post, originalIndex }) => ({ post, originalIndex }));
+
+                  return sideStories.map(({ post, originalIndex }) => {
+                    const postTitle = getTitle(post);
+                    const postSlug = getSlug(post);
+                    const postCategoryName = getCategoryName(post);
+                    const postDate = post.publishedAt || post.createdAt;
+                    
+                    return (
+                      <div 
+                        key={post.id} 
+                        className={`group cursor-pointer border-b border-gray-200 pb-4 last:border-0 flex-shrink-0`}
+                        onClick={() => goToSlide(originalIndex)}
+                      >
+                        <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          {/* Thumbnail */}
+                          {post.media && post.media.length > 0 ? (
+                            <div className="relative h-20 w-28 flex-shrink-0 overflow-hidden rounded">
+                              <Image
+                                src={post.media[0].url}
+                                alt={postTitle}
+                                fill
+                                className="object-cover"
+                                sizes="112px"
+                              />
+                            </div>
+                          ) : (
+                            <div className="relative h-20 w-28 flex-shrink-0 bg-gray-200 rounded"></div>
+                          )}
+                          
+                          {/* Post details */}
+                          <div className={`flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
+                            {postCategoryName && (
+                              <span className="text-xs text-accent font-medium mb-1 block">
+                                {postCategoryName}
+                              </span>
+                            )}
+                            
+                            <h3 className="text-md font-medium text-primary-bg group-hover:text-accent transition-colors line-clamp-3 leading-tight">
+                              {postTitle}
+                            </h3>
+                            
+                            <span className="text-xs text-gray-500 mt-1 block">
+                              {formatDateLocalized(postDate, locale)}
+                            </span>
+                          </div>
                         </div>
-                      ) : (
-                        <div className="relative h-20 w-28 flex-shrink-0 bg-gray-200"></div>
-                      )}
-                      
-                      {/* Post details */}
-                      <div className={`flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
-                        {postCategoryName && (
-                          <span className="text-xs text-accent font-medium mb-1 block">
-                            {postCategoryName}
-                          </span>
-                        )}
-                        
-                        <h3 className="text-sm font-medium text-primary-bg group-hover:text-accent transition-colors line-clamp-3">
-                          {postTitle}
-                        </h3>
-                        
-                        <span className="text-xs text-gray-500 mt-1 block">
-                          {formatDateLocalized(postDate, locale)}
-                        </span>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    );
+                  });
+                })()}
+              </div>
             </div>
           </div>
         </div>

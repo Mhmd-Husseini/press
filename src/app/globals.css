@@ -1,3 +1,6 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,7 +16,7 @@
   --border-color: #e5e5e5;
   
   /* Typography variables */
-  --font-cairo: 'Cairo', 'Tajawal', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif;
+  --font-cairo: 'Noto Naskh Arabic', 'Cairo', 'Tajawal', 'Amiri', 'Noto Sans Arabic', Arial, sans-serif;
   --font-inter: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -323,35 +326,23 @@ html[dir="rtl"] body {
   line-height: 1.8;
 }
 
-/* RTL layout adjustments */
+/* RTL layout adjustments - Use logical properties and manual swaps instead of nullifying */
 html[dir="rtl"] .flex-row {
   flex-direction: row-reverse;
 }
 
-html[dir="rtl"] .mr-1, 
-html[dir="rtl"] .mr-2, 
-html[dir="rtl"] .mr-3, 
-html[dir="rtl"] .mr-4 {
+/* RTL space handling - improve space-x behavior */
+html[dir="rtl"] .space-x-1 > * + *,
+html[dir="rtl"] .space-x-2 > * + *,
+html[dir="rtl"] .space-x-3 > * + *,
+html[dir="rtl"] .space-x-4 > * + * {
+  margin-left: 0;
+  margin-right: var(--tw-space-x);
+}
+
+html[dir="rtl"] .space-x-reverse > * + * {
+  margin-left: var(--tw-space-x);
   margin-right: 0;
-}
-
-html[dir="rtl"] .ml-1, 
-html[dir="rtl"] .ml-2, 
-html[dir="rtl"] .ml-3, 
-html[dir="rtl"] .ml-4 {
-  margin-left: 0;
-}
-
-html[dir="rtl"] .space-x-1 > *, 
-html[dir="rtl"] .space-x-2 > *, 
-html[dir="rtl"] .space-x-3 > *, 
-html[dir="rtl"] .space-x-4 > * {
-  margin-left: 0;
-}
-
-html[dir="rtl"] .space-x-reverse > * {
-  margin-left: var(--tw-space-x-reverse);
-  margin-right: calc(var(--tw-space-x) * (1 - var(--tw-space-x-reverse)));
 }
 
 /* RTL text inputs */
@@ -364,6 +355,31 @@ html[dir="rtl"] textarea {
   direction: rtl;
   font-family: var(--font-cairo);
   font-size: 1rem;
+}
+
+/* RTL-specific utility classes for margins */
+@layer components {
+  /* RTL margin utilities */
+  .rtl-ml-1 { margin-left: 0.25rem; }
+  .rtl-ml-2 { margin-left: 0.5rem; }
+  .rtl-ml-3 { margin-left: 0.75rem; }
+  .rtl-ml-4 { margin-left: 1rem; }
+  
+  .rtl-mr-1 { margin-right: 0.25rem; }
+  .rtl-mr-2 { margin-right: 0.5rem; }
+  .rtl-mr-3 { margin-right: 0.75rem; }
+  .rtl-mr-4 { margin-right: 1rem; }
+  
+  /* Logical margin classes that work better with RTL */
+  .ms-1 { margin-inline-start: 0.25rem; }
+  .ms-2 { margin-inline-start: 0.5rem; }
+  .ms-3 { margin-inline-start: 0.75rem; }
+  .ms-4 { margin-inline-start: 1rem; }
+  
+  .me-1 { margin-inline-end: 0.25rem; }
+  .me-2 { margin-inline-end: 0.5rem; }
+  .me-3 { margin-inline-end: 0.75rem; }
+  .me-4 { margin-inline-end: 1rem; }
 }
 
 /* News Ticker Styles */
