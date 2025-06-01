@@ -188,7 +188,7 @@ const HeroSection: React.FC<HeroProps> = ({
       <div className="container mx-auto px-4 py-4">
         <div className={`grid grid-cols-1 md:grid-cols-12 gap-6`}>
           {/* Featured story - Takes 8 columns on desktop */}
-          <div className="md:col-span-7">
+          <div className="md:col-span-7 md:mt-2">
             {/* Main featured story with navigation controls */}
             <div className="relative overflow-hidden rounded-sm">
               {/* Full-width image */}

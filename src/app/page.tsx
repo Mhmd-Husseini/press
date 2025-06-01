@@ -258,10 +258,10 @@ export default async function Home() {
                                 
                                 {/* Post content */}
                                 <div className="flex-1">
-                                  <h3 className={typography.component('post-title-small', 'hover:text-blue-600 line-clamp-2 mb-2 text-gray-900')}>
+                                  <h3 className={`${isRTL ? 'text-sm font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-2 text-right' : 'text-sm font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-2'}`}>
                                     {postTitle}
                                   </h3>
-                                  <span className={`block ${typography.component('meta', 'text-gray-500')}`}>
+                                  <span className={`block text-xs text-gray-500 ${isRTL ? 'text-right' : ''}`}>
                                     {new Date(post.publishedAt || post.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-AE' : 'en-US', {
                                       month: 'short',
                                       day: 'numeric',
@@ -273,7 +273,7 @@ export default async function Home() {
                             );
                           })
                         ) : (
-                          <p className={typography.text('small', 'text-gray-500 text-center')}>
+                          <p className={`text-sm text-gray-500 text-center ${isRTL ? 'text-right' : ''}`}>
                             {isRTL ? translations.ar.noPostsInCategory : translations.en.noPostsInCategory}
                           </p>
                         )}

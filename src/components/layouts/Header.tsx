@@ -181,23 +181,10 @@ export const Header = () => {
         <div className="container mx-auto md:px-6">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <div className="flex items-center">
               <Link href="/" className="flex items-center">
-                <div className={`${isRTL ? 'ml-3' : 'mr-3'}`}>
-                  <Image
-                    src="/phoenix-logo.svg"
-                    alt="Phoenix Press"
-                    width={50}
-                    height={50}
-                    className="object-contain"
-                  />
-                </div>
-                <div>
-                  <span className="text-xl font-bold text-primary-bg">Phoenix</span>
+                  <span className="text-xl font-bold text-primary-bg">Phoenix </span>
                   <span className={`text-xl font-bold text-accent ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
-                </div>
               </Link>
-            </div>
 
             {/* Search Bar - Desktop */}
             <div className="hidden md:flex items-center">
