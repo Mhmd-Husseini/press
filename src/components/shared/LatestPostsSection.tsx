@@ -95,7 +95,7 @@ export const LatestPostsSection = ({
           {viewAllLink && (
             <Link 
               href={viewAllLink} 
-              className={`text-accent hover:text-accent/80 text-sm font-medium flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
+              className={`text-accent hover:text-accent/80 text-sm font-medium flex items-center `}
             >
               {isRTL ? translations.ar.viewAll : translations.en.viewAll}
               <svg 
