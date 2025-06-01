@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
             lastNameArabic: true
           }
         },
+        postAuthor: true,
         media: {
           where: {
             type: 'IMAGE',
@@ -138,8 +139,15 @@ export async function GET(request: NextRequest) {
       }
       
       // Format author name based on locale
-      let authorName = post.authorName || '';
-      if (!authorName && post.author) {
+      let authorName = '';
+      if ((post as any).postAuthor) {
+        const author = (post as any).postAuthor;
+        if (locale === 'ar' && author.nameAr) {
+          authorName = author.nameAr;
+        } else {
+          authorName = author.nameEn;
+        }
+      } else if (post.author) {
         if (locale === 'ar' && (post.author.firstNameArabic || post.author.lastNameArabic)) {
           authorName = `${post.author.firstNameArabic || ''} ${post.author.lastNameArabic || ''}`.trim();
         } else {
@@ -147,9 +155,8 @@ export async function GET(request: NextRequest) {
         }
       }
       
-      // If Arabic locale and we have an Arabic author name, use it
-      if (locale === 'ar' && post.authorNameArabic) {
-        authorName = post.authorNameArabic;
+      if (!authorName) {
+        authorName = 'Phoenix Staff';
       }
       
       return {

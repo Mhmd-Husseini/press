@@ -28,7 +28,7 @@ export async function fetchPublishedPosts({
   total: number;
   pages: number;
 }> {
-  const postService = new PostService(prisma);
+  const postService = new PostService();
   
   // Build where clause
   const where: Prisma.PostWhereInput = {
@@ -93,6 +93,7 @@ export async function fetchPublishedPosts({
         }
       },
       author: true,
+      postAuthor: true,
       media: true,
       tags: {
         include: {
@@ -159,7 +160,7 @@ export async function fetchLatestPosts(locale = 'en', limit = 10): Promise<PostW
  * Fetch a single post by slug
  */
 export async function fetchPostBySlug(slug: string, locale = 'en'): Promise<PostWithRelations | null> {
-  const postService = new PostService(prisma);
+  const postService = new PostService();
   
   const post = await prisma.post.findFirst({
     where: {
@@ -180,6 +181,7 @@ export async function fetchPostBySlug(slug: string, locale = 'en'): Promise<Post
         }
       },
       author: true,
+      postAuthor: true,
       media: true,
       tags: {
         include: {

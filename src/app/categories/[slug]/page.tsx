@@ -79,7 +79,7 @@ async function fetchCategoryPosts(slug: string, locale: string) {
           id: post.id,
           slug: postTranslation.slug,
           title: postTranslation.title,
-          excerpt: postTranslation.excerpt || '',
+          excerpt: postTranslation.summary || '',
           publishedAt: post.publishedAt || post.createdAt,
           imageUrl: featuredImage,
         };

@@ -58,6 +58,24 @@ model User {
   emailVerified     Boolean       @default(false)
 }
 
+/// AUTHOR MODEL ///
+model Author {
+  id          String   @id @default(uuid())
+  nameEn      String   // English name
+  nameAr      String?  // Arabic name
+  country     String?  // Author's country
+  bio         String?  // Biography in English
+  bioAr       String?  // Biography in Arabic
+  avatar      String?  // Author's profile picture
+  email       String?  // Optional email
+  socialLinks Json?    // Social media links
+  isActive    Boolean  @default(true)
+  posts       Post[]   // Posts by this author
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+}
+
 model Role {
   id                String           @id @default(uuid())
   name              String           @unique
@@ -134,10 +152,10 @@ model Post {
   status          PostStatus        @default(DRAFT)
   statusReason    String?
   version         Int               @default(1)
-  authorId        String
-  author          User              @relation(fields: [authorId], references: [id])
-  authorName      String?           // Custom author name in English
-  authorNameArabic String?          // Custom author name in Arabic
+  authorId        String?           // User who created the post (system user)
+  author          User?             @relation(fields: [authorId], references: [id])
+  postAuthorId    String            // Reference to Author table
+  postAuthor      Author            @relation(fields: [postAuthorId], references: [id])
   editorId        String?           // User who edited the post
   editor          User?             @relation("EditedPosts", fields: [editorId], references: [id])
   approvedById    String?           // User who approved the post

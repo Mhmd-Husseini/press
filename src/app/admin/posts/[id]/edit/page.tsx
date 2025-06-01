@@ -66,7 +66,7 @@ export default function EditPostPage() {
       ) : error ? (
         <ErrorMessage message={error} />
       ) : (
-        <PostEditGuard authorId={post?.authorId} postId={post?.id}>
+        <PostEditGuard authorId={post?.authorId || undefined} postId={post?.id}>
           <PostForm post={post || undefined} isEdit={true} />
         </PostEditGuard>
       )}

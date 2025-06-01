@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ArticleCard from '@/components/shared/ArticleCard';
 import MainLayout from '@/components/layouts/MainLayout';
@@ -17,7 +17,7 @@ interface SearchResult {
   status: string;
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const locale = searchParams.get('locale') || 'en';
@@ -69,8 +69,7 @@ export default function SearchPage() {
     }).format(date);
   };
 
-  // Content for the search page
-  const searchContent = (
+  return (
     <div className="container mx-auto px-4 py-8" dir={isRTL ? 'rtl' : 'ltr'}>
       {!query.trim() && !loading ? (
         <>
@@ -135,7 +134,7 @@ export default function SearchPage() {
                   publishedAt={result.publishedAt || result.createdAt}
                   size="medium"
                   variant="vertical"
-                  locale={locale}
+                  locale="en"
                 />
               ))}
             </div>
@@ -144,6 +143,27 @@ export default function SearchPage() {
       )}
     </div>
   );
+}
 
-  return <MainLayout>{searchContent}</MainLayout>;
+function SearchFallback() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="text-center">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-300 rounded w-1/4 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <MainLayout>
+      <Suspense fallback={<SearchFallback />}>
+        <SearchContent />
+      </Suspense>
+    </MainLayout>
+  );
 } 

@@ -86,30 +86,17 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     console.log('Parsed request data:', JSON.stringify(data, null, 2));
 
+    // Validate required postAuthorId
+    if (!data.postAuthorId) {
+      return NextResponse.json({ 
+        error: 'postAuthorId is required' 
+      }, { status: 400 });
+    }
+
     // Add the current user as the author if not specified
     if (!data.authorId) {
       data.authorId = user.id;
       console.log('Using current user as author:', user.id);
-    }
-    
-    // Set default author name if not provided or empty
-    if (!data.authorName || data.authorName.trim() === '') {
-      if (user.firstName) {
-        data.authorName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-        console.log('Using default author name:', data.authorName);
-      } else {
-        data.authorName = null; // Set to null if no name components available
-      }
-    }
-    
-    // Set default Arabic author name if not provided or empty
-    if (!data.authorNameArabic || data.authorNameArabic.trim() === '') {
-      if (user.firstNameArabic) {
-        data.authorNameArabic = `${user.firstNameArabic || ''} ${user.lastNameArabic || ''}`.trim();
-        console.log('Using default Arabic author name:', data.authorNameArabic);
-      } else {
-        data.authorNameArabic = null; // Set to null if no name components available
-      }
     }
     
     // Set creator and updater

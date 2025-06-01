@@ -28,6 +28,25 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "Author" (
+    "id" TEXT NOT NULL,
+    "nameEn" TEXT NOT NULL,
+    "nameAr" TEXT,
+    "country" TEXT,
+    "bio" TEXT,
+    "bioAr" TEXT,
+    "avatar" TEXT,
+    "email" TEXT,
+    "socialLinks" JSONB,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Author_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Role" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -101,9 +120,8 @@ CREATE TABLE "Post" (
     "status" "PostStatus" NOT NULL DEFAULT 'DRAFT',
     "statusReason" TEXT,
     "version" INTEGER NOT NULL DEFAULT 1,
-    "authorId" TEXT NOT NULL,
-    "authorName" TEXT,
-    "authorNameArabic" TEXT,
+    "authorId" TEXT,
+    "postAuthorId" TEXT NOT NULL,
     "editorId" TEXT,
     "approvedById" TEXT,
     "declinedById" TEXT,
@@ -295,7 +313,10 @@ ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("par
 ALTER TABLE "CategoryTranslation" ADD CONSTRAINT "CategoryTranslation_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Post" ADD CONSTRAINT "Post_postAuthorId_fkey" FOREIGN KEY ("postAuthorId") REFERENCES "Author"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_editorId_fkey" FOREIGN KEY ("editorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

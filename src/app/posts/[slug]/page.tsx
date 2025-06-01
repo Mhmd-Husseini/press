@@ -83,6 +83,7 @@ async function fetchPost(slug: string) {
             translations: true,
           },
         },
+        postAuthor: true,
         media: true,
       },
     });
@@ -134,8 +135,13 @@ export default async function PostPage(props: PageProps) {
     const featuredImage = post.media.find((m: Media) => m.type === MediaType.IMAGE);
     const imageUrl = featuredImage ? featuredImage.url : '/images/default-post-image.svg';
     
-    // Extract author name if available
-    const authorName = post.authorName || 'Phoenix Staff';
+    // Get author information from postAuthor
+    const author = (post as any).postAuthor;
+    const authorName = author 
+      ? (locale === 'ar' && author.nameAr ? author.nameAr : author.nameEn)
+      : 'Phoenix Staff';
+    const authorCountry = author?.country;
+    const authorAvatar = author?.avatar;
     
     return (
       <MainLayout>
@@ -152,9 +158,23 @@ export default async function PostPage(props: PageProps) {
             {/* Title */}
             <h1 className="text-3xl md:text-4xl font-bold mb-4">{postTranslation.title}</h1>
             
-            {/* Meta information */}
+            {/* Author and Meta information */}
             <div className="flex items-center text-gray-600 mb-6 gap-4">
-              <span>{authorName}</span>
+              <div className="flex items-center gap-3">
+                {authorAvatar && (
+                  <img 
+                    src={authorAvatar} 
+                    alt={authorName}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                )}
+                <div className="flex flex-col">
+                  <span className="font-medium text-gray-900">{authorName}</span>
+                  {authorCountry && (
+                    <span className="text-sm text-gray-500">📍 {authorCountry}</span>
+                  )}
+                </div>
+              </div>
               <span>•</span>
               <span>{formatDateLocalized(
                 (post.publishedAt || post.createdAt).toISOString(), 

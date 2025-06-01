@@ -17,6 +17,15 @@ export type PostWithRelations = Post & {
     firstNameArabic?: string;
     lastNameArabic?: string;
   };
+  postAuthor?: {
+    id: string;
+    nameEn: string;
+    nameAr?: string;
+    country?: string;
+    bio?: string;
+    bioAr?: string;
+    avatar?: string;
+  };
   editor?: { 
     id: string; 
     email: string; 
@@ -90,8 +99,7 @@ export type PostCreateInput = {
   status?: PostStatus;
   statusReason?: string;
   authorId: string;
-  authorName?: string;
-  authorNameArabic?: string;
+  postAuthorId: string;
   editorId?: string;
   approvedById?: string;
   declinedById?: string;
@@ -120,8 +128,7 @@ export type PostUpdateInput = {
   statusReason?: string;
   categoryId?: string;
   authorId?: string;
-  authorName?: string;
-  authorNameArabic?: string;
+  postAuthorId?: string;
   editorId?: string;
   approvedById?: string;
   declinedById?: string;
@@ -199,8 +206,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         status: data.status || PostStatus.DRAFT,
         statusReason: data.statusReason,
         authorId: data.authorId,
-        authorName: data.authorName,
-        authorNameArabic: data.authorNameArabic,
+        postAuthorId: data.postAuthorId,
         categoryId: data.categoryId,
         featured: data.featured || false,
         metaData: data.metaData || {},
@@ -233,6 +239,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
           }
         },
         author: true,
+        postAuthor: true,
         editor: true,
         approvedBy: true,
         declinedBy: true,
@@ -367,6 +374,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
           }
         },
         author: true,
+        postAuthor: true,
         editor: true,
         approvedBy: true,
         declinedBy: true,
@@ -404,6 +412,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
           }
         },
         author: true,
+        postAuthor: true,
         editor: true,
         approvedBy: true,
         declinedBy: true,
@@ -441,6 +450,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
               }
             },
             author: true,
+            postAuthor: true,
             editor: true,
             approvedBy: true,
             publishedBy: true,
@@ -502,6 +512,14 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         connect: { id: data.authorId }
       };
       delete updateData.authorId;
+    }
+
+    // PostAuthor relationship
+    if (data.postAuthorId) {
+      updateData.postAuthor = {
+        connect: { id: data.postAuthorId }
+      };
+      delete updateData.postAuthorId;
     }
 
     // Editor relationship
@@ -688,6 +706,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
           }
         },
         author: true,
+        postAuthor: true,
         editor: true,
         approvedBy: true,
         declinedBy: true,

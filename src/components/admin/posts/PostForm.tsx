@@ -8,7 +8,7 @@ import { PostWithRelations } from '@/lib/services/post.service';
 import dynamic from 'next/dynamic';
 import MediaGallery from '@/components/media/MediaGallery';
 import PostStatusControl from './PostStatusControl';
-import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 // Import the editor component dynamically with correct options
 const RichTextEditor = dynamic(
@@ -30,13 +30,22 @@ type Translation = {
   postId?: string;
 };
 
+type Author = {
+  id: string;
+  nameEn: string;
+  nameAr?: string;
+  country?: string;
+  bio?: string;
+  bioAr?: string;
+  avatar?: string;
+};
+
 type FormData = {
   status: PostStatus;
   statusReason?: string;
   categoryId: string;
   authorId: string;
-  authorName?: string;
-  authorNameArabic?: string;
+  postAuthorId: string;
   featured: boolean;
   metaData: Record<string, any>;
   tags: string[];
@@ -58,8 +67,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     status: PostStatus.DRAFT,
     categoryId: '',
     authorId: user?.id || '',
-    authorName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
-    authorNameArabic: user ? `${user.firstNameArabic || ''} ${user.lastNameArabic || ''}`.trim() : '',
+    postAuthorId: '',
     featured: false,
     metaData: {},
     tags: [],
@@ -71,6 +79,11 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   
   const [categories, setCategories] = useState<any[]>([]);
   const [allTags, setAllTags] = useState<any[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
+  const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null);
+  const [authorSearch, setAuthorSearch] = useState('');
+  const [showAuthorDropdown, setShowAuthorDropdown] = useState(false);
+  const [filteredAuthors, setFilteredAuthors] = useState<Author[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('en');
@@ -102,7 +115,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     }));
   };
 
-  // Fetch categories and tags
+  // Fetch categories, tags, and authors
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -117,6 +130,13 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         if (!tagsResponse.ok) throw new Error('Failed to fetch tags');
         const tagsData = await tagsResponse.json();
         setAllTags(tagsData);
+
+        // Fetch authors
+        const authorsResponse = await fetch('/api/authors');
+        if (!authorsResponse.ok) throw new Error('Failed to fetch authors');
+        const authorsData = await authorsResponse.json();
+        setAuthors(authorsData);
+        setFilteredAuthors(authorsData);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to load necessary data. Please try again.');
@@ -125,6 +145,38 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
 
     fetchData();
   }, []);
+
+  // Handle author search
+  useEffect(() => {
+    if (authorSearch.trim() === '') {
+      setFilteredAuthors(authors);
+    } else {
+      const filtered = authors.filter(author => 
+        author.nameEn.toLowerCase().includes(authorSearch.toLowerCase()) ||
+        (author.nameAr && author.nameAr.includes(authorSearch)) ||
+        (author.country && author.country.toLowerCase().includes(authorSearch.toLowerCase()))
+      );
+      setFilteredAuthors(filtered);
+    }
+  }, [authorSearch, authors]);
+
+  // Handle clicking outside the dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.author-dropdown-container')) {
+        setShowAuthorDropdown(false);
+      }
+    };
+
+    if (showAuthorDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showAuthorDropdown]);
 
   // Initialize form data if editing
   useEffect(() => {
@@ -153,14 +205,20 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       if (post.media && post.media.length > 0) {
         setUploadedMedia(post.media);
       }
+
+      // Find the selected author if post has postAuthor
+      if ((post as any).postAuthor) {
+        const author = (post as any).postAuthor;
+        setSelectedAuthor(author);
+        setAuthorSearch(author.nameEn);
+      }
       
       setFormData({
         status: post.status,
         statusReason: post.statusReason || '',
         categoryId: post.categoryId,
         authorId: post.authorId,
-        authorName: post.authorName || (post.author ? `${post.author.firstName || ''} ${post.author.lastName || ''}`.trim() : ''),
-        authorNameArabic: post.authorNameArabic || (post.author ? `${post.author.firstNameArabic || ''} ${post.author.lastNameArabic || ''}`.trim() : ''),
+        postAuthorId: (post as any).postAuthorId || '',
         featured: post.featured,
         metaData,
         tags,
@@ -199,6 +257,16 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     setFormData(prev => ({
       ...prev,
       tags: selectedOptions
+    }));
+  };
+
+  const handleAuthorSelect = (author: Author) => {
+    setSelectedAuthor(author);
+    setAuthorSearch(author.nameEn);
+    setShowAuthorDropdown(false);
+    setFormData(prev => ({
+      ...prev,
+      postAuthorId: author.id
     }));
   };
 
@@ -299,6 +367,10 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       if (!formData.categoryId) {
         throw new Error('Please select a category');
       }
+
+      if (!formData.postAuthorId) {
+        throw new Error('Please select an author');
+      }
       
       if (formData.translations.some(t => t.locale === 'en' && !t.title)) {
         throw new Error('English title is required');
@@ -323,8 +395,6 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       const apiData = {
         ...formData,
         authorId: formData.authorId || user?.id,
-        authorName: formData.authorName || '',
-        authorNameArabic: formData.authorNameArabic || '',
         metaData,
         mediaIds // Add mediaIds to the API data
       };
@@ -372,20 +442,6 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   };
 
   const currentTranslation = getTranslationByLocale(activeTab);
-  
-  const handleChangeAuthorName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      authorName: e.target.value
-    }));
-  };
-
-  const handleChangeAuthorNameArabic = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      authorNameArabic: e.target.value
-    }));
-  };
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -570,42 +626,107 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
               </div>
             </div>
             
-            {/* Author Information */}
+            {/* Author Selection */}
             <div className="mb-4 border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Author Information</h4>
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Author Selection</h4>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="authorName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Author Name (English)
-                  </label>
+              <div className="relative author-dropdown-container">
+                <label htmlFor="authorSearch" className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Author *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                  </div>
                   <input
                     type="text"
-                    id="authorName"
-                    value={formData.authorName || ''}
-                    onChange={handleChangeAuthorName}
-                    className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                    placeholder={user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : ''}
+                    id="authorSearch"
+                    value={authorSearch}
+                    onChange={(e) => {
+                      setAuthorSearch(e.target.value);
+                      setShowAuthorDropdown(true);
+                    }}
+                    onFocus={() => setShowAuthorDropdown(true)}
+                    className="block w-full pl-10 px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                    placeholder="Search authors by name or country..."
+                    required
                   />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Leave blank to use your account name
-                  </p>
                 </div>
                 
-                <div>
-                  <label htmlFor="authorNameArabic" className="block text-sm font-medium text-gray-700 mb-1">
-                    Author Name (Arabic)
-                  </label>
-                  <input
-                    type="text"
-                    id="authorNameArabic"
-                    value={formData.authorNameArabic || ''}
-                    onChange={handleChangeAuthorNameArabic}
-                    className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                    dir="rtl"
-                    placeholder={user ? `${user.firstNameArabic || ''} ${user.lastNameArabic || ''}`.trim() : ''}
-                  />
-                </div>
+                {/* Author dropdown */}
+                {showAuthorDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {filteredAuthors.length > 0 ? (
+                      filteredAuthors.map((author) => (
+                        <div
+                          key={author.id}
+                          className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          onClick={() => handleAuthorSelect(author)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-900">{author.nameEn}</div>
+                              {author.nameAr && (
+                                <div className="text-sm text-gray-600 mt-1" dir="rtl">{author.nameAr}</div>
+                              )}
+                              {author.country && (
+                                <div className="text-xs text-gray-500 mt-1">📍 {author.country}</div>
+                              )}
+                            </div>
+                            {author.avatar && (
+                              <img 
+                                src={author.avatar} 
+                                alt={author.nameEn}
+                                className="w-8 h-8 rounded-full ml-3"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-gray-500 text-sm">
+                        No authors found matching your search.
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Selected author display */}
+                {selectedAuthor && (
+                  <div className="mt-2 p-3 bg-white border border-gray-200 rounded-md">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {selectedAuthor.avatar && (
+                          <img 
+                            src={selectedAuthor.avatar} 
+                            alt={selectedAuthor.nameEn}
+                            className="w-10 h-10 rounded-full"
+                          />
+                        )}
+                        <div>
+                          <div className="font-medium text-gray-900">{selectedAuthor.nameEn}</div>
+                          {selectedAuthor.nameAr && (
+                            <div className="text-sm text-gray-600" dir="rtl">{selectedAuthor.nameAr}</div>
+                          )}
+                          {selectedAuthor.country && (
+                            <div className="text-xs text-gray-500">📍 {selectedAuthor.country}</div>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedAuthor(null);
+                          setAuthorSearch('');
+                          setFormData(prev => ({ ...prev, postAuthorId: '' }));
+                        }}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             

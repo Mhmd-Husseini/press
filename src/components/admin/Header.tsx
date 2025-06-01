@@ -110,6 +110,15 @@ export default function AdminHeader() {
                 </Link>
               </PermissionGuard>
               
+              <PermissionGuard permissions="view_authors">
+                <Link 
+                  href="/admin/authors" 
+                  className={getNavLinkClass('/admin/authors')}
+                >
+                  Authors
+                </Link>
+              </PermissionGuard>
+              
               <PermissionGuard permissions={['view_roles', 'view_permissions']}>
                 <div className="relative group inline-flex items-center h-full">
                   <button className={getNavLinkClass('/admin/access-control')}>

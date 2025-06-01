@@ -33,12 +33,27 @@ export async function POST(request: NextRequest) {
     
     // First, we need to create a default author for demo purposes
     // In a real app, you would get the author from the authenticated user
-    const defaultAuthor = await prisma.user.findFirst();
+    const defaultUser = await prisma.user.findFirst();
     
-    if (!defaultAuthor) {
+    if (!defaultUser) {
       return NextResponse.json({ 
-        error: 'No default author found in the system'
+        error: 'No default user found in the system'
       }, { status: 500 });
+    }
+
+    // Get or create a default author
+    let defaultAuthor = await prisma.author.findFirst({
+      where: { nameEn: 'Guest Author' }
+    });
+
+    if (!defaultAuthor) {
+      defaultAuthor = await prisma.author.create({
+        data: {
+          nameEn: 'Guest Author',
+          nameAr: 'كاتب ضيف',
+          isActive: true
+        }
+      });
     }
     
     // Create the post first without media
@@ -47,8 +62,8 @@ export async function POST(request: NextRequest) {
         status: PostStatus.DRAFT,
         featured: false,
         categoryId,
-        authorId: defaultAuthor.id,
-        authorName: 'Guest Author', // Custom display name
+        authorId: defaultUser.id,
+        postAuthorId: defaultAuthor.id,
         translations: {
           create: {
             locale: 'en',
@@ -60,7 +75,8 @@ export async function POST(request: NextRequest) {
         }
       },
       include: {
-        translations: true
+        translations: true,
+        postAuthor: true
       }
     });
     
