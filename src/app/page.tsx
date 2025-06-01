@@ -6,12 +6,16 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { PostStatus } from '@prisma/client';
 import { getLocalizedValue } from '@/lib/utils';
+import { getTypographyClasses } from '@/lib/typography';
 
 export default async function Home() {
   const cookieStore = await cookies();
   const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
   const isRTL = locale === 'ar';
   
+  // Get typography classes for consistent font usage
+  const typography = getTypographyClasses(locale);
+
   // Text translations
   const translations = {
     en: {
@@ -179,13 +183,13 @@ export default async function Home() {
                         <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
                           {isRTL ? (
                             <>
-                              <h2 className="text-xl font-bold text-gray-900 text-right pr-3">{categoryName}</h2>
+                              <h2 className={typography.heading('4', 'pr-3 text-gray-900')}>{categoryName}</h2>
                               <div className="w-1 h-6 bg-gray-700 ml-3"></div>
                             </>
                           ) : (
                             <>
                               <div className="w-1 h-6 bg-gray-700 mr-3"></div>
-                              <h2 className="text-xl font-bold text-gray-900 text-left">{categoryName}</h2>
+                              <h2 className={typography.heading('4', 'text-gray-900')}>{categoryName}</h2>
                             </>
                           )}
                         </div>
@@ -193,19 +197,19 @@ export default async function Home() {
                         {/* More link section */}
                         <a 
                           href={`/categories/${categorySlug}`} 
-                          className="text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center transition-colors"
+                          className={`hover:text-gray-800 transition-colors flex items-center ${typography.link('secondary')}`}
                         >
                           {isRTL ? (
                             <>
                               <span>{translations.ar.more}</span>
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
                             </>
                           ) : (
                             <>
                               <span>{translations.en.more}</span>
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
                             </>
@@ -254,10 +258,10 @@ export default async function Home() {
                                 
                                 {/* Post content */}
                                 <div className="flex-1">
-                                  <h3 className={`text-sm font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>
+                                  <h3 className={typography.component('post-title-small', 'hover:text-blue-600 line-clamp-2 mb-2 text-gray-900')}>
                                     {postTitle}
                                   </h3>
-                                  <span className={`text-xs text-gray-500 ${isRTL ? 'text-right block' : 'text-left'}`}>
+                                  <span className={`block ${typography.component('meta', 'text-gray-500')}`}>
                                     {new Date(post.publishedAt || post.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-AE' : 'en-US', {
                                       month: 'short',
                                       day: 'numeric',
@@ -269,7 +273,7 @@ export default async function Home() {
                             );
                           })
                         ) : (
-                          <p className="text-gray-500 text-sm">
+                          <p className={typography.text('small', 'text-gray-500 text-center')}>
                             {isRTL ? translations.ar.noPostsInCategory : translations.en.noPostsInCategory}
                           </p>
                         )}
