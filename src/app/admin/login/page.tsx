@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { login } from '@/app/actions/auth';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -12,7 +13,7 @@ function SubmitButton() {
     <button 
       type="submit" 
       disabled={pending}
-      className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors"
+      className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-colors"
     >
       {pending ? 'Logging in...' : 'Login'}
     </button>
@@ -22,25 +23,38 @@ function SubmitButton() {
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { setUser } = useAuth();
   
   async function handleLogin(formData: FormData) {
     setError(null);
     
-    const result = await login(formData);
-    
-    if (!result.success) {
-      setError(typeof result.error === 'string' 
-        ? result.error 
-        : 'Login failed. Please check your credentials.');
-      return;
+    try {
+      const result = await login(formData);
+      
+      if (!result.success) {
+        setError(typeof result.error === 'string' 
+          ? result.error 
+          : 'Login failed. Please check your credentials.');
+        return;
+      }
+      
+      // Set user data directly in the context
+      if (result.user) {
+        setUser(result.user);
+      }
+      
+      // Redirect to admin dashboard
+      router.push('/admin');
+      router.refresh(); // Refresh to ensure server state is updated
+      
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('An unexpected error occurred. Please try again.');
     }
-    
-    // Redirect to admin dashboard on successful login
-    router.push('/admin');
   }
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

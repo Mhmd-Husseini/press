@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function AdminHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
+  const { user, loading, error, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   // Helper function to determine if a link is active
@@ -31,12 +31,22 @@ export default function AdminHeader() {
   // Handle logout
   const handleLogout = async () => {
     await logout();
-    // Router will redirect to login page via the logout function
   };
 
-  // Handle login
+  // Handle login navigation
   const handleLogin = () => {
     router.push('/admin/login');
+  };
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    if (!user) return '';
+    
+    if (user.firstName || user.lastName) {
+      return `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    }
+    
+    return user.email;
   };
 
   // If auth is still loading, show a simplified header
@@ -56,6 +66,38 @@ export default function AdminHeader() {
               <div className="ml-3 relative">
                 <div className="flex items-center space-x-3">
                   <div className="animate-pulse h-8 w-20 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Show error state if there's an auth error
+  if (error) {
+    return (
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <span className="font-bold text-xl text-gray-800">
+                  Admin Panel
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="ml-3 relative">
+                <div className="flex items-center space-x-3">
+                  <span className="text-red-600 text-sm">Auth Error</span>
+                  <button
+                    onClick={handleLogin}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Sign in
+                  </button>
                 </div>
               </div>
             </div>
@@ -179,7 +221,7 @@ export default function AdminHeader() {
                         alt="User profile"
                       />
                       <span className="ml-2 text-sm font-medium text-gray-700">
-                        {user.firstName ? `${user.firstName} ${user.lastName || ''}` : user.email}
+                        {getUserDisplayName()}
                       </span>
                       <svg 
                         className={`ml-1 h-5 w-5 text-gray-400 transition-transform duration-200 ${isProfileOpen ? 'transform rotate-180' : ''}`} 
@@ -224,4 +266,4 @@ export default function AdminHeader() {
       </div>
     </header>
   );
-} 
+}

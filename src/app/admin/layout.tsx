@@ -15,9 +15,11 @@ export default function AdminLayout({
 }) {
   return (
     <AuthProvider>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gray-50">
         <AdminHeader />
-        <main className="flex-grow p-6">{children}</main>
+        <main className="flex-grow p-6">
+            {children}
+        </main>
         <AdminFooter />
       </div>
     </AuthProvider>

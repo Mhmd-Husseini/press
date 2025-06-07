@@ -169,9 +169,6 @@ export async function login(formData: FormData) {
     // Remove duplicates from permissions
     const uniquePermissions = [...new Set(permissions)];
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
-
     // Create JWT token and set cookie
     const token = sign(
       { 
@@ -194,9 +191,17 @@ export async function login(formData: FormData) {
       path: '/',
     });
 
+    // Return user data in the same format as /api/auth/me
     return {
       success: true,
-      user: userWithoutPassword
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles,
+        permissions: uniquePermissions,
+      }
     };
   } catch (error) {
     console.error('Login error:', error);
