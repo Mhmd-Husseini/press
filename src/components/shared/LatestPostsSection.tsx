@@ -52,6 +52,11 @@ export const LatestPostsSection = ({
     return getLocalizedValue(post.translations, locale, 'en', 'summary') || '';
   };
 
+  const getPostContent = (post: PostWithRelations) => {
+    return getLocalizedValue(post.translations, locale, 'en', 'content') || '';
+  };
+
+
   const getPostSlug = (post: PostWithRelations) => {
     const translation = post.translations.find(t => t.locale === locale) 
       || post.translations.find(t => t.locale === 'en') 
@@ -115,9 +120,9 @@ export const LatestPostsSection = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Main featured post - Spans 5 columns */}
           {mainPost && (
-            <div className="lg:col-span-5 h-full">
-              <div className="h-full flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="relative h-64 w-full">
+            <div className="lg:col-span-5">
+              <div className="h-[620px] flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="relative h-72 w-full">
                   {mainPost.media && mainPost.media[0]?.url ? (
                     <Image
                       src={mainPost.media[0].url}
@@ -142,17 +147,49 @@ export const LatestPostsSection = ({
                     </Link>
                   )}
                 </div>
-                <div className={`p-4 flex-grow flex flex-col ${isRTL ? 'text-right' : 'text-left'}`}>
+                <div className={`p-4 flex-1 flex flex-col ${isRTL ? 'text-right' : 'text-left'}`}>
                   <Link href={`/posts/${getPostSlug(mainPost)}`}>
-                    <h3 className="text-lg font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors">
+                    <h3 className="text-lg font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors leading-tight">
                       {getPostTitle(mainPost)}
                     </h3>
                   </Link>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    {getPostSummary(mainPost)}
-                  </p>
-                  <div className="mt-auto text-xs text-gray-500">
-                    {formatDateLocalized(String(mainPost.publishedAt || mainPost.createdAt), locale)}
+                  
+                  {getPostSummary(mainPost) && (
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2 leading-relaxed font-medium">
+                      {getPostSummary(mainPost)}
+                    </p>
+                  )}
+                  
+                  {getPostContent(mainPost) && (
+                    <div 
+                      className="text-sm text-gray-700 leading-relaxed overflow-hidden"
+                      style={{
+                        height: 'calc(100% - 120px)', // Subtract approximate height of title, summary, and footer
+                        display: '-webkit-box',
+                        WebkitBoxOrient: 'vertical',
+                        WebkitLineClamp: Math.floor((520 - 288 - 120) / 20) // Calculate lines based on remaining space
+                      }}
+                    >
+                      {getPostContent(mainPost).replace(/<[^>]*>/g, '')}
+                    </div>
+                  )}
+                  
+                  {/* Show a placeholder if no summary or content */}
+                  {!getPostSummary(mainPost) && !getPostContent(mainPost) && (
+                    <div 
+                      className="text-sm text-gray-500 flex items-center justify-center bg-gray-50 rounded"
+                      style={{ height: 'calc(100% - 120px)' }}
+                    >
+                      <span className="text-center">
+                        {isRTL ? 'اضغط لقراءة المقال كاملاً' : 'Click to read the full article'}
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="mt-auto pt-2 border-t border-gray-100">
+                    <div className="text-xs text-gray-500">
+                      {formatDateLocalized(String(mainPost.publishedAt || mainPost.createdAt), locale)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -162,8 +199,8 @@ export const LatestPostsSection = ({
           {/* Two medium-sized secondary posts - Each spans 3 columns */}
           <div className="lg:col-span-4 flex flex-col space-y-6">
             {secondaryPosts.map((post) => (
-              <div key={post.id} className="border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="relative h-48 w-full">
+              <div key={post.id} className="border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
+                <div className="relative h-60 w-full">
                   {post.media && post.media[0]?.url ? (
                     <Image
                       src={post.media[0].url}
@@ -188,13 +225,20 @@ export const LatestPostsSection = ({
                     </Link>
                   )}
                 </div>
-                <div className={`p-3 ${isRTL ? 'text-right' : 'text-left'}`}>
-                  <Link href={`/posts/${getPostSlug(post)}`}>
-                    <h3 className="text-base font-bold text-primary-bg mb-1 line-clamp-2 hover:text-accent transition-colors">
-                      {getPostTitle(post)}
-                    </h3>
-                  </Link>
-                  <div className="text-xs text-gray-500 mt-1">
+                <div className={`p-3 flex-grow flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <div>
+                    <Link href={`/posts/${getPostSlug(post)}`}>
+                      <h3 className="text-base font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors leading-tight">
+                        {getPostTitle(post)}
+                      </h3>
+                    </Link>
+                    {getPostSummary(post) && (
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                        {getPostSummary(post)}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-auto pt-2 border-t border-gray-100">
                     {formatDateLocalized(String(post.publishedAt || post.createdAt), locale)}
                   </div>
                 </div>
