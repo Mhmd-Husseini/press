@@ -1,211 +1,170 @@
+import React from 'react';
 import { cookies } from 'next/headers';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Metadata } from 'next';
 import MainLayout from '@/components/layouts/MainLayout';
 import prisma from '@/lib/prisma';
 import { formatDateLocalized } from '@/lib/utils';
-import { MediaType } from '@prisma/client';
-import { PostStatus } from '@prisma/client';
+import { MediaType, PostStatus } from '@prisma/client';
 
 type PageProps = {
-  params: Promise<{
-    slug: string;
-  }>;
   searchParams: Promise<{
     page?: string;
+    search?: string;
   }>;
 };
 
 const POSTS_PER_PAGE = 12;
 
-// Fetch category and its posts
-async function fetchCategoryPosts(slug: string, locale: string, page: number = 1) {
+async function fetchPosts(page: number, search: string = '', locale: string) {
   try {
-    console.log(`Fetching category with slug: ${slug} for locale: ${locale}, page: ${page}`);
+    const skip = (page - 1) * POSTS_PER_PAGE;
     
-    // Decode the URL slug to properly handle Arabic and special characters
-    const decodedSlug = decodeURIComponent(slug);
-    
-    // Find category translation by slug
-    const categoryTranslation = await prisma.categoryTranslation.findUnique({
-      where: {
-        slug: decodedSlug,
-      },
-      include: {
-        category: true,
-      },
-    });
+    const whereClause: any = {
+      status: PostStatus.PUBLISHED,
+      deletedAt: null,
+    };
 
-    if (!categoryTranslation) {
-      console.log(`No category found with slug: ${decodedSlug}`);
-      return null;
+    // Add search filter if provided
+    if (search.trim()) {
+      whereClause.translations = {
+        some: {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { summary: { contains: search, mode: 'insensitive' } },
+            { content: { contains: search, mode: 'insensitive' } },
+          ],
+        },
+      };
     }
 
-    console.log(`Found category: ${categoryTranslation.name} (ID: ${categoryTranslation.categoryId})`);
-
-    // Get all translations for the category for proper localization
-    const allCategoryTranslations = await prisma.categoryTranslation.findMany({
-      where: {
-        categoryId: categoryTranslation.categoryId,
-      },
-    });
-
-    const skip = (page - 1) * POSTS_PER_PAGE;
-
-    // Find posts in this category with proper ordering and pagination
     const [posts, total] = await Promise.all([
       prisma.post.findMany({
-        where: {
-          categoryId: categoryTranslation.categoryId,
-          deletedAt: null, // Only active posts
-          status: PostStatus.PUBLISHED, // Add status filter for published posts only
-        },
+        where: whereClause,
         include: {
           translations: true,
           media: true,
+          category: {
+            include: {
+              translations: true,
+            },
+          },
         },
         orderBy: {
-          publishedAt: 'desc', // Ensure newest posts appear first
+          publishedAt: 'desc',
         },
         skip,
         take: POSTS_PER_PAGE,
       }),
-      prisma.post.count({
-        where: {
-          categoryId: categoryTranslation.categoryId,
-          deletedAt: null,
-          status: PostStatus.PUBLISHED,
-        },
-      }),
+      prisma.post.count({ where: whereClause }),
     ]);
 
-    console.log(`Found ${posts.length} posts for this category (total: ${total})`);
-
-    // Format posts with the right translations for the current locale and sort by date
+    // Format posts with proper translations
     const formattedPosts = posts
       .map(post => {
         const postTranslation = post.translations.find(t => t.locale === locale) || post.translations[0];
         if (!postTranslation) return null;
 
-        // Find featured image
+        const categoryTranslation = post.category?.translations?.find(t => t.locale === locale) || 
+                                  post.category?.translations?.[0];
+
         const featuredImage = post.media.find(m => m.type === MediaType.IMAGE)?.url || '/images/default-post-image.svg';
 
         return {
           id: post.id,
           slug: postTranslation.slug,
           title: postTranslation.title,
-          excerpt: postTranslation.summary || '',
+          summary: postTranslation.summary || '',
           publishedAt: post.publishedAt || post.createdAt,
           imageUrl: featuredImage,
+          category: categoryTranslation ? {
+            name: categoryTranslation.name,
+            slug: categoryTranslation.slug,
+          } : null,
         };
       })
-      .filter(Boolean)
-      // Double check sort to ensure newest first
-      .sort((a: any, b: any) => {
-        const dateA = new Date(a.publishedAt);
-        const dateB = new Date(b.publishedAt);
-        return dateB.getTime() - dateA.getTime();
-      });
+      .filter(Boolean);
 
     return {
-      category: {
-        id: categoryTranslation.categoryId,
-        name: categoryTranslation.name,
-        description: categoryTranslation.description,
-        translations: allCategoryTranslations,
-      },
       posts: formattedPosts,
       total,
       totalPages: Math.ceil(total / POSTS_PER_PAGE),
     };
   } catch (error) {
-    console.error('Error fetching category posts:', error);
-    return null;
-  }
-}
-
-// Generate metadata for the category page
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  try {
-    const slug = params.slug;
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
-    
-    // Find category translation by slug
-    const categoryTranslation = await prisma.categoryTranslation.findUnique({
-      where: {
-        slug: slug,
-      },
-    });
-
-    if (!categoryTranslation) {
-      return {
-        title: 'Category Not Found',
-        description: 'The requested category could not be found.',
-      };
-    }
-
+    console.error('Error fetching posts:', error);
     return {
-      title: `${categoryTranslation.name} | Phoenix Press`,
-      description: categoryTranslation.description || `Browse all articles in the ${categoryTranslation.name} category.`,
-      openGraph: {
-        title: `${categoryTranslation.name} | Phoenix Press`,
-        description: categoryTranslation.description || `Browse all articles in the ${categoryTranslation.name} category.`,
-        type: 'website',
-      },
-    };
-  } catch (error) {
-    console.error('Error generating metadata:', error);
-    return {
-      title: 'Phoenix Press | Category',
-      description: 'Browse articles by category',
+      posts: [],
+      total: 0,
+      totalPages: 0,
     };
   }
 }
 
-export default async function CategoryPage(props: PageProps) {
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'All News | Phoenix Press',
+    description: 'Browse all the latest news and articles from Phoenix Press.',
+    openGraph: {
+      title: 'All News | Phoenix Press',
+      description: 'Browse all the latest news and articles from Phoenix Press.',
+      type: 'website',
+    },
+  };
+}
+
+export default async function NewsPage(props: PageProps) {
   try {
-    // Get cookies first (Next.js 15 requirement)
     const cookieStore = await cookies();
     const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
     const isRTL = locale === 'ar';
     
-    // IMPORTANT: In Next.js 15, await the params object before accessing its properties
-    const params = await props.params;
     const searchParams = await props.searchParams;
-    const slug = params.slug;
     const currentPage = parseInt(searchParams.page || '1', 10);
+    const searchQuery = searchParams.search || '';
     
-    console.log(`Processing request for category: ${slug}, page: ${currentPage}`);
+    const { posts, total, totalPages } = await fetchPosts(currentPage, searchQuery, locale);
     
-    // Fetch category and posts
-    const result = await fetchCategoryPosts(slug, locale, currentPage);
-    
-    if (!result) {
-      return notFound();
-    }
-    
-    const { category, posts, total, totalPages } = result;
-
     // Generate pagination URLs
     const generatePageUrl = (page: number) => {
-      return `/categories/${encodeURIComponent(slug)}?page=${page}`;
+      const params = new URLSearchParams();
+      params.set('page', page.toString());
+      if (searchQuery) params.set('search', searchQuery);
+      return `/news?${params.toString()}`;
     };
-    
+
     return (
       <MainLayout>
         <div className={`container mx-auto py-8 px-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="max-w-7xl mx-auto">
-            {/* Category Header */}
+            {/* Page Header */}
             <div className="mb-12 text-center">
-              <h1 className="text-4xl font-bold mb-4">{category.name}</h1>
-              {category.description && (
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-4">
-                  {category.description}
-                </p>
-              )}
+              <h1 className="text-4xl font-bold mb-4">
+                {isRTL ? 'جميع الأخبار' : 'All News'}
+              </h1>
+            </div>
+
+            {/* Search Form */}
+            <div className="mb-8">
+              <form method="GET" className="max-w-md mx-auto">
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="search"
+                    defaultValue={searchQuery}
+                    placeholder={isRTL ? '     البحث في الأخبار...' : 'Search news...'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </button>
+                </div>
+              </form>
             </div>
             
             {/* Posts Grid */}
@@ -226,6 +185,14 @@ export default async function CategoryPage(props: PageProps) {
                         </div>
                       </Link>
                       <div className="p-6">
+                        {post.category && (
+                          <Link 
+                            href={`/categories/${encodeURIComponent(post.category.slug)}`}
+                            className="inline-block px-2 py-1 bg-primary-100 text-primary-800 text-xs font-medium rounded-md mb-2 hover:bg-primary-200 transition-colors"
+                          >
+                            {post.category.name}
+                          </Link>
+                        )}
                         <Link href={`/posts/${encodeURIComponent(post.slug)}`} className="block">
                           <h2 className="text-xl font-semibold mb-2 hover:text-primary-600 transition-colors line-clamp-2">
                             {post.title}
@@ -234,9 +201,11 @@ export default async function CategoryPage(props: PageProps) {
                         <p className="text-gray-500 text-sm mb-3">
                           {formatDateLocalized(post.publishedAt.toISOString(), locale)}
                         </p>
-                        <p className="text-gray-600 mb-4 line-clamp-3">
-                          {post.excerpt}
-                        </p>
+                        {post.summary && (
+                          <p className="text-gray-600 mb-4 line-clamp-3">
+                            {post.summary}
+                          </p>
+                        )}
                         <Link 
                           href={`/posts/${encodeURIComponent(post.slug)}`}
                           className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
@@ -299,9 +268,10 @@ export default async function CategoryPage(props: PageProps) {
                   {isRTL ? 'لا توجد منشورات' : 'No Posts Found'}
                 </h2>
                 <p className="text-gray-500 mb-8">
-                  {isRTL 
-                    ? 'لم يتم العثور على منشورات في هذه الفئة بعد.' 
-                    : 'No posts have been found in this category yet.'}
+                  {searchQuery 
+                    ? (isRTL ? `لم يتم العثور على نتائج لـ "${searchQuery}"` : `No results found for "${searchQuery}"`)
+                    : (isRTL ? 'لم يتم العثور على منشورات بعد.' : 'No posts have been published yet.')
+                  }
                 </p>
                 <Link 
                   href="/"
@@ -316,7 +286,19 @@ export default async function CategoryPage(props: PageProps) {
       </MainLayout>
     );
   } catch (error) {
-    console.error('Error rendering category page:', error);
-    return notFound();
+    console.error('Error rendering news page:', error);
+    return (
+      <MainLayout>
+        <div className="container mx-auto py-8 px-4">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading News</h1>
+            <p className="text-gray-600 mb-8">Sorry, we couldn't load the news at this time.</p>
+            <Link href="/" className="text-primary-600 hover:underline">
+              Return to Home Page
+            </Link>
+          </div>
+        </div>
+      </MainLayout>
+    );
   }
-}
+} 

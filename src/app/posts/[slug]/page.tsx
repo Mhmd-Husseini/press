@@ -169,17 +169,15 @@ export default async function PostPage(props: PageProps) {
                   />
                 )}
                 <div className="flex flex-col">
-                  <span className="font-medium text-gray-900">{authorName}</span>
-                  {authorCountry && (
-                    <span className="text-sm text-gray-500">📍 {authorCountry}</span>
-                  )}
+                  <span className="font-medium text-gray-900">
+                    {authorName}
+                    {authorCountry && (
+                      <span className="text-gray-700"> - {authorCountry}</span>
+                    )}
+                  </span>
+                  <span className="text-sm text-gray-500">{formatDateLocalized((post.publishedAt || post.createdAt).toISOString(), locale)}</span>
                 </div>
               </div>
-              <span>•</span>
-              <span>{formatDateLocalized(
-                (post.publishedAt || post.createdAt).toISOString(), 
-                locale
-              )}</span>
             </div>
             
             {/* Featured Image */}
