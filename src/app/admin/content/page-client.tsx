@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { DataTable, Column } from '@/components/shared/data-table';
 import PageHeader from '@/components/admin/PageHeader';
 import { PostStatus } from '@prisma/client';
 import { formatDate, truncateText } from '@/lib/utils';
@@ -43,17 +44,36 @@ interface Post {
   translations: PostTranslation[];
 }
 
+interface PostsResponse {
+  posts: Post[];
+  total: number;
+  pages: number;
+  page?: number;
+  limit?: number;
+}
+
 export default function ContentPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedCategoryId = searchParams.get('category');
   const { user } = useAuth();
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 0
+  });
+
+  // Get current parameters from URL
+  const selectedCategoryId = searchParams.get('category');
+  const currentPage = parseInt(searchParams.get('page') || '1');
+  const currentLimit = parseInt(searchParams.get('limit') || '10');
+  const currentSearch = searchParams.get('search') || '';
+
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
@@ -71,122 +91,124 @@ export default function ContentPageClient() {
     fetchCategories();
   }, []);
   
-  // Fetch posts based on selected category
-  useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      setPosts([]);
+  // Fetch posts based on current parameters
+  const fetchPosts = async () => {
+    setLoading(true);
+    setPosts([]);
+    
+    try {
+      let url = '/api/admin/posts';
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: currentLimit.toString(),
+        ...(selectedCategoryId && { categoryId: selectedCategoryId }),
+        ...(currentSearch && { search: currentSearch })
+      });
       
-      try {
-        let url = '/api/admin/posts';
-        const params = new URLSearchParams();
-        
-        if (selectedCategoryId) {
-          params.append('categoryId', selectedCategoryId);
-        }
-        
-        // Remove the editor restriction
-        // For Editor role, only show their own posts
-        /*
-        if (user && user.roles && user.roles.includes('EDITOR') && 
-            !user.roles.includes('SUPER_ADMIN') && 
-            !user.roles.includes('EDITOR_IN_CHIEF') && 
-            !user.roles.includes('EDITORIAL') &&
-            !user.roles.includes('SENIOR_EDITOR')) {
-          params.append('authorId', user.id);
-        }
-        */
-        
-        // If we need to check roles in the future, use this structure:
-        /*
-        if (user && user.roles && 
-            user.roles.some(r => r.role?.name === 'EDITOR') && 
-            !user.roles.some(r => ['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL', 'SENIOR_EDITOR'].includes(r.role?.name))) {
-          params.append('authorId', user.id);
-        }
-        */
-        
-        // Add parameters to URL if we have any
-        if (params.toString()) {
-          url += `?${params.toString()}`;
-        }
-        
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to fetch posts');
-        
-        const data = await response.json();
-        setPosts(data.posts || []);
-      } catch (err: any) {
-        console.error('Error fetching posts:', err);
-        setError('Failed to load posts');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
+      url += `?${params.toString()}`;
+      
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch posts');
+      
+      const data: PostsResponse = await response.json();
+      setPosts(data.posts || []);
+      setPagination({
+        page: data.page || currentPage,
+        limit: data.limit || currentLimit,
+        total: data.total || 0,
+        pages: data.pages || 0
+      });
+      setError(null);
+    } catch (err: any) {
+      console.error('Error fetching posts:', err);
+      setError('Failed to load posts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch posts when parameters change
+  useEffect(() => {
     fetchPosts();
-  }, [selectedCategoryId, user]);
-  
+  }, [selectedCategoryId, currentPage, currentLimit, currentSearch]);
+
   const handleCategoryChange = (categoryId?: string) => {
+    const params = new URLSearchParams(searchParams);
     if (categoryId) {
-      router.push(`/admin/content?category=${categoryId}`);
+      params.set('category', categoryId);
     } else {
-      router.push('/admin/content');
+      params.delete('category');
     }
+    params.set('page', '1'); // Reset to first page
+    router.push(`/admin/content?${params.toString()}`);
   };
-  
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', page.toString());
+    router.push(`/admin/content?${params.toString()}`);
+  };
+
+  const handleLimitChange = (limit: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('limit', limit.toString());
+    params.set('page', '1'); // Reset to first page
+    router.push(`/admin/content?${params.toString()}`);
+  };
+
+  const handleSearch = (search: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (search) {
+      params.set('search', search);
+    } else {
+      params.delete('search');
+    }
+    params.set('page', '1'); // Reset to first page
+    router.push(`/admin/content?${params.toString()}`);
+  };
+
   const getCategoryName = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    return category?.translations[0]?.name || 'Uncategorized';
+    const category = categories.find(cat => cat.id === categoryId);
+    return category?.translations[0]?.name || 'Unknown Category';
   };
-  
+
   const getPostTitle = (post: Post) => {
-    // Try to get English title first
-    const englishTranslation = post.translations.find(t => t.locale === 'en');
-    if (englishTranslation && englishTranslation.title) {
-      return englishTranslation.title;
-    }
+    // Look for English translation first, then fallback to first available
+    const enTranslation = post.translations.find(t => t.locale === 'en');
+    const firstTranslation = post.translations[0];
     
-    // Fall back to any available translation
-    return post.translations[0]?.title || 'Untitled Post';
+    return enTranslation?.title || firstTranslation?.title || 'Untitled Post';
   };
-  
+
   const getStatusClass = (status: PostStatus) => {
     switch (status) {
-      case PostStatus.DRAFT:
-        return 'bg-gray-100 text-gray-800';
-      case PostStatus.READY_TO_PUBLISH:
-        return 'bg-yellow-100 text-yellow-800';
-      case PostStatus.WAITING_APPROVAL:
-        return 'bg-blue-100 text-blue-800';
-      case PostStatus.PUBLISHED:
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case 'PUBLISHED': return 'bg-green-100 text-green-800';
+      case 'DRAFT': return 'bg-gray-100 text-gray-800';
+      case 'PENDING_REVIEW': return 'bg-yellow-100 text-yellow-800';
+      case 'UNDER_REVIEW': return 'bg-blue-100 text-blue-800';
+      case 'APPROVED': return 'bg-purple-100 text-purple-800';
+      case 'DECLINED': return 'bg-red-100 text-red-800';
+      case 'ARCHIVED': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
-  
+
   const getStatusLabel = (status: PostStatus) => {
     switch (status) {
-      case PostStatus.DRAFT:
-        return 'Draft';
-      case PostStatus.READY_TO_PUBLISH:
-        return 'Ready to Publish';
-      case PostStatus.WAITING_APPROVAL:
-        return 'Waiting Approval';
-      case PostStatus.PUBLISHED:
-        return 'Published';
-      default:
-        return 'Unknown';
+      case 'PUBLISHED': return 'Published';
+      case 'DRAFT': return 'Draft';
+      case 'PENDING_REVIEW': return 'Pending Review';
+      case 'UNDER_REVIEW': return 'Under Review';
+      case 'APPROVED': return 'Approved';
+      case 'DECLINED': return 'Declined';
+      case 'ARCHIVED': return 'Archived';
+      default: return status;
     }
   };
-  
-  // Add a helper method to get author name
+
   const getAuthorName = (post: Post) => {
-    // First check for custom author name
-    if (post.authorName) {
-      return post.authorName;
-    }
+    // Check for authorName property first (for backward compatibility)
+    if (post.authorName) return post.authorName;
     
     // Then check for author object
     if (!post.author) return 'Unknown';
@@ -203,7 +225,87 @@ export default function ContentPageClient() {
     if (!firstName && !lastName) return 'Unknown';
     return `${firstName} ${lastName}`.trim();
   };
-  
+
+  // Define table columns
+  const columns: Column<Post>[] = [
+    {
+      key: 'translations',
+      label: 'Title',
+      sortable: true,
+      render: (_, post) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {truncateText(getPostTitle(post), 50)}
+          </div>
+          {post.featured && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mt-1">
+              Featured
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (status) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(status as PostStatus)}`}>
+          {getStatusLabel(status as PostStatus)}
+        </span>
+      ),
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      render: (_, post) => (
+        <span className="text-sm text-gray-500">
+          {post.category?.translations[0]?.name || 'Uncategorized'}
+        </span>
+      ),
+    },
+    {
+      key: 'author',
+      label: 'Author',
+      render: (_, post) => (
+        <span className="text-sm text-gray-500">
+          {getAuthorName(post)}
+        </span>
+      ),
+    },
+    {
+      key: 'updatedAt',
+      label: 'Date',
+      sortable: true,
+      render: (updatedAt) => (
+        <span className="text-sm text-gray-500">
+          {formatDate(updatedAt as string)}
+        </span>
+      ),
+    },
+    {
+      key: 'id',
+      label: 'Actions',
+      className: 'text-right',
+      render: (_, post) => (
+        <div className="flex justify-end gap-2">
+          <Link
+            href={`/admin/posts/${post.id}/edit`}
+            className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+          >
+            Edit
+          </Link>
+          <Link
+            href={`/posts/${(post.translations[0]?.slug || post.id)}`}
+            className="text-gray-600 hover:text-gray-900 text-sm font-medium"
+            target="_blank"
+          >
+            View
+          </Link>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="py-6 space-y-6">
       <PageHeader 
@@ -221,19 +323,19 @@ export default function ContentPageClient() {
         ]}
       />
       
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Categories sidebar */}
-        <div className="w-full md:w-64 flex-shrink-0">
+        <div className="w-full lg:w-64 flex-shrink-0">
           <div className="bg-white shadow-sm rounded-lg overflow-hidden">
             <div className="p-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Categories</h3>
+              <h3 className="text-lg font-medium text-gray-900">Filter by Category</h3>
             </div>
             <nav className="p-2">
               <ul className="space-y-1">
                 <li>
                   <button
                     onClick={() => handleCategoryChange()}
-                    className={`w-full text-left px-3 py-2 text-sm rounded-md ${
+                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
                       !selectedCategoryId
                         ? 'bg-indigo-50 text-indigo-700 font-medium'
                         : 'text-gray-700 hover:bg-gray-50'
@@ -246,7 +348,7 @@ export default function ContentPageClient() {
                   <li key={category.id}>
                     <button
                       onClick={() => handleCategoryChange(category.id)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md ${
+                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
                         selectedCategoryId === category.id
                           ? 'bg-indigo-50 text-indigo-700 font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
@@ -263,124 +365,24 @@ export default function ContentPageClient() {
         
         {/* Main content */}
         <div className="flex-1">
-          <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-medium text-gray-900">
-                {selectedCategoryId 
-                  ? `Posts in ${getCategoryName(selectedCategoryId)}`
-                  : 'All Posts'}
-              </h3>
-              <span className="text-sm text-gray-500">
-                {posts.length} {posts.length === 1 ? 'post' : 'posts'}
-              </span>
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+              {error}
             </div>
-            
-            {loading ? (
-              <div className="p-4">
-                <div className="animate-pulse space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-16 bg-gray-100 rounded-md"></div>
-                  ))}
-                </div>
-              </div>
-            ) : error ? (
-              <div className="p-4">
-                <div className="bg-red-50 p-4 rounded-md text-red-700">
-                  {error}
-                </div>
-              </div>
-            ) : posts.length === 0 ? (
-              <div className="p-8 text-center">
-                <h3 className="text-lg font-medium text-gray-900 mb-1">No posts found</h3>
-                <p className="text-gray-500 mb-6">
-                  {selectedCategoryId
-                    ? `There are no posts in this category yet.`
-                    : `You haven't created any posts yet.`}
-                </p>
-                <Link
-                  href={selectedCategoryId 
-                    ? `/admin/posts/new?category=${selectedCategoryId}` 
-                    : '/admin/posts/new'}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  <PlusIcon className="h-4 w-4 mr-2" />
-                  Create your first post
-                </Link>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Title
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Author
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {posts.map(post => (
-                      <tr key={post.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {truncateText(getPostTitle(post), 50)}
-                          </div>
-                          {post.featured && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mt-1">
-                              Featured
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(post.status)}`}>
-                            {getStatusLabel(post.status)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {post.category?.translations[0]?.name || 'Uncategorized'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {getAuthorName(post)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(post.updatedAt)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Link
-                            href={`/admin/posts/${post.id}/edit`}
-                            className="text-indigo-600 hover:text-indigo-900 mr-4"
-                          >
-                            Edit
-                          </Link>
-                          <Link
-                            href={`/posts/${(post.translations[0]?.slug || post.id)}`}
-                            className="text-gray-600 hover:text-gray-900"
-                            target="_blank"
-                          >
-                            View
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          )}
+
+          <DataTable
+            columns={columns}
+            data={posts}
+            total={pagination.total}
+            page={pagination.page}
+            limit={pagination.limit}
+            onPageChange={handlePageChange}
+            onLimitChange={handleLimitChange}
+            onSearch={handleSearch}
+            loading={loading}
+            searchPlaceholder="Search posts by title or content..."
+          />
         </div>
       </div>
     </div>

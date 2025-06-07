@@ -13,17 +13,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    // Get locale parameter from query if present
+    // Get query parameters
     const { searchParams } = new URL(request.url);
     const locale = searchParams.get('locale');
     const flat = searchParams.get('flat') === 'true';
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const search = searchParams.get('search') || '';
 
-    // Get categories with translations
-    const categories = flat 
-      ? await categoryService.getAllFlat()
-      : await categoryService.getAll(locale || undefined);
+    // If requesting flat categories (for dropdown/select), return all without pagination
+    if (flat) {
+      const categories = await categoryService.getAllFlat();
+      return NextResponse.json(categories);
+    }
 
-    return NextResponse.json(categories);
+    // For paginated results
+    const result = await categoryService.getPaginated({
+      locale: locale || undefined,
+      page,
+      limit,
+      search
+    });
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching categories:', error);
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });

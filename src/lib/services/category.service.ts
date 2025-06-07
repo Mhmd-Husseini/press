@@ -306,4 +306,81 @@ export class CategoryService extends BaseService<Prisma.CategoryDelegate<any>> {
       )
     );
   }
+
+  async getPaginated(options?: {
+    locale?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<{
+    categories: CategoryWithTranslations[];
+    total: number;
+    pages: number;
+    page: number;
+    limit: number;
+  }> {
+    const { locale, page = 1, limit = 10, search = '' } = options || {};
+    const skip = (page - 1) * limit;
+
+    // Build search conditions
+    const searchConditions = search
+      ? {
+          translations: {
+            some: {
+              OR: [
+                { name: { contains: search, mode: 'insensitive' as const } },
+                { description: { contains: search, mode: 'insensitive' as const } },
+                { slug: { contains: search, mode: 'insensitive' as const } }
+              ]
+            }
+          }
+        }
+      : {};
+
+    // Build where clause
+    const where = {
+      deletedAt: null,
+      ...searchConditions
+    };
+
+    // Get total count
+    const total = await this.prisma.category.count({ where });
+
+    // Get categories with pagination
+    const categories = await this.prisma.category.findMany({
+      where,
+      include: {
+        translations: locale ? { where: { locale } } : true,
+        parent: {
+          include: {
+            translations: locale ? { where: { locale } } : true
+          }
+        },
+        children: {
+          include: {
+            translations: locale ? { where: { locale } } : true
+          }
+        },
+        _count: {
+          select: { posts: true }
+        }
+      },
+      orderBy: [
+        { order: 'asc' },
+        { createdAt: 'desc' }
+      ],
+      skip,
+      take: limit
+    });
+
+    const pages = Math.ceil(total / limit);
+
+    return {
+      categories: categories as CategoryWithTranslations[],
+      total,
+      pages,
+      page,
+      limit
+    };
+  }
 } 
