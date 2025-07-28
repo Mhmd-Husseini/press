@@ -10,7 +10,7 @@ export const { auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
   debug: true,
   pages: {
-    signIn: '/login',
+    signIn: '/admin/login',
     error: '/api/auth/error',
   },
   callbacks: {
