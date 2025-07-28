@@ -9,7 +9,9 @@ module.exports = {
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        NEXTAUTH_URL: 'http://51.20.78.91',
+        NEXTAUTH_SECRET: 'your-super-secure-nextauth-secret-key-2024-phoenix-press'
       },
       error_file: '/var/log/phoenix-press/error.log',
       out_file: '/var/log/phoenix-press/access.log',
