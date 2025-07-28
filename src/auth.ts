@@ -13,6 +13,18 @@ export const { auth, signIn, signOut } = NextAuth({
     signIn: '/admin/login',
     error: '/api/auth/error',
   },
+  useSecureCookies: false, // For HTTP in development/testing
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false // Set to true in production with HTTPS
+      }
+    }
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

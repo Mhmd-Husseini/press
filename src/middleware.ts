@@ -76,7 +76,8 @@ export async function middleware(request: NextRequest) {
   
   // If no token and trying to access admin routes, redirect to login
   if (!token) {
-    const url = new URL('/admin/login', request.url);
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://51.20.78.91';
+    const url = new URL('/admin/login', baseUrl);
     url.searchParams.set('callbackUrl', encodeURI(request.url));
     return NextResponse.redirect(url);
   }
@@ -122,7 +123,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch (error) {
     // Invalid token, redirect to login
-    const url = new URL('/admin/login', request.url);
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://51.20.78.91';
+    const url = new URL('/admin/login', baseUrl);
     url.searchParams.set('callbackUrl', encodeURI(request.url));
     return NextResponse.redirect(url);
   }
