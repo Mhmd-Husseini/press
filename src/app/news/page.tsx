@@ -113,6 +113,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default async function NewsPage(props: PageProps) {
   try {
     const cookieStore = await cookies();

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { DataTable, Column } from '@/components/shared/data-table';
@@ -28,7 +28,7 @@ interface AuthorsResponse {
   };
 }
 
-export default function AuthorsPage() {
+function AuthorsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -291,5 +291,13 @@ export default function AuthorsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AuthorsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthorsContent />
+    </Suspense>
   );
 } 

@@ -3,6 +3,9 @@ import AdminHeader from '@/components/admin/Header';
 import AdminFooter from '@/components/admin/Footer';
 import { AuthProvider } from '@/contexts/AuthContext';
 
+// Force dynamic rendering for admin pages
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Admin Dashboard',
   description: 'Admin dashboard for managing the application',
