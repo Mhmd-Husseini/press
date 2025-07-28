@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'phoenix-press',
-      script: 'npm',
-      args: 'start',
+      script: 'node',
+      args: '.next/standalone/server.js',
       cwd: '/var/www/phoenix-press/press',
       instances: 1,
       exec_mode: 'fork',
