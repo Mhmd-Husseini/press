@@ -9,6 +9,7 @@ export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
   session: { strategy: 'jwt' },
   debug: true,
+  trustHost: true, // Trust the host header
   pages: {
     signIn: '/admin/login',
     error: '/api/auth/error',
