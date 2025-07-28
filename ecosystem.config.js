@@ -4,7 +4,7 @@ module.exports = {
       name: 'phoenix-press',
       script: 'npm',
       args: 'start',
-      cwd: '/var/www/phoenix-press',
+      cwd: '/var/www/phoenix-press/press',
       instances: 1,
       exec_mode: 'fork',
       env: {
