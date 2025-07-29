@@ -14,6 +14,7 @@ export const { auth, signIn, signOut } = NextAuth({
     signIn: '/admin/login',
     error: '/api/auth/error',
   },
+  //
   useSecureCookies: false, // For HTTP in development/testing
   cookies: {
     sessionToken: {
