@@ -39,9 +39,11 @@ jobs:
           
           cd /var/www/phoenix-press
           
-          # Check if git repository exists, if not clone it
-          if [ ! -d ".git" ]; then
-            echo "Git repository not found, cloning..."
+          # Check if git repository exists and is valid, if not remove and clone
+          if [ ! -d ".git" ] || [ ! -f ".git/config" ]; then
+            echo "Git repository not found or corrupted, removing and cloning..."
+            rm -rf .git
+            rm -rf *
             git clone https://github.com/Mhmd-Husseini/press.git .
           fi
           
