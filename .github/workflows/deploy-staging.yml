@@ -33,19 +33,21 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          # Stop PM2 process first
+          pm2 stop phoenix-press || true
+          pm2 delete phoenix-press || true
+          
           # Create directory if it doesn't exist
           sudo mkdir -p /var/www/phoenix-press
           sudo chown ubuntu:ubuntu /var/www/phoenix-press
           
           cd /var/www/phoenix-press
           
-          # Check if git repository exists and is valid, if not remove and clone
-          if [ ! -d ".git" ] || [ ! -f ".git/config" ]; then
-            echo "Git repository not found or corrupted, removing and cloning..."
-            rm -rf .git
-            rm -rf *
-            git clone https://github.com/Mhmd-Husseini/press.git .
-          fi
+          # Completely remove the directory contents and clone fresh
+          echo "🧹 Cleaning directory and cloning fresh repository..."
+          sudo rm -rf /var/www/phoenix-press/*
+          sudo rm -rf /var/www/phoenix-press/.* 2>/dev/null || true
+          git clone https://github.com/Mhmd-Husseini/press.git .
           
           # Fetch latest changes and reset to staging branch
           git fetch origin
@@ -87,7 +89,7 @@ jobs:
           pnpm prisma generate
           pnpm prisma migrate deploy
           pnpm build
-          pm2 restart phoenix-press || pm2 start ecosystem.config.js
+          pm2 start ecosystem.config.js
           sudo systemctl reload nginx
 
     - name: Health Check
