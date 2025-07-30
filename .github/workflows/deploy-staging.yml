@@ -33,9 +33,23 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          # Create directory if it doesn't exist
+          sudo mkdir -p /var/www/phoenix-press
+          sudo chown ubuntu:ubuntu /var/www/phoenix-press
+          
           cd /var/www/phoenix-press
+          
+          # Check if git repository exists, if not clone it
+          if [ ! -d ".git" ]; then
+            echo "Git repository not found, cloning..."
+            git clone https://github.com/Mhmd-Husseini/press.git .
+          fi
+          
+          # Fetch latest changes and reset to staging branch
           git fetch origin
+          git checkout staging
           git reset --hard origin/staging
+          
           cd press
           pnpm install --frozen-lockfile
           
