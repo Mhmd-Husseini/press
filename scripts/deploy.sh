@@ -1,81 +1,76 @@
 #!/bin/bash
-set -e
 
-echo "🚀 Starting deployment..."
-
-# Variables
-APP_DIR="/var/www/phoenix-press/press"
-BACKUP_DIR="/var/backups/phoenix-press"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-
-# Create backup directory
-sudo mkdir -p $BACKUP_DIR
-
-# Stop the application
-echo "⏹️ Stopping application..."
+# Stop PM2 process first
 pm2 stop phoenix-press || true
+pm2 delete phoenix-press || true
 
-# Backup current version
-if [ -d "$APP_DIR" ]; then
-    echo "📦 Creating backup..."
-    sudo cp -r $APP_DIR $BACKUP_DIR/phoenix-press_$TIMESTAMP
-fi
+# Create directory if it doesn't exist
+sudo mkdir -p /var/www/phoenix-press
+sudo chown ubuntu:ubuntu /var/www/phoenix-press
+cd /var/www/phoenix-press
 
-# Navigate to app directory
-cd $APP_DIR
+# Completely remove the directory contents and clone fresh
+echo "🧹 Cleaning directory and cloning fresh repository..."
+sudo rm -rf /var/www/phoenix-press/*
+sudo rm -rf /var/www/phoenix-press/.* 2>/dev/null || true
+git clone https://github.com/Mhmd-Husseini/press.git .
+
+# Fetch latest changes and reset to staging branch
+git fetch origin
+git checkout staging
+git reset --hard origin/staging
 
 # Install dependencies
-echo "📦 Installing dependencies..."
 pnpm install --frozen-lockfile
 
-# Copy environment file
-if [ -f ".env.production" ]; then
-    cp .env.production .env
-    echo "✅ Environment file copied"
-else
-    echo "⚠️ Warning: .env.production not found, using existing .env"
-fi
+# Create .env.production from secrets
+cat > .env.production << 'EOF'
+# Database Configuration
+DATABASE_URL="${DATABASE_URL}"
+
+# Authentication
+JWT_ACCESS_SECRET="${JWT_ACCESS_SECRET}"
+NEXTAUTH_URL="${NEXTAUTH_URL}"
+NEXTAUTH_SECRET="${NEXTAUTH_SECRET}"
+
+# AWS S3 Configuration
+AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"
+AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
+AWS_DEFAULT_REGION="eu-north-1"
+AWS_BUCKET="inventory-managment-husseini"
+AWS_URL="https://inventory-managment-husseini.s3.eu-north-1.amazonaws.com"
+
+# Public S3 URL
+NEXT_PUBLIC_S3_URL="https://inventory-managment-husseini.s3.eu-north-1.amazonaws.com"
+
+# Application Configuration
+NODE_ENV="production"
+NEXT_TELEMETRY_DISABLED=1
+
+# Application URL
+NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL}"
+EOF
+
+cp .env.production .env
 
 # Generate Prisma client
-echo "🔧 Generating Prisma client..."
 pnpm prisma generate
 
-# Run database migrations
-echo "🗄️ Running database migrations..."
+# Run migrations
 pnpm prisma migrate deploy
 
-# Seed database (only on first deployment)
-if [ ! -f "$APP_DIR/.deployed" ]; then
-    echo "🌱 Seeding database..."
-    pnpm prisma db seed || echo "⚠️ Seeding failed or already completed"
-    touch $APP_DIR/.deployed
-fi
-
 # Build the application
-echo "🏗️ Building application..."
 pnpm build
 
-# Setup log directory
-sudo mkdir -p /var/log/phoenix-press
-sudo chown -R $USER:$USER /var/log/phoenix-press
+# Copy static files for standalone mode
+echo "📁 Copying static files for standalone mode..."
+cp -r .next/static .next/standalone/.next/
+cp -r public .next/standalone/
 
-# Start the application with PM2
-echo "▶️ Starting application..."
-pm2 start ecosystem.config.js || pm2 restart phoenix-press
-pm2 save
-pm2 startup systemd -u $USER --hp /home/$USER
+# Start PM2
+pm2 start ecosystem.config.js
 
-# Restart Nginx
-echo "🔄 Restarting Nginx..."
+# Reload Nginx
 sudo systemctl reload nginx
 
-# Cleanup old backups (keep last 5)
-echo "🧹 Cleaning up old backups..."
-sudo find $BACKUP_DIR -type d -name "phoenix-press_*" | sort -r | tail -n +6 | xargs -r sudo rm -rf
-
-echo "✅ Deployment completed successfully!"
-echo "🌐 Application is running at: http://$(curl -s http://checkip.amazonaws.com)"
-
-# Show application status
-echo "📊 Application Status:"
-pm2 status phoenix-press 
+echo "✅ Deployment completed successfully!" 

@@ -89,6 +89,12 @@ jobs:
           pnpm prisma generate
           pnpm prisma migrate deploy
           pnpm build
+          
+          # Copy static files for standalone mode
+          echo "📁 Copying static files for standalone mode..."
+          cp -r .next/static .next/standalone/.next/
+          cp -r public .next/standalone/
+          
           pm2 start ecosystem.config.js
           sudo systemctl reload nginx
 
