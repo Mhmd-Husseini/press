@@ -54,7 +54,7 @@ jobs:
           git checkout staging
           git reset --hard origin/staging
           
-          cd press
+          # Install dependencies (no cd press needed - it's flat structure)
           pnpm install --frozen-lockfile
           
           # Create .env.production from secrets
@@ -99,7 +99,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd /var/www/phoenix-press/press
+          cd /var/www/phoenix-press
           if [ -f "scripts/health-check.sh" ]; then
             chmod +x scripts/health-check.sh
             ./scripts/health-check.sh

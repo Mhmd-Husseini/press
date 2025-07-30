@@ -22,8 +22,6 @@ echo "🔄 Switching to staging branch..."
 git checkout staging
 git pull origin staging
 
-cd press
-
 echo "📦 Installing dependencies..."
 pnpm install --frozen-lockfile
 

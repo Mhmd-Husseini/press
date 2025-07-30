@@ -4,7 +4,7 @@ module.exports = {
       name: 'phoenix-press',
       script: 'node',
       args: '.next/standalone/server.js',
-      cwd: '/var/www/phoenix-press/press',
+      cwd: '/var/www/phoenix-press',
       instances: 1,
       exec_mode: 'fork',
       env: {
