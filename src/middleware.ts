@@ -27,12 +27,16 @@ export function middleware(request: NextRequest) {
   const authToken = request.cookies.get('auth-token');
   const isLoggedIn = !!authToken;
   
+  // Debug logging
+  console.log(`Middleware: ${pathname}, isLoggedIn: ${isLoggedIn}, hasToken: ${!!authToken}`);
+  
   // If not logged in and trying to access admin routes, redirect to login
   if (isAdminRoute(pathname) && !isLoggedIn) {
     // Use the correct base URL for redirects
     const baseUrl = process.env.NEXTAUTH_URL || 'http://51.20.78.91';
     const url = new URL('/admin/login', baseUrl);
     url.searchParams.set('callbackUrl', `${baseUrl}${pathname}`);
+    console.log(`Redirecting to: ${url.toString()}`);
     return NextResponse.redirect(url);
   }
 

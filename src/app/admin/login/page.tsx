@@ -22,12 +22,14 @@ function SubmitButton() {
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
+  const [debug, setDebug] = useState<string>('');
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser } = useAuth();
   
   async function handleLogin(formData: FormData) {
     setError(null);
+    setDebug('');
     
     try {
       const result = await login(formData);
@@ -48,9 +50,14 @@ export default function LoginPage() {
       const callbackUrl = searchParams.get('callbackUrl');
       const redirectTo = callbackUrl ? decodeURIComponent(callbackUrl) : '/admin';
       
-      // Redirect to the callback URL or admin dashboard
-      router.push(redirectTo);
-      router.refresh(); // Refresh to ensure server state is updated
+      setDebug(`Login successful! Redirecting to: ${redirectTo}`);
+      
+      // Add a small delay to see the debug message
+      setTimeout(() => {
+        // Redirect to the callback URL or admin dashboard
+        router.push(redirectTo);
+        router.refresh(); // Refresh to ensure server state is updated
+      }, 1000);
       
     } catch (err) {
       console.error('Login error:', err);
@@ -74,6 +81,12 @@ export default function LoginPage() {
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
+            </div>
+          )}
+          
+          {debug && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              {debug}
             </div>
           )}
           
