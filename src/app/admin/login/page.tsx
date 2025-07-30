@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { login } from '@/app/actions/auth';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 function SubmitButton() {
@@ -23,6 +23,7 @@ function SubmitButton() {
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setUser } = useAuth();
   
   async function handleLogin(formData: FormData) {
@@ -43,8 +44,12 @@ export default function LoginPage() {
         setUser(result.user);
       }
       
-      // Redirect to admin dashboard
-      router.push('/admin');
+      // Get callback URL from search params or default to /admin
+      const callbackUrl = searchParams.get('callbackUrl');
+      const redirectTo = callbackUrl ? decodeURIComponent(callbackUrl) : '/admin';
+      
+      // Redirect to the callback URL or admin dashboard
+      router.push(redirectTo);
       router.refresh(); // Refresh to ensure server state is updated
       
     } catch (err) {

@@ -29,8 +29,10 @@ export function middleware(request: NextRequest) {
   
   // If not logged in and trying to access admin routes, redirect to login
   if (isAdminRoute(pathname) && !isLoggedIn) {
-    const url = new URL('/admin/login', request.url);
-    url.searchParams.set('callbackUrl', request.url);
+    // Use the correct base URL for redirects
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://51.20.78.91';
+    const url = new URL('/admin/login', baseUrl);
+    url.searchParams.set('callbackUrl', `${baseUrl}${pathname}`);
     return NextResponse.redirect(url);
   }
 
