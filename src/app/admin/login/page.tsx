@@ -52,12 +52,17 @@ export default function LoginPage() {
       
       setDebug(`Login successful! Redirecting to: ${redirectTo}`);
       
-      // Add a small delay to see the debug message
+      // Add a small delay to see the debug message and try multiple redirect methods
       setTimeout(() => {
-        // Redirect to the callback URL or admin dashboard
-        router.push(redirectTo);
-        router.refresh(); // Refresh to ensure server state is updated
-      }, 1000);
+        // Try window.location first as it's more reliable
+        if (typeof window !== 'undefined') {
+          window.location.href = redirectTo;
+        } else {
+          // Fallback to router.push
+          router.push(redirectTo);
+          router.refresh();
+        }
+      }, 1500); // Increased delay to 1.5 seconds
       
     } catch (err) {
       console.error('Login error:', err);

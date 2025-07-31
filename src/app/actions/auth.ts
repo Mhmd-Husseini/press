@@ -80,9 +80,11 @@ export async function register(formData: FormData): Promise<RegisterResult> {
     const cookieStore = await cookies();
     cookieStore.set('auth-token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Set to false for HTTP in production
+      sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
+      domain: undefined, // Let browser handle domain
     });
 
     return {
@@ -186,9 +188,11 @@ export async function login(formData: FormData) {
     const cookieStore = await cookies();
     cookieStore.set('auth-token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Set to false for HTTP in production
+      sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
+      domain: undefined, // Let browser handle domain
     });
 
     // Return user data in the same format as /api/auth/me
@@ -218,9 +222,11 @@ export async function logout() {
   const cookieStore = await cookies();
   cookieStore.set('auth-token', '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to false for HTTP in production
+    sameSite: 'lax',
     expires: new Date(0),
     path: '/',
+    domain: undefined, // Let browser handle domain
   });
 
   return {
