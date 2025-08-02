@@ -1,26 +1,31 @@
 #!/bin/bash
 
-echo "🏗️ Building for t2.micro (1GB RAM)..."
+echo "🏗️ Building for t2.micro (ULTRA AGGRESSIVE - 256MB RAM)..."
 
-# Set minimal memory allocation
-export NODE_OPTIONS="--max-old-space-size=512"
+# Set ultra-minimal memory allocation
+export NODE_OPTIONS="--max-old-space-size=256"
 
 # Clean previous build
 echo "🧹 Cleaning previous build..."
 rm -rf .next
 rm -rf out
 
-# Install dependencies
+# Install dependencies with minimal memory
 echo "📦 Installing dependencies..."
-pnpm install --frozen-lockfile --prefer-offline
+pnpm install --frozen-lockfile --prefer-offline --no-optional
 
 # Generate Prisma client
 echo "🗄️ Generating Prisma client..."
 pnpm prisma generate
 
-# Build with minimal memory
-echo "🏗️ Building application (512MB limit)..."
-NODE_OPTIONS="--max-old-space-size=512" pnpm build
+# Build with ultra-minimal memory and optimizations
+echo "🏗️ Building application (256MB limit + optimizations)..."
+export NODE_OPTIONS="--max-old-space-size=256"
+export NEXT_TELEMETRY_DISABLED=1
+export NODE_ENV=production
+
+# Try building with minimal features
+pnpm build --no-lint
 
 # Check if build was successful (more thorough check)
 if [ -d ".next" ] && [ -d ".next/standalone" ] && [ -f ".next/standalone/server.js" ]; then

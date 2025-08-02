@@ -89,10 +89,10 @@ jobs:
           pnpm prisma generate
           pnpm prisma migrate deploy
           
-          # Use micro-optimized build script for t2.micro instance
-          echo "🏗️ Building with micro-optimized script..."
-          chmod +x scripts/build-micro.sh
-          ./scripts/build-micro.sh
+          # Use ultra-micro build script for t2.micro instance
+          echo "🏗️ Building with ultra-micro script..."
+          chmod +x scripts/build-ultra-micro.sh
+          ./scripts/build-ultra-micro.sh
           
           pm2 start ecosystem.config.js
           sudo systemctl reload nginx
