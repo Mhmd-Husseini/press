@@ -89,13 +89,10 @@ jobs:
           pnpm prisma generate
           pnpm prisma migrate deploy
           
-          # Use ultra-micro build script for t2.micro instance
-          echo "🏗️ Building with ultra-micro script..."
-          chmod +x scripts/build-ultra-micro.sh
-          ./scripts/build-ultra-micro.sh
-          
-          pm2 start ecosystem.config.js
-          sudo systemctl reload nginx
+          # Use pre-built deployment for t2.micro instance (build locally)
+          echo "🚀 Deploying pre-built application..."
+          chmod +x scripts/deploy-prebuilt.sh
+          ./scripts/deploy-prebuilt.sh
 
     - name: Health Check
       uses: appleboy/ssh-action@v1.0.0
