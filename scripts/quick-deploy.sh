@@ -1,26 +1,26 @@
 #!/bin/bash
 
-echo "🧹 Cleaning and redeploying..."
+echo "🚀 Quick deployment for new IP..."
 
 # Stop PM2 process
 pm2 stop phoenix-press || true
 pm2 delete phoenix-press || true
 
-# Remove the entire directory and recreate
-sudo rm -rf /var/www/phoenix-press
+# Create directory if it doesn't exist
 sudo mkdir -p /var/www/phoenix-press
 sudo chown ubuntu:ubuntu /var/www/phoenix-press
 
 cd /var/www/phoenix-press
 
+# Clean and clone fresh
 echo "📥 Cloning fresh repository..."
+sudo rm -rf /var/www/phoenix-press/*
+sudo rm -rf /var/www/phoenix-press/.* 2>/dev/null || true
 git clone https://github.com/Mhmd-Husseini/press.git .
 
-echo "🔄 Switching to staging branch..."
+# Switch to staging branch
 git checkout staging
 git pull origin staging
-
-cd press
 
 echo "📦 Installing dependencies..."
 pnpm install --frozen-lockfile
@@ -60,9 +60,12 @@ echo "🗄️ Setting up database..."
 pnpm prisma generate
 pnpm prisma migrate deploy
 
-echo "🏗️ Building application for t2.micro..."
-chmod +x scripts/build-micro.sh
-./scripts/build-micro.sh
+echo "🏗️ Building application..."
+pnpm build
+
+echo "📁 Copying static files for standalone mode..."
+cp -r .next/static .next/standalone/.next/
+cp -r public .next/standalone/
 
 echo "🚀 Starting application..."
 pm2 start ecosystem.config.js
@@ -70,8 +73,10 @@ pm2 start ecosystem.config.js
 echo "🔄 Reloading nginx..."
 sudo systemctl reload nginx
 
-echo "✅ Clean deployment completed!"
+echo "✅ Quick deployment completed!"
 echo "🌐 Application should be accessible at: http://13.62.53.230"
 
 # Show status
-pm2 status 
+pm2 status
+echo "📊 Checking application health..."
+curl -I http://localhost:3000 || echo "Application not responding" 
