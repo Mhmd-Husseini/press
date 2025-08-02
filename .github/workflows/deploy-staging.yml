@@ -88,12 +88,11 @@ jobs:
           cp .env.production .env
           pnpm prisma generate
           pnpm prisma migrate deploy
-          pnpm build
           
-          # Copy static files for standalone mode
-          echo "📁 Copying static files for standalone mode..."
-          cp -r .next/static .next/standalone/.next/
-          cp -r public .next/standalone/
+          # Use micro-optimized build script for t2.micro instance
+          echo "🏗️ Building with micro-optimized script..."
+          chmod +x scripts/build-micro.sh
+          ./scripts/build-micro.sh
           
           pm2 start ecosystem.config.js
           sudo systemctl reload nginx
