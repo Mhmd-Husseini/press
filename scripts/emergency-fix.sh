@@ -33,7 +33,7 @@ DATABASE_URL="${DATABASE_URL}"
 
 # Authentication
 JWT_ACCESS_SECRET="${JWT_ACCESS_SECRET}"
-NEXTAUTH_URL="http://51.20.78.91"
+NEXTAUTH_URL="http://13.62.53.230"
 NEXTAUTH_SECRET="your-super-secure-nextauth-secret-key-2024-phoenix-press"
 
 # AWS S3 Configuration
@@ -51,7 +51,7 @@ NODE_ENV="production"
 NEXT_TELEMETRY_DISABLED=1
 
 # Application URL
-NEXT_PUBLIC_APP_URL="http://51.20.78.91"
+NEXT_PUBLIC_APP_URL="http://13.62.53.230"
 EOF
 
 cp .env.production .env
@@ -70,7 +70,7 @@ echo "🔄 Reloading nginx..."
 sudo systemctl reload nginx
 
 echo "✅ Emergency fix completed!"
-echo "🌐 Application should be accessible at: http://51.20.78.91"
+echo "🌐 Application should be accessible at: http://13.62.53.230"
 
 # Show status
 pm2 status
