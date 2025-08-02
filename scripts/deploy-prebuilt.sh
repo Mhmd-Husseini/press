@@ -56,8 +56,18 @@ EOF
 cp .env.production .env
 
 echo "🗄️ Setting up database..."
-pnpm prisma generate
-pnpm prisma migrate deploy
+# Use minimal memory for Prisma operations
+export NODE_OPTIONS="--max-old-space-size=256"
+echo "🔧 Generating Prisma client..."
+pnpm prisma generate || {
+    echo "⚠️ Prisma generate failed, trying with even less memory..."
+    export NODE_OPTIONS="--max-old-space-size=128"
+    pnpm prisma generate
+}
+echo "🗄️ Running database migrations..."
+pnpm prisma migrate deploy || {
+    echo "⚠️ Migration failed, but continuing..."
+}
 
 # Check if pre-built files exist
 if [ -d ".next/standalone" ] && [ -f ".next/standalone/server.js" ]; then
