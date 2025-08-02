@@ -11,7 +11,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
-        NEXTAUTH_URL: 'http://13.62.53.230',
+                     NEXTAUTH_URL: 'http://13.49.77.209',
         NEXTAUTH_SECRET: 'your-super-secure-nextauth-secret-key-2024-phoenix-press',
         JWT_ACCESS_SECRET: 'your-super-secure-jwt-secret-key-2024',
         DATABASE_URL: 'postgresql://phoenix_user:secure_password_123@localhost:5432/phoenix_press',
@@ -20,7 +20,7 @@ module.exports = {
         AWS_URL: 'https://inventory-managment-husseini.s3.eu-north-1.amazonaws.com',
         NEXT_PUBLIC_S3_URL: 'https://inventory-managment-husseini.s3.eu-north-1.amazonaws.com',
         NEXT_TELEMETRY_DISABLED: '1',
-        NEXT_PUBLIC_APP_URL: 'http://13.62.53.230'
+                     NEXT_PUBLIC_APP_URL: 'http://13.49.77.209'
       },
       error_file: '/var/log/phoenix-press/error.log',
       out_file: '/var/log/phoenix-press/access.log',

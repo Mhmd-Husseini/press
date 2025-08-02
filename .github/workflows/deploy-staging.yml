@@ -86,13 +86,21 @@ jobs:
           EOF
           
           cp .env.production .env
-          pnpm prisma generate
-          pnpm prisma migrate deploy
-          
-          # Use pre-built deployment for t2.micro instance (build locally)
-          echo "🚀 Deploying pre-built application..."
-          chmod +x scripts/deploy-prebuilt.sh
-          ./scripts/deploy-prebuilt.sh
+                      pnpm prisma generate
+            pnpm prisma migrate deploy
+            
+            # Build and deploy application
+            echo "🚀 Building and deploying application..."
+            pnpm build
+            
+            # Copy static files for standalone mode
+            echo "📁 Copying static files for standalone mode..."
+            cp -r .next/static .next/standalone/.next/
+            cp -r public .next/standalone/
+            
+            # Start application
+            pm2 start ecosystem.config.js
+            sudo systemctl reload nginx
 
     - name: Health Check
       uses: appleboy/ssh-action@v1.0.0
