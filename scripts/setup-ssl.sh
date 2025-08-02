@@ -26,6 +26,41 @@ if ! nslookup husseini.click > /dev/null 2>&1; then
     echo "   You can continue, but certificate might fail."
 fi
 
+# Configure Nginx for the domain
+echo "⚙️ Configuring Nginx for husseini.click..."
+sudo tee /etc/nginx/sites-available/husseini.click > /dev/null << 'EOF'
+server {
+    listen 80;
+    server_name husseini.click www.husseini.click;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+EOF
+
+# Enable the site
+sudo ln -sf /etc/nginx/sites-available/husseini.click /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# Test Nginx configuration
+echo "🧪 Testing Nginx configuration..."
+if sudo nginx -t; then
+    echo "✅ Nginx configuration is valid"
+    sudo systemctl reload nginx
+else
+    echo "❌ Nginx configuration is invalid"
+    exit 1
+fi
+
 # Get SSL certificate
 echo "🎫 Obtaining SSL certificate..."
 sudo certbot --nginx -d husseini.click -d www.husseini.click --non-interactive --agree-tos --email admin@husseini.click --redirect
