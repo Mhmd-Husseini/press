@@ -62,6 +62,23 @@ pnpm prisma migrate deploy
 # Check if pre-built files exist
 if [ -d ".next/standalone" ] && [ -f ".next/standalone/server.js" ]; then
     echo "✅ Pre-built application found!"
+    
+    # Copy static files for standalone mode
+    echo "📁 Copying static files for standalone mode..."
+    if [ -d ".next/static" ]; then
+        cp -r .next/static .next/standalone/.next/
+        echo "✅ Static files copied successfully"
+    else
+        echo "⚠️ Warning: .next/static directory not found"
+    fi
+    
+    if [ -d "public" ]; then
+        cp -r public .next/standalone/
+        echo "✅ Public files copied successfully"
+    else
+        echo "⚠️ Warning: public directory not found"
+    fi
+    
     echo "🚀 Starting application..."
     pm2 start ecosystem.config.js
     echo "🔄 Reloading nginx..."
