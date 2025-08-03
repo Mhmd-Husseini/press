@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:secure": "next build && npm run clean:build",
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "next lint",
+    "clean:build": "rm -rf .next/server/server-reference-manifest.js .next/server/server-reference-manifest.json",
     "prisma:generate": "pnpm prisma generate",
     "prisma:migrate": "pnpm prisma migrate deploy",
     "prisma:migrate:dev": "pnpm prisma migrate dev",
