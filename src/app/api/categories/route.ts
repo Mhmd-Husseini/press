@@ -7,13 +7,25 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const locale = searchParams.get('locale') || 'en';
     
-    // Fetch all active categories with translations (those without a deletedAt value)
+    // Fetch only top-level categories (those without a parent) with translations and children
     const categories = await prisma.category.findMany({
       where: {
         deletedAt: null, // Only get active (non-deleted) categories
+        parentId: null, // Only get top-level categories (no parent)
       },
       include: {
-        translations: true
+        translations: true,
+        children: {
+          where: {
+            deletedAt: null // Only get active children
+          },
+          include: {
+            translations: true
+          },
+          orderBy: {
+            order: 'asc'
+          }
+        }
       },
       orderBy: {
         order: 'asc'
@@ -30,6 +42,26 @@ export async function GET(request: NextRequest) {
         return null; // Skip if no translation available
       }
       
+      // Format children categories
+      const formattedChildren = category.children.map(child => {
+        const childTranslation = child.translations.find(t => t.locale === locale) || 
+                                child.translations[0];
+        
+        if (!childTranslation) return null;
+        
+        return {
+          id: child.id,
+          slug: childTranslation.slug,
+          name: {
+            en: child.translations.find(t => t.locale === 'en')?.name || childTranslation.name,
+            ar: child.translations.find(t => t.locale === 'ar')?.name || childTranslation.name
+          },
+          description: childTranslation.description || null,
+          locale: childTranslation.locale,
+          dir: childTranslation.dir || 'ltr'
+        };
+      }).filter(Boolean); // Remove null entries
+      
       return {
         id: category.id,
         slug: translation.slug,
@@ -39,7 +71,8 @@ export async function GET(request: NextRequest) {
         },
         description: translation.description || null,
         locale: translation.locale,
-        dir: translation.dir || 'ltr'
+        dir: translation.dir || 'ltr',
+        children: formattedChildren
       };
     }).filter(Boolean); // Remove null entries
 

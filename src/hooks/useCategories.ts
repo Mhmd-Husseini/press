@@ -12,6 +12,7 @@ export type Category = {
   description: string | null;
   locale: string;
   dir: string | null;
+  children?: Category[]; // Optional children for hierarchical navigation
 };
 
 type CategoriesResponse = {

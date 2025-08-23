@@ -5,69 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { setLanguage } from '@/app/actions';
 import { useCategories } from '@/hooks/useCategories';
-import { BreakingNewsService } from '@/lib/services/breakingNews.service';
-
-// Define the BreakingNews type
-interface BreakingNews {
-  id: string;
-  text: string;
-  url?: string | null;
-  timestamp: Date;
-  locale: string;
-}
-
-// Custom hook to fetch breaking news
-function useBreakingNews(locale: string) {
-  const [news, setNews] = useState<BreakingNews[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
-
-  useEffect(() => {
-    const fetchBreakingNews = async () => {
-      try {
-        setLoading(true);
-        // Update the endpoint to match where breaking news is being stored
-        const response = await fetch(`/api/breaking-news?locale=${locale}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch breaking news');
-        }
-        const data = await response.json();
-        console.log(`Breaking news data received for ${locale}:`, data);
-        setNews(data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching breaking news:', err);
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-        setLoading(false);
-      }
-    };
-
-    fetchBreakingNews();
-
-    // Set up a timer to rotate through breaking news items every 5 seconds (reduced from 10 for better testing)
-    const interval = setInterval(() => {
-      if (news.length > 0) {
-        setCurrentNewsIndex((prevIndex) => {
-          const nextIndex = (prevIndex + 1) % news.length;
-          console.log(`Changing news index from ${prevIndex} to ${nextIndex}`); // Debug log
-          return nextIndex;
-        });
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [locale, news.length]); // Add news.length as dependency
-
-  // Return the current news item, loading state, and error
-  return {
-    currentNews: news.length > 0 ? news[currentNewsIndex] : null,
-    allNews: news,
-    loading,
-    error,
-    currentNewsIndex
-  };
-}
+import { useBreakingNews } from '@/hooks/useBreakingNews';
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -75,6 +13,7 @@ export const Header = () => {
   const [currentLocale, setCurrentLocale] = useState('en');
   const [currentDate, setCurrentDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   
   // Fetch categories from the API using our custom hook
   const { categories, loading, error } = useCategories(currentLocale);
@@ -132,9 +71,9 @@ export const Header = () => {
 
   // Fallback categories in case API fails or while loading
   const fallbackCategories = [
-    { name: { en: 'World', ar: 'العالم' }, slug: 'world' },
-    { name: { en: 'Politics', ar: 'السياسة' }, slug: 'politics' },
-    { name: { en: 'Business', ar: 'الأعمال' }, slug: 'business' },
+    { name: { en: 'World', ar: 'العالم' }, slug: 'world', children: [] },
+    { name: { en: 'Politics', ar: 'السياسة' }, slug: 'politics', children: [] },
+    { name: { en: 'Business', ar: 'الأعمال' }, slug: 'business', children: [] },
   ];
 
   const toggleMobileMenu = () => {
@@ -244,13 +183,44 @@ export const Header = () => {
               ) : (
                 // Show actual categories once loaded
                 displayCategories.map((category) => (
-                  <li key={category.slug} className="relative group">
+                  <li 
+                    key={category.slug} 
+                    className="relative group"
+                    onMouseEnter={() => setHoveredCategory(category.slug)}
+                    onMouseLeave={() => setHoveredCategory(null)}
+                  >
                     <Link
                       href={`/categories/${category.slug}`}
                       className="text-text-dark font-medium hover:text-accent py-3 inline-block border-b-2 border-transparent group-hover:border-accent transition-colors"
                     >
                       {isRTL ? category.name.ar : category.name.en}
+                      {/* Show dropdown arrow if category has children */}
+                      {category.children && category.children.length > 0 && (
+                        <svg 
+                          className={`inline-block ml-1 h-4 w-4 transition-transform ${hoveredCategory === category.slug ? 'rotate-180' : ''}`} 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      )}
                     </Link>
+                    
+                    {/* Dropdown for categories with children */}
+                    {category.children && category.children.length > 0 && hoveredCategory === category.slug && (
+                      <div className="absolute top-full left-0 z-50 min-w-48 bg-white border border-gray-200 rounded-md shadow-lg py-2">
+                        {category.children.map((child) => (
+                          <Link
+                            key={child.slug}
+                            href={`/categories/${child.slug}`}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-accent transition-colors"
+                          >
+                            {isRTL ? child.name.ar : child.name.en}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </li>
                 ))
               )}
@@ -275,7 +245,7 @@ export const Header = () => {
               // Simple news ticker without links
               <div className="overflow-hidden relative w-full">
                 <div className="news-ticker-wrap">
-                  {allNews.map((item, index) => (
+                  {allNews.map((item: any, index: number) => (
                     <div 
                       key={item.id}
                       className={`news-ticker-item ${index === currentNewsIndex ? 'active' : ''}`}
@@ -370,6 +340,22 @@ export const Header = () => {
                     >
                       {isRTL ? category.name.ar : category.name.en}
                     </Link>
+                    {/* Show subcategories in mobile menu */}
+                    {category.children && category.children.length > 0 && (
+                      <ul className="ml-4 mt-2 space-y-2">
+                        {category.children.map((child) => (
+                          <li key={child.slug}>
+                            <Link
+                              href={`/categories/${child.slug}`}
+                              className="text-sm text-gray-500 hover:text-amber-600 transition-colors"
+                              onClick={toggleMobileMenu}
+                            >
+                              {isRTL ? child.name.ar : child.name.en}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 ))
               )}

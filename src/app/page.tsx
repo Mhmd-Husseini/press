@@ -80,10 +80,11 @@ export default async function Home() {
       }
     });
 
-    // Get top categories
+    // Get top-level categories only (those without a parent)
     const categoriesWithPosts = await prisma.category.findMany({
       where: {
-        deletedAt: null
+        deletedAt: null,
+        parentId: null // Only get top-level categories
       },
       include: {
         translations: true,
