@@ -10,7 +10,11 @@ module.exports = {
       env_file: '.env',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        // Ensure these are loaded
+        AWS_DEFAULT_REGION: 'eu-north-1',
+        AWS_BUCKET: 'inventory-managment-husseini',
+        AWS_URL: 'https://inventory-managment-husseini.s3.eu-north-1.amazonaws.com'
       },
       error_file: '/var/log/phoenix-press/error.log',
       out_file: '/var/log/phoenix-press/access.log',
