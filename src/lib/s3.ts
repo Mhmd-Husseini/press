@@ -7,10 +7,10 @@ import { randomUUID } from 'crypto';
 
 const s3Client = new S3Client({
   region: process.env.AWS_DEFAULT_REGION as string,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-  },
+  // credentials: {
+  //   accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+  //   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
+  // },
 });
 
 const BUCKET_NAME = process.env.AWS_BUCKET as string;
