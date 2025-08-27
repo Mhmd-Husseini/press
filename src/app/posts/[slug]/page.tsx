@@ -195,9 +195,228 @@ export default async function PostPage(props: PageProps) {
             
             {/* Content */}
             <div 
-              className="prose max-w-none"
+              className="max-w-none"
+              dir={postTranslation.dir || 'ltr'}
               dangerouslySetInnerHTML={{ __html: postTranslation.content }}
             />
+            
+            {/* Custom Styles for TiptapEditor Content */}
+            <style dangerouslySetInnerHTML={{
+              __html: `
+                /* Basic Typography - No color restrictions */
+                .max-w-none h1 {
+                  font-size: 2.5rem;
+                  font-weight: 700;
+                  margin: 1rem 0 0.5rem 0;
+                  line-height: 1.2;
+                }
+                
+                .max-w-none h2 {
+                  font-size: 2rem;
+                  font-weight: 700;
+                  margin: 1rem 0 0.5rem 0;
+                  line-height: 1.2;
+                }
+                
+                .max-w-none h3 {
+                  font-size: 1.5rem;
+                  font-weight: 700;
+                  margin: 1rem 0 0.5rem 0;
+                  line-height: 1.2;
+                }
+                
+                /* Paragraph and Text Styles */
+                .max-w-none p {
+                  margin: 1rem 0;
+                  line-height: 1.6;
+                }
+                
+                .max-w-none span {
+                  display: inline;
+                }
+                
+                /* Highlight Styles */
+                .max-w-none mark {
+                  border-radius: 0.25rem;
+                  padding: 0.125rem 0.25rem;
+                }
+                
+                /* Table Styles */
+                .max-w-none table {
+                  border-collapse: collapse;
+                  width: 100%;
+                  margin: 1rem 0;
+                }
+                
+                .max-w-none th,
+                .max-w-none td {
+                  border: 1px solid #d1d5db;
+                  padding: 0.5rem;
+                  text-align: left;
+                }
+                
+                .max-w-none th {
+                  background-color: #f9fafb;
+                  font-weight: 600;
+                }
+                
+                /* Image Styles */
+                .max-w-none img {
+                  max-width: 100%;
+                  height: auto;
+                  border-radius: 0.5rem;
+                  margin: 1rem 0;
+                }
+                
+                /* Link Styles */
+                .max-w-none a {
+                  color: #3b82f6;
+                  text-decoration: underline;
+                }
+                
+                .max-w-none a:hover {
+                  color: #1d4ed8;
+                }
+                
+                /* Code Styles */
+                .max-w-none code {
+                  background-color: #f3f4f6;
+                  padding: 0.125rem 0.25rem;
+                  border-radius: 0.25rem;
+                  font-family: 'Courier New', monospace;
+                }
+                
+                .max-w-none pre {
+                  background-color: #1f2937;
+                  color: #f9fafb;
+                  padding: 1rem;
+                  border-radius: 0.5rem;
+                  overflow-x: auto;
+                }
+                
+                .max-w-none pre code {
+                  background-color: transparent;
+                  color: inherit;
+                  padding: 0;
+                }
+                
+                /* Blockquote Styles */
+                .max-w-none blockquote {
+                  border-left: 4px solid #3b82f6;
+                  padding-left: 1rem;
+                  margin: 1rem 0;
+                  font-style: italic;
+                  color: #6b7280;
+                }
+                
+                /* List Styles - Force proper bullet and number display */
+                .max-w-none ul {
+                  list-style-type: disc !important;
+                  padding-left: 2rem !important;
+                  margin: 1rem 0 !important;
+                }
+                
+                .max-w-none ol {
+                  list-style-type: decimal !important;
+                  padding-left: 2rem !important;
+                  margin: 1rem 0 !important;
+                }
+                
+                .max-w-none li {
+                  margin: 0.5rem 0 !important;
+                  display: list-item !important;
+                  list-style-position: outside !important;
+                }
+                
+                /* Nested list styles */
+                .max-w-none ul ul {
+                  list-style-type: circle !important;
+                  padding-left: 2rem !important;
+                }
+                
+                .max-w-none ul ul ul {
+                  list-style-type: square !important;
+                  padding-left: 2rem !important;
+                }
+                
+                .max-w-none ol ol {
+                  list-style-type: lower-alpha !important;
+                  padding-left: 2rem !important;
+                }
+                
+                .max-w-none ol ol ol {
+                  list-style-type: lower-roman !important;
+                  padding-left: 2rem !important;
+                }
+                
+                /* RTL Support for Arabic */
+                .max-w-none[dir="rtl"] {
+                  text-align: right;
+                }
+                
+                .max-w-none[dir="rtl"] h1,
+                .max-w-none[dir="rtl"] h2,
+                .max-w-none[dir="rtl"] h3 {
+                  text-align: right;
+                }
+                
+                .max-w-none[dir="rtl"] blockquote {
+                  border-left: none;
+                  border-right: 4px solid #3b82f6;
+                  padding-left: 0;
+                  padding-right: 1rem;
+                }
+                
+                .max-w-none[dir="rtl"] ul,
+                .max-w-none[dir="rtl"] ol {
+                  padding-left: 0 !important;
+                  padding-right: 2rem !important;
+                }
+                
+                .max-w-none[dir="rtl"] li {
+                  text-align: right;
+                }
+                
+                /* Ensure inline styles work naturally without interference */
+                
+                /* Additional list styling to ensure bullets appear */
+                .max-w-none ul li::marker {
+                  color: currentColor !important;
+                  font-weight: normal !important;
+                }
+                
+                .max-w-none ol li::marker {
+                  color: currentColor !important;
+                  font-weight: normal !important;
+                }
+                
+                /* Force list display even if CSS is reset */
+                .max-w-none ul {
+                  list-style: disc outside !important;
+                }
+                
+                .max-w-none ol {
+                  list-style: decimal outside !important;
+                }
+                
+                /* Override any Tailwind prose list styles */
+                .max-w-none ul,
+                .max-w-none ol {
+                  list-style-image: none !important;
+                }
+                
+                /* Ensure list items are properly displayed */
+                .max-w-none li {
+                  list-style: inherit !important;
+                }
+                
+                /* Remove any conflicting prose styles */
+                .max-w-none .prose ul,
+                .max-w-none .prose ol {
+                  list-style: inherit !important;
+                }
+              `
+            }} />
           </div>
         </div>
       </MainLayout>

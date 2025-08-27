@@ -10,9 +10,9 @@ import MediaGallery from '@/components/media/MediaGallery';
 import PostStatusControl from './PostStatusControl';
 import { ChevronRightIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
-// Import the editor component dynamically with correct options
-const RichTextEditor = dynamic(
-  () => import('@/components/shared/RichTextEditor'),
+// Import the TiptapEditor component dynamically with correct options
+const TiptapEditor = dynamic(
+  () => import('@/components/shared/TiptapEditor'),
   { 
     ssr: false,
     loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-md"></div>
@@ -217,7 +217,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         status: post.status,
         statusReason: post.statusReason || '',
         categoryId: post.categoryId,
-        authorId: post.authorId,
+        authorId: post.authorId || '',
         postAuthorId: (post as any).postAuthorId || '',
         featured: post.featured,
         metaData,
@@ -910,11 +910,12 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                   <label htmlFor={`content-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
                     Content {translation.locale === 'en' ? '*' : ''}
                   </label>
-                  <RichTextEditor
+                  <TiptapEditor
                     value={translation.content}
-                    onChange={(value) => handleTranslationChange(translation.locale, 'content', value)}
+                    onChange={(value: string) => handleTranslationChange(translation.locale, 'content', value)}
                     placeholder="Write your post content here..."
                     locale={translation.locale}
+                    dir={translation.dir as 'ltr' | 'rtl'}
                   />
                 </div>
               </div>
