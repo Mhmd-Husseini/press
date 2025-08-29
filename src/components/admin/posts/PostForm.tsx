@@ -9,6 +9,7 @@ import dynamic from 'next/dynamic';
 import MediaGallery from '@/components/media/MediaGallery';
 import PostStatusControl from './PostStatusControl';
 import { ChevronRightIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { generatePostSlug } from '@/lib/utils';
 
 // Import the TiptapEditor component dynamically with correct options
 const TiptapEditor = dynamic(
@@ -23,9 +24,9 @@ type Translation = {
   locale: string;
   title: string;
   content: string;
-  summary: string;
+  summary: string | null;
   slug: string;
-  dir?: string;
+  dir?: string | null;
   id?: string;
   postId?: string;
 };
@@ -94,6 +95,11 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     { key: 'seo_keywords', value: '' }
   ]);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaMetadata, setMediaMetadata] = useState<Array<{
+    title: string;
+    altText: string;
+    caption: string;
+  }>>([]);
   const [uploadedMedia, setUploadedMedia] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [showMediaGallery, setShowMediaGallery] = useState(false);
@@ -213,6 +219,12 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         setAuthorSearch(author.nameEn);
       }
       
+      // Ensure all translations have slugs
+      const translationsWithSlugs = post.translations.map(translation => ({
+        ...translation,
+        slug: translation.slug || generatePostSlug(translation.title, translation.locale)
+      }));
+
       setFormData({
         status: post.status,
         statusReason: post.statusReason || '',
@@ -222,7 +234,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         featured: post.featured,
         metaData,
         tags,
-        translations: post.translations as Translation[]
+        translations: translationsWithSlugs
       });
     }
     // Set initial category ID from query parameter if available
@@ -274,7 +286,14 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     setFormData(prev => {
       const newTranslations = prev.translations.map(t => {
         if (t.locale === locale) {
-          return { ...t, [field]: value };
+          const updatedTranslation = { ...t, [field]: value };
+          
+          // Auto-generate slug when title changes
+          if (field === 'title' && value.trim()) {
+            updatedTranslation.slug = generatePostSlug(value, locale);
+          }
+          
+          return updatedTranslation;
         }
         return t;
       });
@@ -290,11 +309,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     const translation = formData.translations.find(t => t.locale === locale);
     if (!translation || !translation.title) return;
     
-    const slug = translation.title
-      .toLowerCase()
-      .replace(/[^\w\s]/gi, '')
-      .replace(/\s+/g, '-');
-    
+    const slug = generatePostSlug(translation.title, locale);
     handleTranslationChange(locale, 'slug', slug);
   };
 
@@ -448,25 +463,61 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files);
       setMediaFiles(prev => [...prev, ...newFiles]);
+      
+      // Initialize metadata for new files
+      const newMetadata = newFiles.map(file => ({
+        title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension for default title
+        altText: file.name.replace(/\.[^/.]+$/, ''),
+        caption: ''
+      }));
+      setMediaMetadata(prev => [...prev, ...newMetadata]);
     }
+  };
+
+  // Clear all media files and metadata
+  const clearMediaFiles = () => {
+    setMediaFiles([]);
+    setMediaMetadata([]);
   };
 
   // Remove a file from the list
   const removeFile = (index: number) => {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
+    setMediaMetadata(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Handle metadata changes for media files
+  const handleMetadataChange = (index: number, field: 'title' | 'altText' | 'caption', value: string) => {
+    setMediaMetadata(prev => {
+      const newMetadata = [...prev];
+      newMetadata[index] = { ...newMetadata[index], [field]: value };
+      return newMetadata;
+    });
   };
 
   // Upload media files
   const uploadMedia = async () => {
     if (mediaFiles.length === 0) return;
     
+    // Validate that all files have at least a title
+    const missingTitles = mediaMetadata.some((meta, index) => !meta.title.trim());
+    if (missingTitles) {
+      setError('Please provide a title for all images before uploading.');
+      return;
+    }
+    
     setIsUploading(true);
     setError(null);
     
     try {
       const formData = new FormData();
-      mediaFiles.forEach(file => {
+      
+      // Add files and their metadata
+      mediaFiles.forEach((file, index) => {
         formData.append('files', file);
+        formData.append(`metadata[${index}][title]`, mediaMetadata[index]?.title || '');
+        formData.append(`metadata[${index}][altText]`, mediaMetadata[index]?.altText || '');
+        formData.append(`metadata[${index}][caption]`, mediaMetadata[index]?.caption || '');
       });
       
       // If we're editing, add the post ID
@@ -489,6 +540,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       // Add the new media to the existing media
       setUploadedMedia(prev => [...prev, ...result]);
       setMediaFiles([]);
+      setMediaMetadata([]); // Clear metadata after successful upload
       
       // Show success message
       if (result.length > 0) {
@@ -557,6 +609,33 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       } catch (error) {
         console.error('Error removing media from post:', error);
       }
+    }
+  };
+
+  // Handle metadata changes for existing media
+  const handleExistingMediaMetadataChange = async (mediaId: string, field: 'title' | 'altText' | 'caption', value: string) => {
+    // Update local state first for responsive UI
+    setUploadedMedia(prev => prev.map(media => 
+      media.id === mediaId 
+        ? { ...media, [field]: value }
+        : media
+    ));
+
+    // Update in database
+    try {
+      const response = await fetch(`/api/admin/media/${mediaId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ [field]: value }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to update media metadata');
+      }
+    } catch (error) {
+      console.error('Error updating media metadata:', error);
     }
   };
 
@@ -851,7 +930,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                 className={`transition-opacity duration-200 ${
                   activeTab === translation.locale ? 'block' : 'hidden'
                 }`}
-                dir={translation.dir}
+                dir={translation.dir || undefined}
               >
                 <div className="mb-4">
                   <label htmlFor={`title-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
@@ -864,21 +943,21 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                     onChange={(e) => handleTranslationChange(translation.locale, 'title', e.target.value)}
                     className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                     required={translation.locale === 'en'}
-                    dir={translation.dir}
+                    dir={translation.dir || undefined}
                   />
                 </div>
                 
                 <div className="mb-4">
                   <label htmlFor={`slug-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
-                    Slug {translation.locale === 'en' ? '*' : ''}
+                    Slug {translation.locale === 'en' ? '*' : ''} (Auto-generated)
                   </label>
                   <div className="flex items-center">
                     <input
                       type="text"
                       id={`slug-${translation.locale}`}
                       value={translation.slug}
-                      onChange={(e) => handleTranslationChange(translation.locale, 'slug', e.target.value)}
-                      className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                      readOnly
+                      className="block w-full px-3 py-2 text-gray-500 border border-gray-300 rounded-md shadow-sm bg-gray-50 cursor-not-allowed"
                       required={translation.locale === 'en'}
                       dir="ltr"
                     />
@@ -886,10 +965,14 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                       type="button"
                       onClick={() => generateSlug(translation.locale)}
                       className="ml-2 px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      title="Regenerate slug from current title"
                     >
-                      Generate
+                      Regenerate
                     </button>
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Slug is automatically generated from title and date. Click "Regenerate" to update.
+                  </p>
                 </div>
                 
                 <div className="mb-4">
@@ -898,11 +981,11 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                   </label>
                   <textarea
                     id={`summary-${translation.locale}`}
-                    value={translation.summary}
+                    value={translation.summary || ''}
                     onChange={(e) => handleTranslationChange(translation.locale, 'summary', e.target.value)}
                     rows={3}
                     className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                    dir={translation.dir}
+                    dir={translation.dir || undefined}
                   />
                 </div>
                 
@@ -915,7 +998,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                     onChange={(value: string) => handleTranslationChange(translation.locale, 'content', value)}
                     placeholder="Write your post content here..."
                     locale={translation.locale}
-                    dir={translation.dir as 'ltr' | 'rtl'}
+                    dir={(translation.dir as 'ltr' | 'rtl') || 'ltr'}
                   />
                 </div>
               </div>
@@ -942,36 +1025,81 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         {openSections.media && (
           <div className="mt-4 space-y-6 border-t border-gray-200 pt-4">
             <p className="text-sm text-gray-500 mb-4">
-              Upload an image to represent this post. This image will be used in listings and social media shares.
+              Upload an image to represent this post. This image will be used in listings and social media shares. 
+              You can provide a title, alt text for accessibility, and an optional caption for each image.
             </p>
 
             {/* Display existing and selected media */}
             {(uploadedMedia.length > 0 || selectedMedia) && (
               <div className="mb-4">
                 <h4 className="text-sm font-medium mb-2">Selected Media</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="space-y-4">
                   {uploadedMedia.map((item: any) => (
-                    <div key={item.id} className="relative group">
-                      <div className="aspect-video bg-gray-100 rounded-md overflow-hidden shadow-md hover:shadow-lg transition-all">
-                        <img 
-                          src={item.url} 
-                          alt={item.altText || 'Media item'} 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <button 
-                          type="button"
-                          className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                          onClick={() => handleRemoveMedia(item.id)}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="absolute bottom-1 left-1 right-1 text-xs bg-black bg-opacity-50 text-white p-1 rounded truncate">
-                        {item.title || 'Untitled'}
+                    <div key={item.id} className="border border-gray-200 rounded-lg p-4 bg-white">
+                      <div className="flex items-start space-x-4">
+                        {/* Image preview */}
+                        <div className="relative group flex-shrink-0">
+                          <div className="w-24 h-24 bg-gray-100 rounded-md overflow-hidden shadow-md">
+                            <img 
+                              src={item.url} 
+                              alt={item.altText || 'Media item'} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <button 
+                              type="button"
+                              className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
+                              onClick={() => handleRemoveMedia(item.id)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Editable metadata */}
+                        <div className="flex-1 space-y-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Title
+                            </label>
+                            <input
+                              type="text"
+                              value={item.title || ''}
+                              onChange={(e) => handleExistingMediaMetadataChange(item.id, 'title', e.target.value)}
+                              className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              placeholder="Media title"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Alt Text
+                            </label>
+                            <input
+                              type="text"
+                              value={item.altText || ''}
+                              onChange={(e) => handleExistingMediaMetadataChange(item.id, 'altText', e.target.value)}
+                              className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              placeholder="Alternative text for accessibility"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Caption
+                            </label>
+                            <textarea
+                              value={item.caption || ''}
+                              onChange={(e) => handleExistingMediaMetadataChange(item.id, 'caption', e.target.value)}
+                              rows={2}
+                              className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              placeholder="Media caption (optional)"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1029,33 +1157,81 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
               </div>
             </div>
 
-            {/* Selected files preview */}
+            {/* Selected files preview with metadata inputs */}
             {mediaFiles.length > 0 && (
               <div className="mb-3">
                 <h4 className="text-sm font-medium mb-2">Files to Upload</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="space-y-4">
                   {mediaFiles.map((file, index) => (
-                    <div key={index} className="relative group">
-                      <div className="aspect-video bg-gray-100 rounded-md overflow-hidden shadow-md">
-                        <img 
-                          src={URL.createObjectURL(file)} 
-                          alt={file.name} 
-                          className="w-full h-full object-cover"
-                        />
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-start space-x-4">
+                        {/* Image preview */}
+                        <div className="relative group flex-shrink-0">
+                          <div className="w-24 h-24 bg-gray-100 rounded-md overflow-hidden shadow-md">
+                            <img 
+                              src={URL.createObjectURL(file)} 
+                              alt={file.name} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <button 
+                              type="button"
+                              className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
+                              onClick={() => removeFile(index)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Metadata inputs */}
+                        <div className="flex-1 space-y-3">
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Title
+                            </label>
+                            <input
+                              type="text"
+                              value={mediaMetadata[index]?.title || ''}
+                              onChange={(e) => handleMetadataChange(index, 'title', e.target.value)}
+                              className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              placeholder="Image title"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Alt Text
+                            </label>
+                            <input
+                              type="text"
+                              value={mediaMetadata[index]?.altText || ''}
+                              onChange={(e) => handleMetadataChange(index, 'altText', e.target.value)}
+                              className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              placeholder="Alternative text for accessibility"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Caption
+                            </label>
+                            <textarea
+                              value={mediaMetadata[index]?.caption || ''}
+                              onChange={(e) => handleMetadataChange(index, 'caption', e.target.value)}
+                              rows={2}
+                              className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              placeholder="Image caption (optional)"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <button 
-                          type="button"
-                          className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                          onClick={() => removeFile(index)}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="absolute bottom-1 left-1 right-1 text-xs bg-black bg-opacity-50 text-white p-1 rounded truncate">
-                        {file.name}
+                      
+                      <div className="mt-2 text-xs text-gray-500">
+                        File: {file.name}
                       </div>
                     </div>
                   ))}
@@ -1063,26 +1239,36 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
               </div>
             )}
 
-            {/* Upload button */}
+            {/* Upload and Clear buttons */}
             {mediaFiles.length > 0 && (
-              <button
-                type="button"
-                onClick={uploadMedia}
-                disabled={isUploading}
-                className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 transition-colors"
-              >
-                {isUploading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Uploading...
-                  </>
-                ) : (
-                  'Upload Images'
-                )}
-              </button>
+              <div className="mt-3 flex space-x-3">
+                <button
+                  type="button"
+                  onClick={uploadMedia}
+                  disabled={isUploading}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 transition-colors"
+                >
+                  {isUploading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Uploading...
+                    </>
+                  ) : (
+                    'Upload Images'
+                  )}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={clearMediaFiles}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                >
+                  Clear All
+                </button>
+              </div>
             )}
           </div>
         )}

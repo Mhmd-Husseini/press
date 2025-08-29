@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { PostStatus } from '@prisma/client';
 import { uploadToS3 } from '@/lib/s3';
-import slugify from 'slugify';
+import { generatePostSlug } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    // Create a slug
-    const slug = slugify(title, { lower: true, strict: true });
+    // Create a slug with title and date
+    const slug = generatePostSlug(title, 'en');
     
     let imageUrl = null;
     

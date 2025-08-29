@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma, Post, PostStatus, PostTranslation, Media } from '@prisma/client';
 import { BaseService } from '../base.service';
 import prisma from '@/lib/prisma';
+import { generatePostSlug } from '../utils';
 
 export type PostWithRelations = Post & {
   translations: PostTranslation[];
@@ -189,8 +190,19 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       throw new Error('At least one translation is required');
     }
 
+    // Auto-generate slugs for translations that don't have them
+    const processedTranslations = data.translations.map(translation => {
+      if (!translation.slug && translation.title) {
+        return {
+          ...translation,
+          slug: generatePostSlug(translation.title, translation.locale)
+        };
+      }
+      return translation;
+    });
+
     // Verify that slugs are unique
-    for (const translation of data.translations) {
+    for (const translation of processedTranslations) {
       const existingSlug = await this.prisma.postTranslation.findUnique({
         where: { slug: translation.slug }
       });
@@ -219,7 +231,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         unpublishedById: data.unpublishedById,
         declineReason: data.declineReason,
         translations: {
-          create: data.translations
+          create: processedTranslations
         },
         ...(data.tags && data.tags.length > 0 && {
           tags: {
@@ -259,12 +271,12 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       await (this.prisma as any).postRevision.create({
         data: {
           postId: post.id,
-          title: data.translations[0].title,
-          titleArabic: data.translations.find(t => t.locale === 'ar')?.title,
-          content: data.translations[0].content,
-          contentArabic: data.translations.find(t => t.locale === 'ar')?.content,
-          excerpt: data.translations[0].summary,
-          excerptArabic: data.translations.find(t => t.locale === 'ar')?.summary,
+          title: processedTranslations[0].title,
+          titleArabic: processedTranslations.find(t => t.locale === 'ar')?.title,
+          content: processedTranslations[0].content,
+          contentArabic: processedTranslations.find(t => t.locale === 'ar')?.content,
+          excerpt: processedTranslations[0].summary,
+          excerptArabic: processedTranslations.find(t => t.locale === 'ar')?.summary,
           status: post.status,
           changedById: data.createdById || data.authorId,
           changeNote: data.changeNote || 'Initial creation'
@@ -622,15 +634,24 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
           t => t.locale === translation.locale
         );
 
+        // Auto-generate slug if title has changed
+        let updatedTranslation = { ...translation };
+        if (existingTranslation && translation.title !== existingTranslation.title) {
+          updatedTranslation.slug = generatePostSlug(translation.title, translation.locale);
+        } else if (!existingTranslation && translation.title) {
+          // For new translations, generate slug if not provided
+          updatedTranslation.slug = translation.slug || generatePostSlug(translation.title, translation.locale);
+        }
+
         // If it exists, update it, otherwise create it
         if (existingTranslation) {
           return {
             where: {
               id: existingTranslation.id
             },
-            update: translation,
+            update: updatedTranslation,
             create: {
-              ...translation,
+              ...updatedTranslation,
               postId: id // Need to specify postId for create
             }
           };
@@ -640,9 +661,9 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
               // Use a condition that will always trigger create
               id: 'non-existent-id'
             },
-            update: translation,
+            update: updatedTranslation,
             create: {
-              ...translation,
+              ...updatedTranslation,
               postId: id
             }
           };
@@ -673,25 +694,34 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
               t => t.locale === translation.locale
             );
 
+            // Auto-generate slug if title has changed
+            let updatedTranslation = { ...translation };
+            if (existingTranslation && translation.title !== existingTranslation.title) {
+              updatedTranslation.slug = generatePostSlug(translation.title, translation.locale);
+            } else if (!existingTranslation && translation.title) {
+              // For new translations, generate slug if not provided
+              updatedTranslation.slug = translation.slug || generatePostSlug(translation.title, translation.locale);
+            }
+
             return {
               where: { 
                 id: existingTranslation?.id || 'non-existent-id'
               },
               update: {
-                locale: translation.locale,
-                title: translation.title,
-                content: translation.content,
-                summary: translation.summary,
-                slug: translation.slug,
-                dir: translation.dir
+                locale: updatedTranslation.locale,
+                title: updatedTranslation.title,
+                content: updatedTranslation.content,
+                summary: updatedTranslation.summary,
+                slug: updatedTranslation.slug,
+                dir: updatedTranslation.dir
               },
               create: {
-                locale: translation.locale,
-                title: translation.title,
-                content: translation.content,
-                summary: translation.summary,
-                slug: translation.slug,
-                dir: translation.dir
+                locale: updatedTranslation.locale,
+                title: updatedTranslation.title,
+                content: updatedTranslation.content,
+                summary: updatedTranslation.summary,
+                slug: updatedTranslation.slug,
+                dir: updatedTranslation.dir
               }
             };
           })

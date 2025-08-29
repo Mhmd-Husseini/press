@@ -24,11 +24,21 @@ export async function POST(request: NextRequest) {
     
     console.log(`Processing ${files.length} files. PostId: ${postId || 'none'}`);
     
+    // Extract metadata for each file
+    const metadata: Array<{ title: string; altText: string; caption: string }> = [];
+    for (let i = 0; i < files.length; i++) {
+      const title = formData.get(`metadata[${i}][title]`) as string || '';
+      const altText = formData.get(`metadata[${i}][altText]`) as string || '';
+      const caption = formData.get(`metadata[${i}][caption]`) as string || '';
+      metadata.push({ title, altText, caption });
+    }
+    
     // Process each file
-    const mediaItems = await Promise.all(files.map(async (file) => {
+    const mediaItems = await Promise.all(files.map(async (file: File, index: number) => {
       const fileName = file.name.replace(/\s+/g, '-').toLowerCase();
       const fileType = file.type;
       const fileSize = file.size;
+      const fileMetadata = metadata[index] || { title: '', altText: '', caption: '' };
       
       // Determine media type based on file MIME type
       let mediaType: MediaType = MediaType.IMAGE;
@@ -49,8 +59,9 @@ export async function POST(request: NextRequest) {
           data: {
             url: s3Url,
             type: mediaType,
-            title: fileName,
-            altText: fileName,
+            title: fileMetadata.title || fileName,
+            altText: fileMetadata.altText || fileName,
+            caption: fileMetadata.caption || null,
             size: fileSize,
             mimeType: fileType,
             // Only set postId if it's provided and valid

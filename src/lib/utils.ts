@@ -140,3 +140,61 @@ export const getLocalizedValue = <T extends { locale: string }>(
   // If all else fails, return the first available translation
   return translations[0][field] as string;
 }; 
+
+/**
+ * Generate a slug from title and date for both English and Arabic posts
+ * @param title - The post title
+ * @param locale - The locale ('en' or 'ar')
+ * @param date - The post date (defaults to current date)
+ * @returns A URL-friendly slug
+ */
+export function generatePostSlug(title: string, locale: string, date: Date = new Date()): string {
+  if (!title) return '';
+  
+  // Format date as YYYY-MM-DD
+  const dateStr = date.toISOString().split('T')[0];
+  
+  // Clean the title based on locale
+  let cleanTitle: string;
+  
+  if (locale === 'ar') {
+    // For Arabic, remove special characters and convert spaces to hyphens
+    // Keep Arabic characters, numbers, and basic punctuation
+    cleanTitle = title
+      .replace(/[^\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\w\s]/g, '')
+      .replace(/\s+/g, '-')
+      .trim();
+  } else {
+    // For English and other languages, use standard slugification
+    cleanTitle = title
+      .toLowerCase()
+      .replace(/[^\w\s]/gi, '')
+      .replace(/\s+/g, '-')
+      .trim();
+  }
+  
+  // Combine date and title: YYYY-MM-DD-title
+  return `${dateStr}-${cleanTitle}`;
+}
+
+/**
+ * Generate a unique slug by appending a counter if needed
+ * @param baseSlug - The base slug to make unique
+ * @param existingSlugs - Array of existing slugs to check against
+ * @returns A unique slug
+ */
+export function makeSlugUnique(baseSlug: string, existingSlugs: string[]): string {
+  if (!existingSlugs.includes(baseSlug)) {
+    return baseSlug;
+  }
+  
+  let counter = 1;
+  let uniqueSlug = `${baseSlug}-${counter}`;
+  
+  while (existingSlugs.includes(uniqueSlug)) {
+    counter++;
+    uniqueSlug = `${baseSlug}-${counter}`;
+  }
+  
+  return uniqueSlug;
+} 

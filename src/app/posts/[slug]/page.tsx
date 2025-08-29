@@ -135,6 +135,9 @@ export default async function PostPage(props: PageProps) {
     const featuredImage = post.media.find((m: Media) => m.type === MediaType.IMAGE);
     const imageUrl = featuredImage ? featuredImage.url : '/images/default-post-image.svg';
     
+    // Get all images for potential gallery display
+    const allImages = post.media.filter((m: Media) => m.type === MediaType.IMAGE);
+    
     // Get author information from postAuthor
     const author = (post as any).postAuthor;
     const authorName = author 
@@ -181,16 +184,26 @@ export default async function PostPage(props: PageProps) {
             </div>
             
             {/* Featured Image */}
-            <div className="relative w-full h-[400px] mb-8 rounded-lg overflow-hidden">
-              <Image
-                src={imageUrl}
-                alt={postTranslation.title}
-                fill
-                className="object-fill w-full h-full"
-                priority
-                sizes="(max-width: 768px) 100vw, 1024px"
-                quality={90}
-              />
+            <div className="mb-8">
+              <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
+                <Image
+                  src={imageUrl}
+                  alt={featuredImage?.altText || postTranslation.title}
+                  fill
+                  className="object-fill w-full h-full"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 1024px"
+                  quality={90}
+                />
+              </div>
+              {/* Image Caption */}
+              {featuredImage?.caption && (
+                <div className="mt-3 text-center">
+                  <p className="text-sm text-gray-600 italic" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+                    {featuredImage.caption}
+                  </p>
+                </div>
+              )}
             </div>
             
             {/* Content */}
@@ -199,6 +212,36 @@ export default async function PostPage(props: PageProps) {
               dir={postTranslation.dir || 'ltr'}
               dangerouslySetInnerHTML={{ __html: postTranslation.content }}
             />
+            
+            {/* Additional Images Gallery */}
+            {allImages.length > 1 && (
+              <div className="mt-12">
+                <h3 className="text-2xl font-bold mb-6 text-gray-900">
+                  {locale === 'ar' ? 'معرض الصور' : 'Image Gallery'}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {allImages.slice(1).map((image, index) => (
+                    <div key={image.id} className="space-y-3">
+                      <div className="relative aspect-video rounded-lg overflow-hidden">
+                        <Image
+                          src={image.url}
+                          alt={image.altText || `Image ${index + 2}`}
+                          fill
+                          className="object-cover w-full h-full"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          quality={85}
+                        />
+                      </div>
+                      {image.caption && (
+                        <p className="text-sm text-gray-600 text-center italic" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+                          {image.caption}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {/* Custom Styles for TiptapEditor Content */}
             <style dangerouslySetInnerHTML={{
