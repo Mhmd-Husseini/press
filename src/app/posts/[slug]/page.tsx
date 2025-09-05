@@ -185,12 +185,12 @@ export default async function PostPage(props: PageProps) {
             
             {/* Featured Image */}
             <div className="mb-8">
-              <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
+              <div className="relative w-full aspect-[3/2] rounded-lg overflow-hidden">
                 <Image
                   src={imageUrl}
                   alt={featuredImage?.altText || postTranslation.title}
                   fill
-                  className="object-fill w-full h-full"
+                  className="object-cover"
                   priority
                   sizes="(max-width: 768px) 100vw, 1024px"
                   quality={90}
@@ -222,12 +222,12 @@ export default async function PostPage(props: PageProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {allImages.slice(1).map((image, index) => (
                     <div key={image.id} className="space-y-3">
-                      <div className="relative aspect-video rounded-lg overflow-hidden">
+                      <div className="relative aspect-[3/2] rounded-lg overflow-hidden">
                         <Image
                           src={image.url}
                           alt={image.altText || `Image ${index + 2}`}
                           fill
-                          className="object-cover w-full h-full"
+                          className="object-cover"
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           quality={85}
                         />

@@ -122,7 +122,7 @@ export const LatestPostsSection = ({
           {mainPost && (
             <div className="lg:col-span-5">
               <div className="h-[620px] flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="relative h-72 w-full">
+                <div className="relative h-96 w-full">
                   {mainPost.media && mainPost.media[0]?.url ? (
                     <Image
                       src={mainPost.media[0].url}
@@ -200,7 +200,7 @@ export const LatestPostsSection = ({
           <div className="lg:col-span-4 flex flex-col space-y-6">
             {secondaryPosts.map((post) => (
               <div key={post.id} className="border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
-                <div className="relative h-60 w-full">
+                <div className="relative h-72 w-full">
                   {post.media && post.media[0]?.url ? (
                     <Image
                       src={post.media[0].url}

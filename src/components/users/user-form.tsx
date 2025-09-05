@@ -75,7 +75,7 @@ export default function UserForm({ user, onSubmit, submitButtonText }: UserFormP
       const result = await onSubmit(formData);
 
       if (result.success) {
-        router.push('/dashboard/users');
+        router.push('/admin/users');
         router.refresh();
       } else {
         setError(result.error || 'An error occurred');

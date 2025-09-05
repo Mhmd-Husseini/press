@@ -186,13 +186,13 @@ const HeroSection: React.FC<HeroProps> = ({
 
       {/* Main hero layout - Al Arabiya style with 70/30 split */}
       <div className="container mx-auto px-4 py-4">
-        <div className={`grid grid-cols-1 md:grid-cols-12 gap-6`}>
-          {/* Featured story - Takes 8 columns on desktop */}
-          <div className="md:col-span-7">
+        <div className={`flex flex-col md:flex-row gap-6`}>
+          {/* Featured story - Takes ~54% width (equivalent to 6.5/12) */}
+          <div className="md:w-[54%]">
             {/* Main featured story with navigation controls */}
             <div className="relative overflow-hidden rounded-sm">
               {/* Full-width image */}
-              <div className="relative h-[470px] w-full">
+              <div className="relative h-[480px] w-full">
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
@@ -286,8 +286,8 @@ const HeroSection: React.FC<HeroProps> = ({
             )}
           </div>
           
-          {/* Side stories column - Takes 5 columns on desktop */}
-          <div className="md:col-span-5 flex flex-col">
+          {/* Side stories column - Takes ~46% width (equivalent to 5.5/12) */}
+          <div className="md:w-[46%] flex flex-col">
             <div className="bg-white pb-2 mb-4 border-b-2 border-primary-bg">
               <h2 className={`text-primary-bg font-bold text-lg ${isRTL ? 'text-right' : ''}`}>
                 {isRTL ? translations.ar.topStories : translations.en.topStories}
@@ -295,7 +295,7 @@ const HeroSection: React.FC<HeroProps> = ({
             </div>
             
             {/* Fixed height container to prevent layout shifts */}
-            <div className="flex flex-col h-[470px] overflow-hidden">
+            <div className="flex flex-col h-[480px] overflow-hidden">
               <div className="flex flex-col space-y-4 flex-grow">
                 {/* Side stories - Always show exactly 4 posts */}
                 {(() => {

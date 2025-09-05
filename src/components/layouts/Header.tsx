@@ -116,7 +116,7 @@ export const Header = () => {
       </div>
 
       {/* Main Header */}
-      <div className="w-full px-4 py-4 bg-white border-b border-border">
+      <div className="w-full px-4 py-3 bg-white border-b border-border">
         <div className="container mx-auto md:px-6">
           <div className="flex justify-between items-center">
             {/* Logo */}
@@ -131,13 +131,13 @@ export const Header = () => {
                 <input
                   type="text"
                   placeholder={isRTL ? 'ابحث عن الأخبار' : 'Search for news'}
-                  className={`bg-secondary-bg text-text-dark border border-border px-4 py-2 rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-accent placeholder-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}
+                  className={`bg-secondary-bg text-text-dark border border-border px-3 py-1.5 rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-accent placeholder-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <button 
                   type="submit"
-                  className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-2.5 text-gray-500 hover:text-accent`}
+                  className={`absolute ${isRTL ? 'left-2' : 'right-2'} top-1.5 text-gray-500 hover:text-accent`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -169,7 +169,7 @@ export const Header = () => {
       {/* Navigation */}
       <nav className="w-full bg-white border-b border-border shadow-sm">
         <div className="container mx-auto px-4 md:px-6">
-          <div className={`hidden md:flex items-center justify-between h-12`}>
+          <div className={`hidden md:flex items-center justify-between h-10`}>
             <ul className={`flex ${isRTL ? 'space-x-reverse space-x-8' : 'space-x-8'}`}>
               {loading ? (
                 // Show skeleton loaders while categories are loading
@@ -191,7 +191,7 @@ export const Header = () => {
                   >
                     <Link
                       href={`/categories/${category.slug}`}
-                      className="text-text-dark font-medium hover:text-accent py-3 inline-block border-b-2 border-transparent group-hover:border-accent transition-colors"
+                      className="text-text-dark font-medium hover:text-accent py-2 inline-block border-b-2 border-transparent group-hover:border-accent transition-colors"
                     >
                       {isRTL ? category.name.ar : category.name.en}
                       {/* Show dropdown arrow if category has children */}
