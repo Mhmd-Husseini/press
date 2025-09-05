@@ -250,18 +250,18 @@ const HeroSection: React.FC<HeroProps> = ({
                       {title}
                     </h1>
                     
-                    <div className={`flex items-center text-gray-300 text-xs mb-4 ${isRTL ? 'justify-end' : ''}`}>
-                      <span className={isRTL ? 'ml-2' : 'mr-2'}>
+                    <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <span className="text-gray-300 text-xs">
                         {formatDateLocalized(story.publishedAt || story.createdAt, locale)}
                       </span>
+                      
+                      <Link 
+                        href={`/posts/${slug}`} 
+                        className="bg-accent hover:bg-accent/90 text-white px-4 py-2 text-sm font-medium transition-colors"
+                      >
+                        {isRTL ? translations.ar.readFullStory : translations.en.readFullStory}
+                      </Link>
                     </div>
-                    
-                    <Link 
-                      href={`/posts/${slug}`} 
-                      className="inline-block bg-accent hover:bg-accent/90 text-white px-4 py-2 text-sm font-medium transition-colors"
-                    >
-                      {isRTL ? translations.ar.readFullStory : translations.en.readFullStory}
-                    </Link>
                   </div>
                 </div>
               </div>
