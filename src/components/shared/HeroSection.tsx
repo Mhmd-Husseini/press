@@ -246,13 +246,9 @@ const HeroSection: React.FC<HeroProps> = ({
                 {/* Content overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
                   <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 leading-tight text-white">
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold mb-4 leading-tight text-white">
                       {title}
                     </h1>
-                    
-                    <p className="text-gray-200 text-sm md:text-base mb-4 line-clamp-2 md:line-clamp-3">
-                      {summary}
-                    </p>
                     
                     <div className={`flex items-center text-gray-300 text-xs mb-4 ${isRTL ? 'justify-end' : ''}`}>
                       <span className={isRTL ? 'ml-2' : 'mr-2'}>

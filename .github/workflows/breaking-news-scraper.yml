@@ -1,7 +1,7 @@
 name: Breaking News Scraper
 on:
   schedule:
-    - cron: '0 */2 * * *'    # Runs every 2 hours
+    - cron: '0 */4 * * *'    # Runs every 2 hours
   workflow_dispatch:  # Allows manual triggering for testing
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
         timeout-minutes: 3
         run: |
           echo "Running English scraper at $(date)"
-          HTTP_STATUS=$(curl -s -o response.json -w "%{http_code}" -X GET "https://press.yourdomain.com/api/scraper/breaking-news?locale=en")
+          HTTP_STATUS=$(curl -s -o response.json -w "%{http_code}" -X GET "${{ vars.APP_URL }}/api/scraper/breaking-news?locale=en")
           if [[ $HTTP_STATUS -ne 200 ]]; then
             echo "::error::Failed to scrape English news. HTTP status: $HTTP_STATUS"
             cat response.json
@@ -29,7 +29,7 @@ jobs:
         timeout-minutes: 3
         run: |
           echo "Retrying English scraper at $(date)"
-          curl -v -X GET "https://press.yourdomain.com/api/scraper/breaking-news?locale=en"
+          curl -v -X GET "${{ vars.APP_URL }}/api/scraper/breaking-news?locale=en"
         
       - name: Fetch breaking news - Arabic
         id: fetch-ar
@@ -37,7 +37,7 @@ jobs:
         timeout-minutes: 3
         run: |
           echo "Running Arabic scraper at $(date)"
-          HTTP_STATUS=$(curl -s -o response.json -w "%{http_code}" -X GET "https://press.yourdomain.com/api/scraper/breaking-news?locale=ar")
+          HTTP_STATUS=$(curl -s -o response.json -w "%{http_code}" -X GET "${{ vars.APP_URL }}/api/scraper/breaking-news?locale=ar")
           if [[ $HTTP_STATUS -ne 200 ]]; then
             echo "::error::Failed to scrape Arabic news. HTTP status: $HTTP_STATUS"
             cat response.json
@@ -52,4 +52,4 @@ jobs:
         timeout-minutes: 3
         run: |
           echo "Retrying Arabic scraper at $(date)"
-          curl -v -X GET "https://press.yourdomain.com/api/scraper/breaking-news?locale=ar"
+          curl -v -X GET "${{ vars.APP_URL }}/api/scraper/breaking-news?locale=ar"
