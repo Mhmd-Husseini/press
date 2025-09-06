@@ -19,7 +19,7 @@ interface CategoriesResponse {
 export default function CategoryManagementClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [categories, setCategories] = useState<CategoryWithTranslations[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function CategoryManagementClient() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: currentLimit.toString(),
@@ -171,7 +171,7 @@ export default function CategoryManagementClient() {
       ),
     },
     {
-      key: '_count',
+      key: 'updatedAt',
       label: 'Posts',
       render: (_, category) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -218,15 +218,15 @@ export default function CategoryManagementClient() {
             >
               Edit
             </Link>
-            {(!category.children || category.children.length === 0) && 
-             (!(category as any)._count?.posts || (category as any)._count.posts === 0) && (
-              <button
-                onClick={() => setDeleteConfirm(category.id)}
-                className="text-red-600 hover:text-red-900 text-sm font-medium"
-              >
-                Delete
-              </button>
-            )}
+            {(!category.children || category.children.length === 0) &&
+              (!(category as any)._count?.posts || (category as any)._count.posts === 0) && (
+                <button
+                  onClick={() => setDeleteConfirm(category.id)}
+                  className="text-red-600 hover:text-red-900 text-sm font-medium"
+                >
+                  Delete
+                </button>
+              )}
           </RoleGuard>
         </div>
       ),
@@ -245,7 +245,7 @@ export default function CategoryManagementClient() {
   );
 
   return (
-    <RoleGuard 
+    <RoleGuard
       roles={['SUPER_ADMIN', 'EDITOR_IN_CHIEF', 'EDITORIAL', 'SENIOR_EDITOR', 'EDITOR']}
       fallback={unauthorizedFallback}
     >

@@ -61,6 +61,7 @@ export default function ContentPageClient() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentLanguage, setCurrentLanguage] = useState<'ar' | 'en'>('en');
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -167,17 +168,26 @@ export default function ContentPageClient() {
     router.push(`/admin/content?${params.toString()}`);
   };
 
-  const getCategoryName = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category?.translations[0]?.name || 'Unknown Category';
-  };
 
   const getPostTitle = (post: Post) => {
-    // Look for English translation first, then fallback to first available
+    // Look for current language translation first, then English, then first available
+    const currentTranslation = post.translations.find(t => t.locale === currentLanguage);
     const enTranslation = post.translations.find(t => t.locale === 'en');
     const firstTranslation = post.translations[0];
     
-    return enTranslation?.title || firstTranslation?.title || 'Untitled Post';
+    return currentTranslation?.title || enTranslation?.title || firstTranslation?.title || 'Untitled Post';
+  };
+
+  const getCategoryName = (category: Category): string => {
+    const currentTranslation = category.translations.find(t => t.locale === currentLanguage);
+    const enTranslation = category.translations.find(t => t.locale === 'en');
+    const firstTranslation = category.translations[0];
+    
+    return currentTranslation?.name || enTranslation?.name || firstTranslation?.name || 'Unnamed Category';
+  };
+
+  const getLocalizedText = (ar: string, en: string): string => {
+    return currentLanguage === 'ar' ? ar : en;
   };
 
   const getStatusClass = (status: PostStatus) => {
@@ -195,13 +205,13 @@ export default function ContentPageClient() {
 
   const getStatusLabel = (status: PostStatus) => {
     switch (status) {
-      case 'PUBLISHED': return 'Published';
-      case 'DRAFT': return 'Draft';
-      case 'PENDING_REVIEW': return 'Pending Review';
-      case 'UNDER_REVIEW': return 'Under Review';
-      case 'APPROVED': return 'Approved';
-      case 'DECLINED': return 'Declined';
-      case 'ARCHIVED': return 'Archived';
+      case 'PUBLISHED': return getLocalizedText('منشور', 'Published');
+      case 'DRAFT': return getLocalizedText('مسودة', 'Draft');
+      case 'PENDING_REVIEW': return getLocalizedText('في انتظار المراجعة', 'Pending Review');
+      case 'UNDER_REVIEW': return getLocalizedText('قيد المراجعة', 'Under Review');
+      case 'APPROVED': return getLocalizedText('موافق عليه', 'Approved');
+      case 'DECLINED': return getLocalizedText('مرفوض', 'Declined');
+      case 'ARCHIVED': return getLocalizedText('مؤرشف', 'Archived');
       default: return status;
     }
   };
@@ -230,42 +240,42 @@ export default function ContentPageClient() {
   const columns: Column<Post>[] = [
     {
       key: 'translations',
-      label: 'Title',
+      label: getLocalizedText('العنوان', 'Title'),
       sortable: true,
       render: (_, post) => (
-        <div>
-          <div className="text-sm font-medium text-gray-900">
-            {truncateText(getPostTitle(post), 50)}
-          </div>
+        <div className="text-sm text-gray-900 leading-relaxed whitespace-normal">
+          {getPostTitle(post)}
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      label: getLocalizedText('الحالة', 'Status'),
+      render: (status, post) => (
+        <div className="flex flex-col gap-1">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(status as PostStatus)}`}>
+            {getStatusLabel(status as PostStatus)}
+          </span>
           {post.featured && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mt-1">
-              Featured
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+              {getLocalizedText('مميز', 'Featured')}
             </span>
           )}
         </div>
       ),
     },
     {
-      key: 'status',
-      label: 'Status',
-      render: (status) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(status as PostStatus)}`}>
-          {getStatusLabel(status as PostStatus)}
-        </span>
-      ),
-    },
-    {
       key: 'category',
-      label: 'Category',
+      label: getLocalizedText('الفئة', 'Category'),
       render: (_, post) => (
         <span className="text-sm text-gray-500">
-          {post.category?.translations[0]?.name || 'Uncategorized'}
+          {post.category ? getCategoryName(post.category) : getLocalizedText('غير مصنف', 'Uncategorized')}
         </span>
       ),
     },
     {
       key: 'author',
-      label: 'Author',
+      label: getLocalizedText('المؤلف', 'Author'),
       render: (_, post) => (
         <span className="text-sm text-gray-500">
           {getAuthorName(post)}
@@ -274,7 +284,7 @@ export default function ContentPageClient() {
     },
     {
       key: 'updatedAt',
-      label: 'Date',
+      label: getLocalizedText('التاريخ', 'Date'),
       sortable: true,
       render: (updatedAt) => (
         <span className="text-sm text-gray-500">
@@ -284,7 +294,7 @@ export default function ContentPageClient() {
     },
     {
       key: 'id',
-      label: 'Actions',
+      label: getLocalizedText('الإجراءات', 'Actions'),
       className: 'text-right',
       render: (_, post) => (
         <div className="flex justify-end gap-2">
@@ -292,14 +302,14 @@ export default function ContentPageClient() {
             href={`/admin/posts/${post.id}/edit`}
             className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
           >
-            Edit
+            {getLocalizedText('تعديل', 'Edit')}
           </Link>
           <Link
             href={`/posts/${(post.translations[0]?.slug || post.id)}`}
             className="text-gray-600 hover:text-gray-900 text-sm font-medium"
             target="_blank"
           >
-            View
+            {getLocalizedText('عرض', 'View')}
           </Link>
         </div>
       ),
@@ -309,11 +319,16 @@ export default function ContentPageClient() {
   return (
     <div className="py-6 space-y-6">
       <PageHeader 
-        title="Content Management" 
-        description="Manage all your posts and articles"
+        title={getLocalizedText('إدارة المحتوى', 'Content Management')} 
+        description={getLocalizedText('إدارة جميع منشوراتك ومقالاتك', 'Manage all your posts and articles')}
         actions={[
           {
-            label: 'New Post',
+            label: currentLanguage === 'ar' ? 'English' : 'العربية',
+            onClick: () => setCurrentLanguage(currentLanguage === 'ar' ? 'en' : 'ar'),
+            variant: 'secondary'
+          },
+          {
+            label: getLocalizedText('منشور جديد', 'New Post'),
             href: selectedCategoryId 
               ? `/admin/posts/new?category=${selectedCategoryId}` 
               : '/admin/posts/new',
@@ -328,7 +343,7 @@ export default function ContentPageClient() {
         <div className="w-full lg:w-64 flex-shrink-0">
           <div className="bg-white shadow-sm rounded-lg overflow-hidden">
             <div className="p-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Filter by Category</h3>
+              <h3 className="text-lg font-medium text-gray-900">{getLocalizedText('تصفية حسب الفئة', 'Filter by Category')}</h3>
             </div>
             <nav className="p-2">
               <ul className="space-y-1">
@@ -341,7 +356,7 @@ export default function ContentPageClient() {
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
-                    All Posts
+                    {getLocalizedText('جميع المنشورات', 'All Posts')}
                   </button>
                 </li>
                 {categories.map(category => (
@@ -354,7 +369,7 @@ export default function ContentPageClient() {
                           : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
-                      {category.translations[0]?.name || 'Unnamed Category'}
+                      {getCategoryName(category)}
                     </button>
                   </li>
                 ))}
@@ -381,7 +396,7 @@ export default function ContentPageClient() {
             onLimitChange={handleLimitChange}
             onSearch={handleSearch}
             loading={loading}
-            searchPlaceholder="Search posts by title or content..."
+            searchPlaceholder={getLocalizedText('البحث في المنشورات بالعنوان أو المحتوى...', 'Search posts by title or content...')}
           />
         </div>
       </div>

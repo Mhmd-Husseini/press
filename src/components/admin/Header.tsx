@@ -58,7 +58,7 @@ export default function AdminHeader() {
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
                 <span className="font-bold text-xl text-gray-800">
-                  Admin Panelll
+                  Admin Panel
                 </span>
               </div>
             </div>

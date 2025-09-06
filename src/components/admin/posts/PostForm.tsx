@@ -10,6 +10,7 @@ import MediaGallery from '@/components/media/MediaGallery';
 import PostStatusControl from './PostStatusControl';
 import { ChevronRightIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { generatePostSlug } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Import the TiptapEditor component dynamically with correct options
 const TiptapEditor = dynamic(
@@ -63,6 +64,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get('category');
   const { user } = useAuth();
+  const { translateText, translateHtml, isTranslating, error: translationError } = useTranslation();
   
   const [formData, setFormData] = useState<FormData>({
     status: PostStatus.DRAFT,
@@ -73,8 +75,8 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     metaData: {},
     tags: [],
     translations: [
-      { locale: 'en', title: '', content: '', summary: '', slug: '', dir: 'ltr' },
-      { locale: 'ar', title: '', content: '', summary: '', slug: '', dir: 'rtl' }
+      { locale: 'ar', title: '', content: '', summary: '', slug: '', dir: 'rtl' },
+      { locale: 'en', title: '', content: '', summary: '', slug: '', dir: 'ltr' }
     ]
   });
   
@@ -87,7 +89,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   const [filteredAuthors, setFilteredAuthors] = useState<Author[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('en');
+  const [activeTab, setActiveTab] = useState<string>('ar');
   const [newTag, setNewTag] = useState({ name: '', nameArabic: '' });
   const [metaFields, setMetaFields] = useState<{key: string, value: string}[]>([
     { key: 'seo_title', value: '' },
@@ -219,11 +221,13 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         setAuthorSearch(author.nameEn);
       }
       
-      // Ensure all translations have slugs
-      const translationsWithSlugs = post.translations.map(translation => ({
-        ...translation,
-        slug: translation.slug || generatePostSlug(translation.title, translation.locale)
-      }));
+      // Ensure all translations have slugs and order Arabic first
+      const translationsWithSlugs = post.translations
+        .map(translation => ({
+          ...translation,
+          slug: translation.slug || generatePostSlug(translation.title, translation.locale)
+        }))
+        .sort((a, b) => a.locale === 'ar' ? -1 : 1); // Arabic first, then English
 
       setFormData({
         status: post.status,
@@ -311,6 +315,50 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     
     const slug = generatePostSlug(translation.title, locale);
     handleTranslationChange(locale, 'slug', slug);
+  };
+
+  // Translation functions
+  const translateField = async (sourceLocale: 'ar' | 'en', targetLocale: 'ar' | 'en', field: 'title' | 'summary' | 'content') => {
+    const sourceTranslation = formData.translations.find(t => t.locale === sourceLocale);
+    if (!sourceTranslation) return;
+
+    const sourceText = sourceTranslation[field];
+    if (!sourceText || typeof sourceText !== 'string' || !sourceText.trim()) return;
+
+    try {
+      let translatedText: string;
+      
+      if (field === 'content') {
+        // For HTML content, use translateHtml
+        console.log('Translating content:', { sourceText: sourceText.substring(0, 100), sourceLocale, targetLocale });
+        const result = await translateHtml(sourceText, sourceLocale, targetLocale);
+        translatedText = result?.translatedText || sourceText;
+        console.log('Content translation result:', { translatedText: translatedText.substring(0, 100) });
+      } else {
+        // For plain text (title, summary), use translateText
+        const result = await translateText(sourceText, sourceLocale, targetLocale);
+        translatedText = result?.translatedText || sourceText;
+      }
+
+      // Update the target translation
+      handleTranslationChange(targetLocale, field, translatedText);
+      
+      // If translating title, also generate slug for the target locale
+      if (field === 'title') {
+        const slug = generatePostSlug(translatedText, targetLocale);
+        handleTranslationChange(targetLocale, 'slug', slug);
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+    }
+  };
+
+  const translateAllFields = async (sourceLocale: 'ar' | 'en', targetLocale: 'ar' | 'en') => {
+    await Promise.all([
+      translateField(sourceLocale, targetLocale, 'title'),
+      translateField(sourceLocale, targetLocale, 'summary'),
+      translateField(sourceLocale, targetLocale, 'content')
+    ]);
   };
 
   const handleMetaFieldChange = (index: number, field: 'key' | 'value', newValue: string) => {
@@ -655,6 +703,21 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
           </div>
         </div>
       )}
+
+      {translationError && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded-md">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-700">Translation Error: {translationError}</p>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Basic Info Section */}
       <div className="bg-white p-4 rounded-md shadow border border-gray-200">
@@ -676,7 +739,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="mb-4">
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                  Category *
+                  الفئة * / Category *
                 </label>
                 <select
                   id="category"
@@ -685,12 +748,20 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                   className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                   required
                 >
-                  <option value="">Select a category</option>
-                  {categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.translations[0]?.name || 'Unnamed Category'}
-                    </option>
-                  ))}
+                  <option value="">اختر فئة / Select a category</option>
+                  {categories.map(category => {
+                    const arabicName = category.translations?.find((t: any) => t.locale === 'ar')?.name;
+                    const englishName = category.translations?.find((t: any) => t.locale === 'en')?.name || category.translations[0]?.name;
+                    const displayName = arabicName && englishName 
+                      ? `${arabicName} / ${englishName}`
+                      : arabicName || englishName || 'Unnamed Category';
+                    
+                    return (
+                      <option key={category.id} value={category.id}>
+                        {displayName}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               
@@ -813,7 +884,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
-                  Tags
+                  العلامات / Tags
                 </label>
                 <select
                   id="tags"
@@ -823,42 +894,50 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                   onChange={handleTagChange}
                   className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white min-h-[100px]"
                 >
-                  {allTags.map(tag => (
-                    <option key={tag.id} value={tag.id}>
-                      {tag.name}
-                    </option>
-                  ))}
+                  {allTags.map(tag => {
+                    const arabicName = tag.nameArabic;
+                    const englishName = tag.name;
+                    const displayName = arabicName && englishName 
+                      ? `${arabicName} / ${englishName}`
+                      : arabicName || englishName || 'Unnamed Tag';
+                    
+                    return (
+                      <option key={tag.id} value={tag.id}>
+                        {displayName}
+                      </option>
+                    );
+                  })}
                 </select>
                 <p className="mt-1 text-xs text-gray-500">
-                  Hold Ctrl/Cmd to select multiple tags
+                  اضغط Ctrl/Cmd لاختيار علامات متعددة / Hold Ctrl/Cmd to select multiple tags
                 </p>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label htmlFor="new-tag" className="block text-sm font-medium text-gray-700">
-                    Create New Tag
+                    إنشاء علامة جديدة / Create New Tag
                   </label>
                   <button
                     type="button"
                     onClick={createNewTag}
                     className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
-                    Add
+                    إضافة / Add
                   </button>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     id="new-tag"
                     type="text"
-                    placeholder="Tag name (English)"
+                    placeholder="اسم العلامة (إنجليزي) / Tag name (English)"
                     value={newTag.name}
                     onChange={(e) => handleNewTagChange('name', e.target.value)}
                     className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                   />
                   <input
                     type="text"
-                    placeholder="Tag name (Arabic)"
+                    placeholder="اسم العلامة (عربي) / Tag name (Arabic)"
                     value={newTag.nameArabic}
                     onChange={(e) => handleNewTagChange('nameArabic', e.target.value)}
                     className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
@@ -905,21 +984,52 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
           <div className="mt-4 space-y-6 border-t border-gray-200 pt-4">
             {/* Content Tabs */}
             <div className="border-b border-gray-200">
-              <div className="flex">
-                {formData.translations.map(translation => (
+              <div className="flex justify-between items-center">
+                <div className="flex">
+                  {/* Show Arabic first, then English */}
+                  {formData.translations.map(translation => (
+                    <button
+                      key={translation.locale}
+                      type="button"
+                      onClick={() => setActiveTab(translation.locale)}
+                      className={`${
+                        activeTab === translation.locale
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      } px-4 py-2 text-sm font-medium border-b-2`}
+                    >
+                      {translation.locale === 'en' ? 'English' : 'العربية (Primary)'}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Single Translate All Button */}
+                <div className="flex gap-2">
                   <button
-                    key={translation.locale}
                     type="button"
-                    onClick={() => setActiveTab(translation.locale)}
-                    className={`${
-                      activeTab === translation.locale
-                        ? 'border-indigo-500 text-indigo-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    } px-4 py-2 text-sm font-medium border-b-2`}
+                    onClick={() => translateAllFields('ar', 'en')}
+                    disabled={isTranslating}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    title="Translate all Arabic content to English"
                   >
-                    {translation.locale === 'en' ? 'English' : 'العربية'}
+                    {isTranslating ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Translating...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                        </svg>
+                        Translate to English
+                      </>
+                    )}
                   </button>
-                ))}
+                </div>
               </div>
             </div>
             
@@ -934,7 +1044,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
               >
                 <div className="mb-4">
                   <label htmlFor={`title-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
-                    Title {translation.locale === 'en' ? '*' : ''}
+                    {translation.locale === 'ar' ? 'العنوان' : 'Title'} {translation.locale === 'ar' ? '*' : ''}
                   </label>
                   <input
                     type="text"
@@ -942,42 +1052,35 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                     value={translation.title}
                     onChange={(e) => handleTranslationChange(translation.locale, 'title', e.target.value)}
                     className="block w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                    required={translation.locale === 'en'}
+                    required={translation.locale === 'ar'}
                     dir={translation.dir || undefined}
                   />
                 </div>
                 
                 <div className="mb-4">
                   <label htmlFor={`slug-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
-                    Slug {translation.locale === 'en' ? '*' : ''} (Auto-generated)
+                    {translation.locale === 'ar' ? 'الرابط' : 'Slug'} {translation.locale === 'ar' ? '*' : ''} ({translation.locale === 'ar' ? 'يتم إنشاؤه تلقائياً' : 'Auto-generated'})
                   </label>
-                  <div className="flex items-center">
-                    <input
-                      type="text"
-                      id={`slug-${translation.locale}`}
-                      value={translation.slug}
-                      readOnly
-                      className="block w-full px-3 py-2 text-gray-500 border border-gray-300 rounded-md shadow-sm bg-gray-50 cursor-not-allowed"
-                      required={translation.locale === 'en'}
-                      dir="ltr"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => generateSlug(translation.locale)}
-                      className="ml-2 px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      title="Regenerate slug from current title"
-                    >
-                      Regenerate
-                    </button>
-                  </div>
+                  <input
+                    type="text"
+                    id={`slug-${translation.locale}`}
+                    value={translation.slug}
+                    readOnly
+                    className="block w-full px-3 py-2 text-gray-500 border border-gray-300 rounded-md shadow-sm bg-gray-50 cursor-not-allowed"
+                    required={translation.locale === 'ar'}
+                    dir="ltr"
+                  />
                   <p className="text-xs text-gray-500 mt-1">
-                    Slug is automatically generated from title and date. Click "Regenerate" to update.
+                    {translation.locale === 'ar' 
+                      ? 'يتم إنشاء الرابط تلقائياً من العنوان والتاريخ.'
+                      : 'Slug is automatically generated from title and date.'
+                    }
                   </p>
                 </div>
                 
                 <div className="mb-4">
                   <label htmlFor={`summary-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
-                    Summary
+                    {translation.locale === 'ar' ? 'الملخص' : 'Summary'}
                   </label>
                   <textarea
                     id={`summary-${translation.locale}`}
@@ -991,12 +1094,12 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                 
                 <div className="mb-4">
                   <label htmlFor={`content-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
-                    Content {translation.locale === 'en' ? '*' : ''}
+                    {translation.locale === 'ar' ? 'المحتوى' : 'Content'} {translation.locale === 'ar' ? '*' : ''}
                   </label>
                   <TiptapEditor
                     value={translation.content}
                     onChange={(value: string) => handleTranslationChange(translation.locale, 'content', value)}
-                    placeholder="Write your post content here..."
+                    placeholder={translation.locale === 'ar' ? 'اكتب محتوى المنشور هنا...' : 'Write your post content here...'}
                     locale={translation.locale}
                     dir={(translation.dir as 'ltr' | 'rtl') || 'ltr'}
                   />
