@@ -25,12 +25,13 @@ export async function POST(request: NextRequest) {
     console.log(`Processing ${files.length} files. PostId: ${postId || 'none'}`);
     
     // Extract metadata for each file
-    const metadata: Array<{ title: string; altText: string; caption: string }> = [];
+    const metadata: Array<{ title: string; altText: string; caption: string; captionAr: string }> = [];
     for (let i = 0; i < files.length; i++) {
       const title = formData.get(`metadata[${i}][title]`) as string || '';
       const altText = formData.get(`metadata[${i}][altText]`) as string || '';
       const caption = formData.get(`metadata[${i}][caption]`) as string || '';
-      metadata.push({ title, altText, caption });
+      const captionAr = formData.get(`metadata[${i}][captionAr]`) as string || '';
+      metadata.push({ title, altText, caption, captionAr });
     }
     
     // Process each file
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
             title: fileMetadata.title || fileName,
             altText: fileMetadata.altText || fileName,
             caption: fileMetadata.caption || null,
+            captionAr: fileMetadata.captionAr || null,
             size: fileSize,
             mimeType: fileType,
             // Only set postId if it's provided and valid

@@ -197,10 +197,10 @@ export default async function PostPage(props: PageProps) {
                 />
               </div>
               {/* Image Caption */}
-              {featuredImage?.caption && (
+              {(featuredImage?.caption || featuredImage?.captionAr) && (
                 <div className="mt-3 text-center">
                   <p className="text-sm text-gray-600 italic" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-                    {featuredImage.caption}
+                    {locale === 'ar' ? (featuredImage.captionAr || featuredImage.caption) : (featuredImage.caption || featuredImage.captionAr)}
                   </p>
                 </div>
               )}
@@ -232,9 +232,9 @@ export default async function PostPage(props: PageProps) {
                           quality={85}
                         />
                       </div>
-                      {image.caption && (
+                      {(image.caption || image.captionAr) && (
                         <p className="text-sm text-gray-600 text-center italic" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-                          {image.caption}
+                          {locale === 'ar' ? (image.captionAr || image.caption) : (image.caption || image.captionAr)}
                         </p>
                       )}
                     </div>

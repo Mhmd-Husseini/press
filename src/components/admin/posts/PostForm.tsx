@@ -101,6 +101,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     title: string;
     altText: string;
     caption: string;
+    captionAr: string;
   }>>([]);
   const [uploadedMedia, setUploadedMedia] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -516,7 +517,8 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       const newMetadata = newFiles.map(file => ({
         title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension for default title
         altText: file.name.replace(/\.[^/.]+$/, ''),
-        caption: ''
+        caption: '',
+        captionAr: ''
       }));
       setMediaMetadata(prev => [...prev, ...newMetadata]);
     }
@@ -535,7 +537,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   };
 
   // Handle metadata changes for media files
-  const handleMetadataChange = (index: number, field: 'title' | 'altText' | 'caption', value: string) => {
+  const handleMetadataChange = (index: number, field: 'title' | 'altText' | 'caption' | 'captionAr', value: string) => {
     setMediaMetadata(prev => {
       const newMetadata = [...prev];
       newMetadata[index] = { ...newMetadata[index], [field]: value };
@@ -566,6 +568,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         formData.append(`metadata[${index}][title]`, mediaMetadata[index]?.title || '');
         formData.append(`metadata[${index}][altText]`, mediaMetadata[index]?.altText || '');
         formData.append(`metadata[${index}][caption]`, mediaMetadata[index]?.caption || '');
+        formData.append(`metadata[${index}][captionAr]`, mediaMetadata[index]?.captionAr || '');
       });
       
       // If we're editing, add the post ID
@@ -661,7 +664,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
   };
 
   // Handle metadata changes for existing media
-  const handleExistingMediaMetadataChange = async (mediaId: string, field: 'title' | 'altText' | 'caption', value: string) => {
+  const handleExistingMediaMetadataChange = async (mediaId: string, field: 'title' | 'altText' | 'caption' | 'captionAr', value: string) => {
     // Update local state first for responsive UI
     setUploadedMedia(prev => prev.map(media => 
       media.id === mediaId 
@@ -1217,14 +1220,28 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                           
                           <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                              Caption
+                              Caption (English)
                             </label>
                             <textarea
                               value={item.caption || ''}
                               onChange={(e) => handleExistingMediaMetadataChange(item.id, 'caption', e.target.value)}
                               rows={2}
                               className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                              placeholder="Media caption (optional)"
+                              placeholder="English caption (optional)"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Caption (Arabic)
+                            </label>
+                            <textarea
+                              value={item.captionAr || ''}
+                              onChange={(e) => handleExistingMediaMetadataChange(item.id, 'captionAr', e.target.value)}
+                              rows={2}
+                              className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              placeholder="Arabic caption (optional)"
+                              dir="rtl"
                             />
                           </div>
                         </div>
@@ -1345,14 +1362,28 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                           
                           <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                              Caption
+                              Caption (English)
                             </label>
                             <textarea
                               value={mediaMetadata[index]?.caption || ''}
                               onChange={(e) => handleMetadataChange(index, 'caption', e.target.value)}
                               rows={2}
                               className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                              placeholder="Image caption (optional)"
+                              placeholder="English caption (optional)"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                              Caption (Arabic)
+                            </label>
+                            <textarea
+                              value={mediaMetadata[index]?.captionAr || ''}
+                              onChange={(e) => handleMetadataChange(index, 'captionAr', e.target.value)}
+                              rows={2}
+                              className="block w-full px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              placeholder="Arabic caption (optional)"
+                              dir="rtl"
                             />
                           </div>
                         </div>

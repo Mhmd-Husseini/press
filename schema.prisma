@@ -246,6 +246,7 @@ model Media {
   title       String?
   altText     String?
   caption     String?
+  captionAr   String?
   size        Int?
   mimeType    String?
   postId      String?
