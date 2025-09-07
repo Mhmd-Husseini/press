@@ -428,7 +428,7 @@ html[dir="rtl"] textarea {
     line-height: 1.5 !important;
     width: 100% !important;
     overflow: visible !important;
-    font-size: 0.9rem !important; /* Smaller font size */
+    font-size: 0.82rem !important; /* Smaller font size */
   }
   
   /* Fallback text also takes 2 lines with flex centering */
@@ -439,7 +439,7 @@ html[dir="rtl"] textarea {
     overflow: visible !important;
     display: flex !important;
     align-items: center !important;
-    font-size: 0.9rem !important; /* Smaller font size */
+    font-size: 0.82rem !important; /* Smaller font size */
   }
 }
 
