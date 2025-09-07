@@ -96,24 +96,8 @@ export class TranslationService {
     }
 
     try {
-      // For HTML content, we'll translate it as plain text first
-      // This is a simplified approach - in production you might want more sophisticated HTML handling
-      const textContent = this.extractTextFromHtml(htmlContent);
-      
-      if (!textContent.trim()) {
-        return {
-          translatedText: htmlContent,
-          sourceLanguage: sourceLang,
-          targetLanguage: targetLang
-        };
-      }
-      
-      // Translate the text content
-      const translation = await this.translateText(textContent, sourceLang, targetLang);
-      
-      // Return the translated text wrapped in a simple paragraph tag
-      // This ensures the TiptapEditor can handle it properly
-      const translatedHtml = `<p>${translation.translatedText}</p>`;
+      // Parse HTML and translate text nodes while preserving structure
+      const translatedHtml = await this.translateHtmlStructure(htmlContent, sourceLang, targetLang);
       
       return {
         translatedText: translatedHtml,
@@ -128,6 +112,37 @@ export class TranslationService {
         targetLanguage: targetLang
       };
     }
+  }
+
+  /**
+   * Translate HTML structure while preserving formatting
+   */
+  private async translateHtmlStructure(
+    html: string,
+    sourceLang: 'ar' | 'en',
+    targetLang: 'ar' | 'en'
+  ): Promise<string> {
+    // Split HTML into text nodes and HTML tags
+    const parts = html.split(/(<[^>]*>)/);
+    const translatedParts: string[] = [];
+    
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      
+      // If it's an HTML tag, keep it as is
+      if (part.startsWith('<') && part.endsWith('>')) {
+        translatedParts.push(part);
+      } else if (part.trim()) {
+        // If it's text content, translate it
+        const translation = await this.translateText(part, sourceLang, targetLang);
+        translatedParts.push(translation.translatedText);
+      } else {
+        // Empty or whitespace-only parts
+        translatedParts.push(part);
+      }
+    }
+    
+    return translatedParts.join('');
   }
 
   /**

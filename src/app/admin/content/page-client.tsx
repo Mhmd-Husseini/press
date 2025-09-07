@@ -243,7 +243,9 @@ export default function ContentPageClient() {
       label: getLocalizedText('العنوان', 'Title'),
       sortable: true,
       render: (_, post) => (
-        <div className="text-sm text-gray-900 leading-relaxed whitespace-normal">
+        <div className={`text-sm text-gray-900 leading-relaxed whitespace-normal ${
+          currentLanguage === 'ar' ? 'text-right' : 'text-left'
+        }`}>
           {getPostTitle(post)}
         </div>
       ),
@@ -268,7 +270,9 @@ export default function ContentPageClient() {
       key: 'category',
       label: getLocalizedText('الفئة', 'Category'),
       render: (_, post) => (
-        <span className="text-sm text-gray-500">
+        <span className={`text-sm text-gray-500 ${
+          currentLanguage === 'ar' ? 'text-right' : 'text-left'
+        }`}>
           {post.category ? getCategoryName(post.category) : getLocalizedText('غير مصنف', 'Uncategorized')}
         </span>
       ),
@@ -277,7 +281,9 @@ export default function ContentPageClient() {
       key: 'author',
       label: getLocalizedText('المؤلف', 'Author'),
       render: (_, post) => (
-        <span className="text-sm text-gray-500">
+        <span className={`text-sm text-gray-500 ${
+          currentLanguage === 'ar' ? 'text-right' : 'text-left'
+        }`}>
           {getAuthorName(post)}
         </span>
       ),
@@ -295,9 +301,9 @@ export default function ContentPageClient() {
     {
       key: 'id',
       label: getLocalizedText('الإجراءات', 'Actions'),
-      className: 'text-right',
+      className: currentLanguage === 'ar' ? 'text-left' : 'text-right',
       render: (_, post) => (
-        <div className="flex justify-end gap-2">
+        <div className={`flex gap-2 ${currentLanguage === 'ar' ? 'justify-start' : 'justify-end'}`}>
           <Link
             href={`/admin/posts/${post.id}/edit`}
             className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
@@ -317,7 +323,7 @@ export default function ContentPageClient() {
   ];
 
   return (
-    <div className="py-6 space-y-6">
+    <div className={`py-6 space-y-6 ${currentLanguage === 'ar' ? 'rtl' : 'ltr'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
       <PageHeader 
         title={getLocalizedText('إدارة المحتوى', 'Content Management')} 
         description={getLocalizedText('إدارة جميع منشوراتك ومقالاتك', 'Manage all your posts and articles')}
@@ -338,19 +344,29 @@ export default function ContentPageClient() {
         ]}
       />
       
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className={`flex flex-col gap-6 ${
+        currentLanguage === 'ar' 
+          ? 'lg:flex-row-reverse' 
+          : 'lg:flex-row'
+      }`}>
         {/* Categories sidebar */}
-        <div className="w-full lg:w-64 flex-shrink-0">
+        <div className={`w-full lg:w-64 flex-shrink-0 ${
+          currentLanguage === 'ar' ? 'lg:order-2' : 'lg:order-1'
+        }`}>
           <div className="bg-white shadow-sm rounded-lg overflow-hidden">
             <div className="p-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">{getLocalizedText('تصفية حسب الفئة', 'Filter by Category')}</h3>
+              <h3 className={`text-lg font-medium text-gray-900 ${
+                currentLanguage === 'ar' ? 'text-right' : 'text-left'
+              }`}>{getLocalizedText('تصفية حسب الفئة', 'Filter by Category')}</h3>
             </div>
             <nav className="p-2">
               <ul className="space-y-1">
                 <li>
                   <button
                     onClick={() => handleCategoryChange()}
-                    className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
+                    className={`w-full px-3 py-2 text-sm rounded-md transition-colors ${
+                      currentLanguage === 'ar' ? 'text-right' : 'text-left'
+                    } ${
                       !selectedCategoryId
                         ? 'bg-indigo-50 text-indigo-700 font-medium'
                         : 'text-gray-700 hover:bg-gray-50'
@@ -363,7 +379,9 @@ export default function ContentPageClient() {
                   <li key={category.id}>
                     <button
                       onClick={() => handleCategoryChange(category.id)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
+                      className={`w-full px-3 py-2 text-sm rounded-md transition-colors ${
+                        currentLanguage === 'ar' ? 'text-right' : 'text-left'
+                      } ${
                         selectedCategoryId === category.id
                           ? 'bg-indigo-50 text-indigo-700 font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
@@ -379,7 +397,9 @@ export default function ContentPageClient() {
         </div>
         
         {/* Main content */}
-        <div className="flex-1">
+        <div className={`flex-1 ${
+          currentLanguage === 'ar' ? 'lg:order-1' : 'lg:order-2'
+        }`}>
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
               {error}
