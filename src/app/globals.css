@@ -417,7 +417,8 @@ html[dir="rtl"] textarea {
     white-space: normal !important;
     overflow: visible !important;
     text-overflow: unset !important;
-    display: block !important;
+    display: flex !important;
+    align-items: center !important;
     position: relative !important;
   }
   
@@ -425,17 +426,18 @@ html[dir="rtl"] textarea {
     white-space: normal !important;
     display: block !important;
     line-height: 1.5 !important;
-    height: 3rem !important;
+    width: 100% !important;
     overflow: visible !important;
   }
   
-  /* Fallback text also takes 2 lines */
+  /* Fallback text also takes 2 lines with flex centering */
   .text-text-light.text-sm.font-medium {
     height: 3rem !important;
     line-height: 1.5 !important;
     white-space: normal !important;
     overflow: visible !important;
-    display: block !important;
+    display: flex !important;
+    align-items: center !important;
   }
 }
 

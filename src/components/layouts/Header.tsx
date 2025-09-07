@@ -147,7 +147,7 @@ export const Header = () => {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center space-x-4">
+            <div className={`md:hidden flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
               {/* Search Icon */}
               <button onClick={toggleMobileSearch} className="text-primary-bg">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -262,7 +262,7 @@ export const Header = () => {
               // Fallback when no news is available
               <span className={`text-text-light text-sm font-medium ${isRTL ? 'text-right' : 'text-left'}`}>
                 {isRTL 
-                  ? 'الرئيس يعلن عن خطة جديدة للإصلاح الاقتصادي تشمل استثمارات بقيمة 50 مليار دولار' 
+                  ? 'الرئيس يعلن عن خطة جديدة  50 مليار دولار' 
                   : 'President announces new economic reform plan with $50 billion investment package'}
               </span>
             )}
