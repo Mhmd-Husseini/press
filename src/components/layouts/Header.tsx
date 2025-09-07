@@ -233,9 +233,8 @@ export const Header = () => {
       <div className="w-full bg-accent py-2 overflow-hidden">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center">
-            <span className={`text-text-light font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-primary-bg rounded flex items-center justify-center`}>
-              <span className="hidden md:inline">{isRTL ? 'عاجل' : 'Breaking'}</span>
-              <span className="md:hidden">!</span>
+            <span className={`text-text-light font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-primary-bg rounded flex items-center justify-center hidden md:flex`}>
+              <span>{isRTL ? 'عاجل' : 'Breaking'}</span>
             </span>
             
             {newsLoading ? (
