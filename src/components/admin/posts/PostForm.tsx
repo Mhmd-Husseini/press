@@ -485,6 +485,9 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       
       const newPost = await response.json();
       
+      // Reset submitting state before redirect
+      setIsSubmitting(false);
+      
       // Redirect to the edit page or posts list
       if (!isEdit) {
         router.push(`/admin/posts/${newPost.id}/edit?success=created`);

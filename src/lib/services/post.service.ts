@@ -112,6 +112,7 @@ export type PostCreateInput = {
   featured?: boolean;
   metaData?: Record<string, any>;
   tags?: string[];
+  mediaIds?: string[];
   declineReason?: string;
   changeNote?: string;
   translations: {
@@ -240,6 +241,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
                 connect: { id: tagId }
               }
             }))
+          }
+        }),
+        ...(data.mediaIds && data.mediaIds.length > 0 && {
+          media: {
+            connect: data.mediaIds.map(mediaId => ({ id: mediaId }))
           }
         })
       },
