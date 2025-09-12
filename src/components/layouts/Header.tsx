@@ -19,7 +19,7 @@ export const Header = () => {
   const { categories, loading, error } = useCategories(currentLocale);
 
   // Breaking news hook
-  const { currentNews, allNews, loading: newsLoading, currentNewsIndex } = useBreakingNews(currentLocale);
+  const { currentNews, allNews, loading: newsLoading, isTransitioning } = useBreakingNews(currentLocale);
 
   // Handle search submission
   const handleSearch = (e: React.FormEvent) => {
@@ -230,7 +230,7 @@ export const Header = () => {
       </nav>
 
       {/* Breaking News Bar */}
-      <div className="w-full bg-accent py-2 overflow-hidden">
+      <div className="w-full bg-accent py-2 md:py-0 overflow-hidden">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center">
             <span className={`text-text-light font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-primary-bg rounded flex items-center justify-center hidden md:flex`}>
@@ -241,29 +241,48 @@ export const Header = () => {
               // Loading state
               <div className="animate-pulse h-4 w-3/4 bg-red-700 rounded"></div>
             ) : allNews.length > 0 ? (
-              // Simple news ticker without links
-              <div className="overflow-hidden relative w-full">
-                <div className="news-ticker-wrap">
-                  {allNews.map((item: any, index: number) => (
-                    <div 
-                      key={item.id}
-                      className={`news-ticker-item ${index === currentNewsIndex ? 'active' : ''}`}
-                      style={{ opacity: index === currentNewsIndex ? 1 : 0 }}
-                    >
-                      <span className={`text-text-light text-sm font-medium ${isRTL ? 'text-right' : 'text-left'}`}>
-                        {item.text}
-                      </span>
-                    </div>
-                  ))}
+              <>
+                {/* Desktop: Individual rotating news */}
+                <div className="hidden md:block py-1">
+                  <span className={`text-text-light text-base font-medium transition-all duration-700 ease-in-out ${isTransitioning ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${isRTL ? 'text-right' : 'text-left'}`}>
+                    {currentNews?.text}
+                  </span>
                 </div>
-              </div>
+                
+                {/* Mobile: Continuous scrolling news ticker */}
+                <div className="md:hidden overflow-hidden relative w-full">
+                  <div className={`news-ticker-content ${isRTL ? 'rtl' : 'ltr'}`}>
+                    {allNews.slice(0, 8).map((item: any, index: number) => (
+                      <span key={item.id} className="news-ticker-item">
+                        {item.text}
+                        {index < Math.min(allNews.length - 1, 7)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </>
             ) : (
-              // Fallback when no news is available
-              <span className={`text-text-light text-sm font-medium ${isRTL ? 'text-right' : 'text-left'}`}>
-                {isRTL 
-                  ? 'الرئيس يعلن عن خطة جديدة  50 مليار دولار' 
-                  : 'President announces new economic reform plan with $50 billion investment package'}
-              </span>
+              <>
+                {/* Desktop: Fallback individual news */}
+                <div className="hidden md:block py-1">
+                  <span className={`text-text-light text-base font-medium transition-all duration-700 ease-in-out ${isTransitioning ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${isRTL ? 'text-right' : 'text-left'}`}>
+                    {isRTL 
+                      ? 'الرئيس يعلن عن خطة جديدة للإصلاح الاقتصادي'
+                      : 'President announces new economic reform plan'}
+                  </span>
+                </div>
+                
+                {/* Mobile: Fallback continuous scrolling */}
+                <div className="md:hidden overflow-hidden relative w-full">
+                  <div className={`news-ticker-content ${isRTL ? 'rtl' : 'ltr'}`}>
+                    <span className="news-ticker-item">
+                      {isRTL 
+                        ? 'الرئيس يعلن عن خطة جديدة • الحكومة تطلق برنامج جديد • البنك المركزي يعلن قرارات مهمة • الشركات الكبرى تستثمر في التقنية • التعليم العالي يطور مناهجه • الصحة تعلن عن إنجازات جديدة • الرياضة تحقق إنجازات عالمية • الاقتصاد ينمو بنسبة قياسية'
+                        : 'President announces new economic reform plan • Government launches new program • Central Bank announces important decisions • Major companies invest in technology • Higher education develops curricula • Health announces new achievements • Sports achieves global achievements • Economy grows at record rate'}
+                    </span>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>

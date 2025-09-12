@@ -382,64 +382,78 @@ html[dir="rtl"] textarea {
   .me-4 { margin-inline-end: 1rem; }
 }
 
-/* News Ticker Styles */
-.news-ticker-wrap {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  min-height: 1.5rem;
+/* News Ticker Styles - Mobile only */
+.news-ticker-content {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: scroll-continuous 25s linear infinite;
+  min-height: 1rem;
+}
+
+.news-ticker-content.rtl {
+  animation: scroll-continuous-rtl 25s linear infinite;
 }
 
 .news-ticker-item {
-  position: absolute;
-  width: 100%;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  left: 0;
-  right: 0;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  display: inline-block;
+  margin-right: 2rem;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  color: #ffffff !important;
 }
 
-.news-ticker-item.active {
-  opacity: 1;
-  position: relative;
+@keyframes scroll-continuous {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
-/* Three-line breaking news for small screens */
+@keyframes scroll-continuous-rtl {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Mobile breaking news styles */
 @media (max-width: 768px) {
-  .news-ticker-item.active {
-    height: 4rem !important; /* 4 lines height */
-    line-height: 1.3 !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: unset !important;
-    display: flex !important;
-    align-items: center !important;
-    position: relative !important;
+  .news-ticker-content {
+    animation: scroll-continuous-mobile 20s linear infinite;
+    min-height: 1.5rem;
   }
   
-  .news-ticker-item.active span {
-    white-space: normal !important;
-    display: block !important;
-    line-height: 1.3 !important;
-    width: 100% !important;
-    overflow: visible !important;
-    font-size: 0.9rem !important; /* Bigger font size */
+  .news-ticker-content.rtl {
+    animation: scroll-continuous-mobile-rtl 20s linear infinite;
   }
   
-  /* Fallback text also takes 4 lines with flex centering */
-  .text-text-light.text-sm.font-medium {
-    height: 3.5rem !important;
-    line-height: 1.4 !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    display: flex !important;
-    align-items: center !important;
-    font-size: 0.9rem !important; /* Bigger font size */
+  .news-ticker-item {
+    font-size: 0.875rem !important;
+    line-height: 1.2 !important;
+    color: #ffffff !important;
+  }
+  
+  @keyframes scroll-continuous-mobile {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  @keyframes scroll-continuous-mobile-rtl {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
 }
 
