@@ -43,10 +43,10 @@ export default function HtmlFixer() {
       if (fixedCount > 0) {
         setTimeout(() => {
           loadTwitterWidgets();
-          // Fallback: if widgets don't load, create clickable links
+          // Fallback: if widgets don't load, create clickable links (increased delay)
           setTimeout(() => {
             createFallbackLinks();
-          }, 2000);
+          }, 5000);
         }, 100);
       }
     };
@@ -125,7 +125,10 @@ export default function HtmlFixer() {
       
       twitterEmbeds.forEach((blockquote) => {
         // Check if this embed has been processed by Twitter widgets
-        if (!blockquote.querySelector('.twitter-tweet-rendered')) {
+        // Also check if it's not already a fallback
+        if (!blockquote.querySelector('.twitter-tweet-rendered') && 
+            !blockquote.classList.contains('twitter-fallback') &&
+            !blockquote.parentElement?.classList.contains('twitter-fallback')) {
           
           // Extract the tweet link
           const tweetLink = blockquote.querySelector('a[href*="/status/"]');
