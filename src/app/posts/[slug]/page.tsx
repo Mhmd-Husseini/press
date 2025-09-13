@@ -8,6 +8,7 @@ import { Post, PostTranslation, Category, CategoryTranslation, Tag, Media, Media
 import MainLayout from '@/components/layouts/MainLayout';
 import { formatDateLocalized } from '@/lib/utils';
 import prisma from '@/lib/prisma';
+import HtmlFixer from '@/components/shared/HtmlFixer';
 
 type PageProps = {
   params: Promise<{
@@ -89,7 +90,6 @@ async function fetchPost(slug: string) {
     });
 
     if (!post) {
-      console.log(`No post found with slug: "${decodedSlug}"`);
       return null;
     }
     
@@ -119,17 +119,16 @@ export default async function PostPage(props: PageProps) {
     const params = await props.params;
     const slug = params.slug;
     
-    console.log(`Processing request for post with slug: "${slug}"`);
-    
     // Fetch post data
     const result = await fetchPost(slug);
     
     if (!result) {
-      console.log(`Returning 404 for slug: "${slug}"`);
       return <PostNotFound locale={locale} />;
     }
     
     const { post, postTranslation, categoryTranslation } = result;
+    
+
     
     // Get featured image if available
     const featuredImage = post.media.find((m: Media) => m.type === MediaType.IMAGE);
@@ -197,10 +196,10 @@ export default async function PostPage(props: PageProps) {
                 />
               </div>
               {/* Image Caption */}
-              {(featuredImage?.caption || featuredImage?.captionAr) && (
+              {(featuredImage?.caption || (featuredImage as any)?.captionAr) && (
                 <div className="mt-3 text-center">
                   <p className="text-sm text-gray-600 italic" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-                    {locale === 'ar' ? featuredImage.captionAr : featuredImage.caption}
+                    {locale === 'ar' ? (featuredImage as any).captionAr : featuredImage?.caption}
                   </p>
                 </div>
               )}
@@ -212,6 +211,9 @@ export default async function PostPage(props: PageProps) {
               dir={postTranslation.dir || 'ltr'}
               dangerouslySetInnerHTML={{ __html: postTranslation.content }}
             />
+            
+            {/* HtmlFixer for Twitter embeds */}
+            <HtmlFixer />
             
             {/* Additional Images Gallery */}
             {allImages.length > 1 && (
@@ -232,9 +234,9 @@ export default async function PostPage(props: PageProps) {
                           quality={85}
                         />
                       </div>
-                      {(image.caption || image.captionAr) && (
+                      {(image.caption || (image as any).captionAr) && (
                         <p className="text-sm text-gray-600 text-center italic" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-                          {locale === 'ar' ? image.captionAr : image.caption}
+                          {locale === 'ar' ? (image as any).captionAr : image.caption}
                         </p>
                       )}
                     </div>

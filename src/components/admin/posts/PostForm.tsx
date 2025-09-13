@@ -15,7 +15,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 // Import the TiptapEditor component dynamically with correct options
 const TiptapEditor = dynamic(
   () => import('@/components/shared/TiptapEditor'),
-  { 
+  {
     ssr: false,
     loading: () => <div className="h-64 w-full bg-gray-100 animate-pulse rounded-md"></div>
   }
@@ -331,10 +331,8 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       
       if (field === 'content') {
         // For HTML content, use translateHtml
-        console.log('Translating content:', { sourceText: sourceText.substring(0, 100), sourceLocale, targetLocale });
         const result = await translateHtml(sourceText, sourceLocale, targetLocale);
         translatedText = result?.translatedText || sourceText;
-        console.log('Content translation result:', { translatedText: translatedText.substring(0, 100) });
       } else {
         // For plain text (title, summary), use translateText
         const result = await translateText(sourceText, sourceLocale, targetLocale);
@@ -577,7 +575,6 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
       // If we're editing, add the post ID
       if (isEdit && post?.id) {
         formData.append('postId', post.id);
-        console.log(`Adding images to post: ${post.id}`);
       }
       
       const response = await fetch('/api/admin/media/upload', {
@@ -1072,13 +1069,13 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                   <label htmlFor={`content-${translation.locale}`} className="block text-sm font-medium text-gray-700 mb-1">
                     {translation.locale === 'ar' ? 'المحتوى' : 'Content'} {translation.locale === 'ar' ? '*' : ''}
                   </label>
-                  <TiptapEditor
-                    value={translation.content}
-                    onChange={(value: string) => handleTranslationChange(translation.locale, 'content', value)}
-                    placeholder={translation.locale === 'ar' ? 'اكتب محتوى المنشور هنا...' : 'Write your post content here...'}
-                    locale={translation.locale}
-                    dir={(translation.dir as 'ltr' | 'rtl') || 'ltr'}
-                  />
+            <TiptapEditor
+              value={translation.content}
+              onChange={(value: string) => handleTranslationChange(translation.locale, 'content', value)}
+              placeholder={translation.locale === 'ar' ? 'اكتب محتوى المنشور هنا...' : 'Write your post content here...'}
+              locale={translation.locale}
+              dir={(translation.dir as 'ltr' | 'rtl') || 'ltr'}
+            />
                 </div>
                 
                 {/* Translation Button for this section */}

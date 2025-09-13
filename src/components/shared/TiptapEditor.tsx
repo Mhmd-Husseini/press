@@ -32,13 +32,16 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
   Table as TableIcon,
-  Minus
+  Minus,
+  Code as CodeIcon
 } from 'lucide-react';
+import HtmlInsertModal from './HtmlInsertModal';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { FontFamily } from '@tiptap/extension-font-family';
 import { Color } from '@tiptap/extension-color';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Extension } from '@tiptap/core';
+import { Node } from '@tiptap/core';
 
 // Custom Font Size Extension
 const FontSize = Extension.create({
@@ -90,6 +93,7 @@ const CustomHeading = Extension.create({
   },
 });
 
+
 interface TiptapEditorProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -113,6 +117,7 @@ export default function TiptapEditor({
   const [isHighlightPickerOpen, setIsHighlightPickerOpen] = useState(false);
   const [customColor, setCustomColor] = useState('#000000');
   const [customHighlight, setCustomHighlight] = useState('#ffff00');
+  const [isHtmlModalOpen, setIsHtmlModalOpen] = useState(false);
   
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const highlightPickerRef = useRef<HTMLDivElement>(null);
@@ -250,6 +255,17 @@ export default function TiptapEditor({
     } else {
       editor.chain().focus().setHighlight({ color }).run();
     }
+  };
+
+  const insertHtml = (html: string) => {
+    // Get current content
+    const currentContent = editor.getHTML();
+    
+    // Insert HTML at the end of current content
+    const newContent = currentContent + html;
+    
+    // Set the new content directly
+    editor.commands.setContent(newContent);
   };
 
   const fontSizes = [
@@ -606,6 +622,13 @@ export default function TiptapEditor({
           >
             <TableIcon size={16} />
           </button>
+          <button
+            onClick={() => setIsHtmlModalOpen(true)}
+            className="p-2 rounded hover:bg-gray-100 text-gray-600"
+            title="Insert HTML / Embed Code"
+          >
+            <CodeIcon size={16} />
+          </button>
         </div>
 
         {/* History */}
@@ -660,6 +683,13 @@ export default function TiptapEditor({
           </div>
         </div>
       )}
+
+      {/* HTML Insert Modal */}
+      <HtmlInsertModal
+        isOpen={isHtmlModalOpen}
+        onClose={() => setIsHtmlModalOpen(false)}
+        onInsert={insertHtml}
+      />
     </div>
   );
 

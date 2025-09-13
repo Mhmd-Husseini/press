@@ -202,6 +202,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       return translation;
     });
 
+
     // Verify that slugs are unique
     for (const translation of processedTranslations) {
       const existingSlug = await this.prisma.postTranslation.findUnique({
