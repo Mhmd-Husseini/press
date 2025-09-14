@@ -10,6 +10,141 @@ import { formatDateLocalized } from '@/lib/utils';
 import prisma from '@/lib/prisma';
 import HtmlFixer from '@/components/shared/HtmlFixer';
 
+// Robust function to process post content - only removes script tags and fixes Twitter embeds
+function processPostContent(content: string): string {
+  let processedContent = content;
+  
+  
+  // Step 1: Remove complex script tag patterns (wrapped in styled spans and links)
+  // This handles patterns like: &lt;script async src="<a href="..."><span>...</span></a><span>..." charset="utf-8"&gt;&lt;/script&gt;</span>
+  
+  // Handle the exact pattern from the HTML output with escaped quotes (&quot;)
+  // Pattern: &lt;script async src="<a target="_blank" rel="noopener noreferrer" href="https://platform.twitter.com/widgets.js"><span style="...">https://platform.twitter.com/widgets.js</span></a><span style="...">" charset="utf-8"&gt;&lt;/script&gt;</span>
+  processedContent = processedContent.replace(
+    /&lt;script async src="<a target="_blank" rel="noopener noreferrer" href="https:\/\/platform\.twitter\.com\/widgets\.js"><span[^>]*>https:\/\/platform\.twitter\.com\/widgets\.js<\/span><\/a><span[^>]*>" charset="utf-8"&gt;&lt;\/script&gt;<\/span>/gi,
+    ''
+  );
+  
+  // Handle the exact pattern with escaped quotes (&quot;)
+  processedContent = processedContent.replace(
+    /&lt;script async src="<a target="_blank" rel="noopener noreferrer" href="https:\/\/platform\.twitter\.com\/widgets\.js"><span[^>]*>https:\/\/platform\.twitter\.com\/widgets\.js<\/span><\/a><span[^>]*>&quot; charset=&quot;utf-8&quot;&gt;&lt;\/script&gt;<\/span>/gi,
+    ''
+  );
+  
+  // Handle variations of the pattern with different attributes and escaped quotes
+  processedContent = processedContent.replace(
+    /&lt;script async src="<a[^>]*href="https:\/\/platform\.twitter\.com\/widgets\.js"[^>]*>[\s\S]*?<\/a><span[^>]*>&quot; charset=&quot;utf-8&quot;&gt;&lt;\/script&gt;<\/span>/gi,
+    ''
+  );
+  
+  // Handle patterns without the closing &lt;/script&gt; tag
+  processedContent = processedContent.replace(
+    /&lt;script async src="<a[^>]*href="https:\/\/platform\.twitter\.com\/widgets\.js"[^>]*>[\s\S]*?<\/a><span[^>]*>&quot; charset=&quot;utf-8&quot;&gt;<\/span>/gi,
+    ''
+  );
+  
+  // Handle double-encoded patterns (Unicode escaped)
+  // Pattern: \u0026lt;script async src="\u003c/span\u003e\u003ca target="_blank" rel="noopener noreferrer" href="https://platform.twitter.com/widgets.js"\u003e\u003cspan style="..."\u003ehttps://platform.twitter.com/widgets.js\u003c/span\u003e\u003c/a\u003e\u003cspan style="..."\u003e" charset="utf-8"\u0026gt;\u0026lt;/script\u0026gt;\u003c/span\u003e
+  processedContent = processedContent.replace(
+    /\\u0026lt;script async src="\\u003c\/span\\u003e\\u003ca target="_blank" rel="noopener noreferrer" href="https:\/\/platform\.twitter\.com\/widgets\.js"\\u003e\\u003cspan[^>]*\\u003ehttps:\/\/platform\.twitter\.com\/widgets\.js\\u003c\/span\\u003e\\u003c\/a\\u003e\\u003cspan[^>]*\\u003e" charset="utf-8"\\u0026gt;\\u0026lt;\/script\\u0026gt;\\u003c\/span\\u003e/gi,
+    ''
+  );
+  
+  // Handle more variations of double-encoded patterns
+  processedContent = processedContent.replace(
+    /\\u0026lt;script async src="\\u003c\/span\\u003e\\u003ca[^>]*href="https:\/\/platform\.twitter\.com\/widgets\.js"[^>]*\\u003e[\\s\\S]*?\\u003c\/a\\u003e\\u003cspan[^>]*\\u003e" charset="utf-8"\\u0026gt;\\u0026lt;\/script\\u0026gt;\\u003c\/span\\u003e/gi,
+    ''
+  );
+  
+  // Handle the actual pattern from HTML output (with proper escaping)
+  // Pattern: &lt;script async src="</span><a target="_blank" rel="noopener noreferrer" href="https://platform.twitter.com/widgets.js"><span style="...">https://platform.twitter.com/widgets.js</span></a><span style="...">" charset="utf-8"&gt;&lt;/script&gt;</span>
+  processedContent = processedContent.replace(
+    /&lt;script async src="<\/span><a target="_blank" rel="noopener noreferrer" href="https:\/\/platform\.twitter\.com\/widgets\.js"><span[^>]*>https:\/\/platform\.twitter\.com\/widgets\.js<\/span><\/a><span[^>]*>" charset="utf-8"&gt;&lt;\/script&gt;<\/span>/gi,
+    ''
+  );
+  
+  // Handle variations of the actual pattern
+  processedContent = processedContent.replace(
+    /&lt;script async src="<\/span><a[^>]*href="https:\/\/platform\.twitter\.com\/widgets\.js"[^>]*>[\s\S]*?<\/a><span[^>]*>" charset="utf-8"&gt;&lt;\/script&gt;<\/span>/gi,
+    ''
+  );
+  
+  // Step 2: Remove Twitter widget scripts (both escaped and unescaped)
+  processedContent = processedContent.replace(/&lt;script[^>]*src="https:\/\/platform\.twitter\.com\/widgets\.js"[^>]*&gt;[\s\S]*?&lt;\/script&gt;/gi, '');
+  processedContent = processedContent.replace(/<script[^>]*src="https:\/\/platform\.twitter\.com\/widgets\.js"[^>]*><\/script>/gi, '');
+  
+  // Step 3: Remove any other script tags that might be present
+  processedContent = processedContent.replace(/&lt;script[^>]*&gt;[\s\S]*?&lt;\/script&gt;/gi, '');
+  processedContent = processedContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+  
+  // Step 4: Handle escaped Twitter embeds (convert to clean blockquotes)
+  // Only process if we find escaped content
+  if (processedContent.includes('&lt;blockquote') && processedContent.includes('twitter-tweet')) {
+    processedContent = processedContent.replace(
+      /&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;/gi,
+      (match) => {
+        // Extract Twitter URL from the escaped content
+        const urlMatch = match.match(/https:\/\/twitter\.com\/[^\s"'>]+/);
+        if (urlMatch) {
+          const tweetUrl = urlMatch[0].replace(/[">\s]+$/, '').trim();
+          return `<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${tweetUrl}">View Tweet</a></p></blockquote>`;
+        }
+        return match;
+      }
+    );
+  }
+  
+  // Step 5: Handle styled spans containing Twitter content
+  if (processedContent.includes('<span style="font-size: 12px') && processedContent.includes('&lt;blockquote')) {
+    processedContent = processedContent.replace(
+      /<span[^>]*style="[^"]*font-size:\s*12px[^"]*"[^>]*>[\s\S]*?&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;[\s\S]*?<\/span>/gi,
+      (match) => {
+        const urlMatch = match.match(/https:\/\/twitter\.com\/[^\s"'>]+/);
+        if (urlMatch) {
+          const tweetUrl = urlMatch[0].replace(/[">\s]+$/, '').trim();
+          return `<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${tweetUrl}">View Tweet</a></p></blockquote>`;
+        }
+        return match;
+      }
+    );
+  }
+  
+  // Step 6: Clean up malformed HTML entities only in Twitter embeds
+  // Only decode entities within blockquotes to avoid corrupting other content
+  processedContent = processedContent.replace(
+    /<blockquote[^>]*class="twitter-tweet"[^>]*>[\s\S]*?<\/blockquote>/gi,
+    (match) => {
+      return match
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&mdash;/g, '—')
+        .replace(/&mdash">/g, '&mdash;')
+        .replace(/June">/g, 'June')
+        .replace(/July">/g, 'July');
+    }
+  );
+  
+  // Step 7: Ensure Twitter embeds have proper structure
+  processedContent = processedContent.replace(
+    /<blockquote[^>]*class="twitter-tweet"[^>]*>[\s\S]*?<\/blockquote>/gi,
+    (match) => {
+      if (!match.includes('<p')) {
+        return match.replace(
+          /<blockquote([^>]*)>([\s\S]*?)<\/blockquote>/,
+          '<blockquote$1><p lang="en" dir="ltr">$2</p></blockquote>'
+        );
+      }
+      return match;
+    }
+  );
+  
+  
+  return processedContent;
+}
+
 type PageProps = {
   params: Promise<{
     slug: string;
@@ -103,7 +238,6 @@ async function fetchPost(slug: string) {
     
     return { post, postTranslation, categoryTranslation };
   } catch (error) {
-    console.error('Error fetching post:', error);
     return null;
   }
 }
@@ -209,7 +343,7 @@ export default async function PostPage(props: PageProps) {
             <div 
               className="max-w-none"
               dir={postTranslation.dir || 'ltr'}
-              dangerouslySetInnerHTML={{ __html: postTranslation.content }}
+              dangerouslySetInnerHTML={{ __html: processPostContent(postTranslation.content) }}
             />
             
             {/* HtmlFixer for Twitter embeds */}
@@ -467,7 +601,6 @@ export default async function PostPage(props: PageProps) {
       </MainLayout>
     );
   } catch (error) {
-    console.error("Error rendering post page:", error);
     return (
       <MainLayout>
         <ErrorBoundary>

@@ -4,176 +4,300 @@ import { useEffect } from 'react';
 
 export default function HtmlFixer() {
   useEffect(() => {
+    let isProcessing = false;
+    
     const fixEscapedHtml = () => {
-      // Find all spans containing escaped Twitter embeds
-      const spans = document.querySelectorAll('span');
-      let fixedCount = 0;
+      if (isProcessing) return;
       
-      spans.forEach((span) => {
-        const spanContent = span.innerHTML;
+      isProcessing = true;
+      
+      const processedElements = new Set();
+      
+      // Find elements that contain escaped Twitter embeds
+      const elements = document.querySelectorAll('div, span, p, article, section');
+      
+      elements.forEach(element => {
+        if (processedElements.has(element) || element.hasAttribute('data-html-fixed')) {
+          return;
+        }
         
-        // Check if this span contains escaped Twitter embed
-        if (spanContent.includes('&lt;blockquote class="twitter-tweet"&gt;')) {
-          // Extract and decode the HTML
-          const decodedHtml = spanContent
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&amp;/g, '&')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'");
+        const content = element.innerHTML;
+        const textContent = element.textContent || '';
+        
+        // Check for escaped Twitter embeds
+        const hasEscapedPattern = content.includes('&lt;blockquote class="twitter-tweet"&gt;') &&
+                                 content.includes('&lt;p lang="zxx"') &&
+                                 content.includes('&lt;a href="') &&
+                                 content.includes('&lt;/blockquote&gt;');
+        
+        const hasDecodedPattern = content.includes('<blockquote class="twitter-tweet">');
+        const hasRendered = element.querySelector('blockquote.twitter-tweet');
+        const hasFallback = element.querySelector('a[href*="twitter.com"]');
+        const isSmallElement = content.length < 1000;
+        const hasOnlyEscapedContent = !hasDecodedPattern && !hasRendered && !hasFallback;
+        
+        const willProcess = hasEscapedPattern && hasOnlyEscapedContent && isSmallElement;
+        
+        if (willProcess) {
+          // Decode HTML entities
+          const decodedHtml = decodeHtmlEntities(content);
           
-          // Create a temporary div to hold the decoded HTML
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = decodedHtml;
-          
-          // Replace the span with the decoded content
-          if (span.parentNode) {
-            // Insert the decoded content before the span
-            while (tempDiv.firstChild) {
-              span.parentNode.insertBefore(tempDiv.firstChild, span);
-            }
-            // Remove the original span
-            span.parentNode.removeChild(span);
-            fixedCount++;
-          }
+          // Replace the element's content with decoded HTML
+          element.innerHTML = decodedHtml;
+          element.setAttribute('data-html-fixed', 'true');
+          processedElements.add(element);
         }
       });
       
-      // Load Twitter widgets after fixing
-      if (fixedCount > 0) {
+      // Load Twitter widgets for any existing blockquotes
+      setTimeout(() => {
+        loadTwitterWidgets();
+        fixCorruptedTwitterEmbeds();
+        
+        // Try loading widgets again after fixing
         setTimeout(() => {
           loadTwitterWidgets();
-          // Fallback: if widgets don't load, create clickable links (increased delay)
-          setTimeout(() => {
-            createFallbackLinks();
-          }, 5000);
-        }, 100);
-      }
+        }, 500);
+        
+        // Fallback: if widgets don't load, create clickable links
+        setTimeout(() => {
+          createFallbackLinks();
+        }, 5000);
+      }, 100);
+      
+      isProcessing = false;
     };
 
+    const decodeHtmlEntities = (html: string): string => {
+      // Create a temporary element to decode HTML entities
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = html;
+      let decoded = textarea.value;
+      
+      // Fix specific malformed patterns
+      decoded = decoded
+        .replace(/&mdash">/g, '&mdash;')
+        .replace(/June">/g, 'June')
+        .replace(/pic\.twitter\.com\/https:\/\/t\.co\//g, 'pic.twitter.com/')
+        .replace(/Junehttps:\/\/twitter\.com\//g, 'June https://twitter.com/')
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&');
+      
+      return decoded;
+    };
 
     const loadTwitterWidgets = () => {
-      // Try multiple approaches to load Twitter widgets
-      const tryLoadWidgets = () => {
+      const twitterEmbeds = document.querySelectorAll('blockquote.twitter-tweet');
+      
+      if (twitterEmbeds.length > 0) {
         if (window.twttr && window.twttr.widgets) {
           try {
             window.twttr.widgets.load();
           } catch (error) {
-            console.error('HtmlFixer: Error calling Twitter widgets.load():', error);
+            // Silent fail
           }
-          return true;
+        } else {
+          loadTwitterScript();
         }
-        return false;
-      };
-
-      // First try: if widgets are already available
-      if (tryLoadWidgets()) {
-        return;
+      } else {
+        loadTwitterScript();
       }
+    };
 
-      // Second try: check if script exists and wait for it
+    const loadTwitterScript = () => {
       const existingScript = document.querySelector('script[src*="platform.twitter.com/widgets.js"]');
       if (existingScript) {
         let attempts = 0;
-        const maxAttempts = 10; // 1 second max
+        const maxAttempts = 50;
         const checkWidgets = () => {
           attempts++;
-          if (tryLoadWidgets()) {
-            return; // Success!
-          } else if (attempts < maxAttempts) {
-            setTimeout(checkWidgets, 100);
-          } else {
-            // Try to reload the script
-            existingScript.remove();
-            loadNewTwitterScript();
-          }
-        };
-        checkWidgets();
-        return;
-      }
-
-      // Third try: load new script
-      loadNewTwitterScript();
-    };
-
-    const loadNewTwitterScript = () => {
-      const script = document.createElement('script');
-      script.src = 'https://platform.twitter.com/widgets.js';
-      script.async = true;
-      script.charset = 'utf-8';
-      script.onload = () => {
-        // Wait a bit for initialization
-        setTimeout(() => {
           if (window.twttr && window.twttr.widgets) {
             try {
               window.twttr.widgets.load();
             } catch (error) {
-              console.error('HtmlFixer: Error calling Twitter widgets.load():', error);
+              // Silent fail
             }
+          } else if (attempts < maxAttempts) {
+            setTimeout(checkWidgets, 100);
           }
-        }, 500);
-      };
-      script.onerror = () => {
-        console.error('HtmlFixer: Failed to load Twitter script');
-      };
-      document.head.appendChild(script);
+        };
+        checkWidgets();
+      } else {
+        const script = document.createElement('script');
+        script.src = 'https://platform.twitter.com/widgets.js';
+        script.async = true;
+        script.charset = 'utf-8';
+        script.onload = () => {
+          setTimeout(() => {
+            if (window.twttr && window.twttr.widgets) {
+              try {
+                window.twttr.widgets.load();
+              } catch (error) {
+                // Silent fail
+              }
+            }
+          }, 200);
+        };
+        script.onerror = () => {
+          // Silent fail
+        };
+        document.head.appendChild(script);
+      }
     };
 
-    const createFallbackLinks = () => {
-      // Find all blockquote.twitter-tweet elements that haven't been processed
-      const twitterEmbeds = document.querySelectorAll('blockquote.twitter-tweet');
+    const fixCorruptedTwitterEmbeds = () => {
+      const allElements = document.querySelectorAll('*');
       
-      twitterEmbeds.forEach((blockquote) => {
-        // Check if this embed has been processed by Twitter widgets
-        // Also check if it's not already a fallback
-        if (!blockquote.querySelector('.twitter-tweet-rendered') && 
-            !blockquote.classList.contains('twitter-fallback') &&
-            !blockquote.parentElement?.classList.contains('twitter-fallback')) {
+      allElements.forEach(element => {
+        const content = element.innerHTML;
+        
+        if (content.includes('twitter-tweet') && 
+            content.includes('blockquote') && 
+            !element.hasAttribute('data-html-fixed') &&
+            content.length < 5000 &&
+            !element.tagName.match(/^(HTML|BODY|HEAD|FOOTER)$/i) &&
+            !element.closest('footer') &&
+            !element.closest('header') &&
+            !element.closest('nav')) {
           
-          // Extract the tweet link
-          const tweetLink = blockquote.querySelector('a[href*="/status/"]');
-          if (tweetLink) {
-            const tweetUrl = tweetLink.href;
-            const tweetText = blockquote.textContent || 'View Tweet';
-            
-            // Create a fallback link
-            const fallbackDiv = document.createElement('div');
-            fallbackDiv.className = 'twitter-fallback';
-            fallbackDiv.style.cssText = `
-              border: 1px solid #e1e8ed;
-              border-radius: 8px;
-              padding: 16px;
-              margin: 16px 0;
-              background: #f7f9fa;
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            `;
-            
-            fallbackDiv.innerHTML = `
-              <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1da1f2" style="margin-right: 8px;">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                </svg>
-                <span style="font-weight: bold; color: #1da1f2;">Twitter</span>
-              </div>
-              <div style="margin-bottom: 12px; color: #14171a; line-height: 1.4;">
-                ${tweetText.substring(0, 100)}${tweetText.length > 100 ? '...' : ''}
-              </div>
-              <a href="${tweetUrl}" target="_blank" rel="noopener noreferrer" 
-                 style="color: #1da1f2; text-decoration: none; font-weight: bold;">
-                View on Twitter →
-              </a>
-            `;
-            
-            // Replace the blockquote with the fallback
-            blockquote.parentNode?.replaceChild(fallbackDiv, blockquote);
+          const cleanEmbeds = element.querySelectorAll('blockquote.twitter-tweet');
+          if (cleanEmbeds.length > 0) {
+            element.setAttribute('data-html-fixed', 'true');
+          }
+          
+          const textContent = element.textContent || '';
+          if (textContent.includes('twitter-tweet') && textContent.includes('blockquote')) {
+            const urlMatch = textContent.match(/https:\/\/twitter\.com\/[^\s"'>]+/);
+            if (urlMatch) {
+              let tweetUrl = urlMatch[0];
+              tweetUrl = tweetUrl
+                .replace(/[">\s]+$/, '')
+                .replace(/&quot;.*$/, '')
+                .replace(/&gt;.*$/, '')
+                .replace(/&amp;.*$/, '')
+                .trim();
+              
+              let originalHtml = element.innerHTML;
+              
+              const urlMatches = originalHtml.match(/https:\/\/twitter\.com\/[^\s"'>]+/g);
+              
+              const corruptedBlockquotePattern = /<blockquote[^>]*class[^>]*twitter-tweet[^>]*>[\s\S]*?<\/blockquote>/g;
+              const corruptedMatches = originalHtml.match(corruptedBlockquotePattern);
+              
+              if (corruptedMatches && corruptedMatches.length > 0) {
+                let fixedHtml = originalHtml;
+                corruptedMatches.forEach((corruptedBlockquote) => {
+                  const blockquoteUrlMatch = corruptedBlockquote.match(/https:\/\/twitter\.com\/[^\s"'>]+/);
+                  let blockquoteUrl = blockquoteUrlMatch ? blockquoteUrlMatch[0] : tweetUrl;
+                  
+                  blockquoteUrl = blockquoteUrl
+                    .replace(/[">\s]+$/, '')
+                    .replace(/&quot;.*$/, '')
+                    .replace(/&gt;.*$/, '')
+                    .replace(/&amp;.*$/, '')
+                    .trim();
+                  
+                  const cleanBlockquote = `
+                    <blockquote class="twitter-tweet">
+                      <p lang="en" dir="ltr">
+                        <a href="${blockquoteUrl}">View Tweet</a>
+                      </p>
+                    </blockquote>
+                  `;
+                  
+                  fixedHtml = fixedHtml.replace(corruptedBlockquote, cleanBlockquote);
+                });
+                
+                element.innerHTML = fixedHtml;
+                element.setAttribute('data-html-fixed', 'true');
+              } else {
+                const escapedPattern = /&lt;blockquote[^>]*class[^>]*twitter-tweet[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;/g;
+                const escapedMatches = originalHtml.match(escapedPattern);
+                
+                if (escapedMatches && escapedMatches.length > 0) {
+                  let fixedHtml = originalHtml;
+                  escapedMatches.forEach((escapedBlockquote) => {
+                    const blockquoteUrlMatch = escapedBlockquote.match(/https:\/\/twitter\.com\/[^\s"'>]+/);
+                    let blockquoteUrl = blockquoteUrlMatch ? blockquoteUrlMatch[0] : tweetUrl;
+                    
+                    blockquoteUrl = blockquoteUrl
+                      .replace(/[">\s]+$/, '')
+                      .replace(/&quot;.*$/, '')
+                      .replace(/&gt;.*$/, '')
+                      .replace(/&amp;.*$/, '')
+                      .trim();
+                    
+                    const cleanBlockquote = `
+                      <blockquote class="twitter-tweet">
+                        <p lang="en" dir="ltr">
+                          <a href="${blockquoteUrl}">View Tweet</a>
+                        </p>
+                      </blockquote>
+                    `;
+                    
+                    fixedHtml = fixedHtml.replace(escapedBlockquote, cleanBlockquote);
+                  });
+                  
+                  element.innerHTML = fixedHtml;
+                  element.setAttribute('data-html-fixed', 'true');
+                } else {
+                  const cleanBlockquote = `
+                    <blockquote class="twitter-tweet">
+                      <p lang="en" dir="ltr">
+                        <a href="${tweetUrl}">View Tweet</a>
+                      </p>
+                    </blockquote>
+                  `;
+                  
+                  element.innerHTML += cleanBlockquote;
+                  element.setAttribute('data-html-fixed', 'true');
+                }
+              }
+            }
           }
         }
       });
     };
 
+    const createFallbackLinks = () => {
+      const twitterEmbeds = document.querySelectorAll('blockquote.twitter-tweet');
+      
+      twitterEmbeds.forEach(embed => {
+        const tweetLink = embed.querySelector('a[href*="twitter.com"]') as HTMLAnchorElement;
+        if (tweetLink && tweetLink.href && !embed.hasAttribute('data-fallback-added')) {
+          const fallbackLink = document.createElement('a');
+          fallbackLink.href = tweetLink.href;
+          fallbackLink.target = '_blank';
+          fallbackLink.rel = 'noopener noreferrer';
+          fallbackLink.textContent = 'View Tweet on Twitter';
+          fallbackLink.style.cssText = `
+            display: block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #1da1f2;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+          `;
+          
+          embed.parentNode?.insertBefore(fallbackLink, embed.nextSibling);
+          embed.setAttribute('data-fallback-added', 'true');
+        }
+      });
+    };
 
-    // Run the fix immediately for faster loading
-    const timer = setTimeout(fixEscapedHtml, 100);
+    // Run the HTML fix process
+    const timer = setTimeout(() => {
+      fixEscapedHtml();
+      
+      setTimeout(() => {
+        loadTwitterWidgets();
+      }, 200);
+    }, 100);
 
     return () => {
       clearTimeout(timer);
