@@ -73,11 +73,14 @@ function processPostContent(content: string): string {
   processedContent = processedContent.replace(/&lt;script[^>]*src="https:\/\/platform\.twitter\.com\/widgets\.js"[^>]*&gt;[\s\S]*?&lt;\/script&gt;/gi, '');
   processedContent = processedContent.replace(/<script[^>]*src="https:\/\/platform\.twitter\.com\/widgets\.js"[^>]*><\/script>/gi, '');
   
-  // Step 3: Remove any other script tags that might be present
+  // Step 3: Remove Truth Social embed scripts (keep the iframe)
+  processedContent = processedContent.replace(/<script[^>]*src="https:\/\/truthsocial\.com\/embed\.js"[^>]*><\/script>/gi, '');
+  
+  // Step 4: Remove any other script tags that might be present (but preserve iframes)
   processedContent = processedContent.replace(/&lt;script[^>]*&gt;[\s\S]*?&lt;\/script&gt;/gi, '');
   processedContent = processedContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
   
-  // Step 4: Handle escaped Twitter embeds (convert to clean blockquotes)
+  // Step 5: Handle escaped Twitter embeds (convert to clean blockquotes)
   // Only process if we find escaped content
   if (processedContent.includes('&lt;blockquote') && processedContent.includes('twitter-tweet')) {
     processedContent = processedContent.replace(
@@ -94,7 +97,113 @@ function processPostContent(content: string): string {
     );
   }
   
-  // Step 5: Handle styled spans containing Twitter content
+  // Step 6: Handle complex HTML-encoded Truth Social embeds (with styled spans and links)
+  // Pattern: <span style="...">&lt;iframe src="</span><a href="...">...</a><span style="...">" class="truthsocial-embed" ...&gt;&lt;/iframe&gt;&lt;script src="</span><a href="...">...</a><span style="...">" async="async"&gt;&lt;/script&gt;</span>
+  processedContent = processedContent.replace(
+    /<span[^>]*style="[^"]*font-size:\s*small[^"]*"[^>]*>&lt;iframe src="<\/span><a[^>]*href="https:\/\/truthsocial\.com\/[^"]*"[^>]*>[\s\S]*?<\/a><span[^>]*style="[^"]*font-size:\s*small[^"]*"[^>]*>" class="truthsocial-embed"[^>]*&gt;&lt;\/iframe&gt;&lt;script src="<\/span><a[^>]*href="https:\/\/truthsocial\.com\/embed\.js"[^>]*>[\s\S]*?<\/a><span[^>]*style="[^"]*font-size:\s*small[^"]*"[^>]*>" async="async"&gt;&lt;\/script&gt;<\/span>/gi,
+    (match) => {
+      // Extract the Truth Social URL from the link
+      const urlMatch = match.match(/href="(https:\/\/truthsocial\.com\/[^"]*)"/);
+      if (urlMatch) {
+        const truthUrl = urlMatch[1];
+        return `<iframe src="${truthUrl}/embed" class="truthsocial-embed" style="max-width: 100%; border: 0" width="600" allowfullscreen="allowfullscreen"></iframe>`;
+      }
+      return match;
+    }
+  );
+  
+  // Step 7: Handle complex HTML-encoded Facebook embeds (with styled spans and links)
+  // Pattern: &lt;iframe src="<a href="...">...</a>" width="500" height="709" ...&gt;&lt;/iframe&gt;
+  processedContent = processedContent.replace(
+    /&lt;iframe src="<a[^>]*href="https:\/\/www\.facebook\.com\/plugins\/[^"]*"[^>]*>[\s\S]*?<\/a>"[^>]*width="500"[^>]*height="709"[^>]*&gt;&lt;\/iframe&gt;/gi,
+    (match) => {
+      // Extract the Facebook URL from the link
+      const urlMatch = match.match(/href="(https:\/\/www\.facebook\.com\/plugins\/[^"]*)"/);
+      if (urlMatch) {
+        const fbUrl = urlMatch[1];
+        return `<iframe src="${fbUrl}" width="500" height="709" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`;
+      }
+      return match;
+    }
+  );
+  
+  // Step 8: Handle simple HTML-encoded Truth Social embeds
+  if (processedContent.includes('&lt;iframe src="https://truthsocial.com/')) {
+    processedContent = processedContent.replace(
+      /&lt;iframe src="https:\/\/truthsocial\.com\/[^"]*" class="truthsocial-embed"[^>]*&gt;&lt;\/iframe&gt;/gi,
+      (match) => {
+        // Decode the HTML entities
+        const decoded = match
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&amp;/g, '&');
+        
+        // Ensure the iframe has proper attributes
+        if (!decoded.includes('width=')) {
+          return decoded.replace('>', ' width="600">');
+        }
+        return decoded;
+      }
+    );
+  }
+  
+  // Step 9: Handle simple HTML-encoded Facebook embeds
+  if (processedContent.includes('&lt;iframe src="https://www.facebook.com/plugins/')) {
+    processedContent = processedContent.replace(
+      /&lt;iframe src="https:\/\/www\.facebook\.com\/plugins\/[^"]*"[^>]*&gt;&lt;\/iframe&gt;/gi,
+      (match) => {
+        // Decode the HTML entities
+        const decoded = match
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&amp;/g, '&');
+        
+        // Ensure the iframe has proper attributes
+        if (!decoded.includes('width=')) {
+          return decoded.replace('>', ' width="500">');
+        }
+        if (!decoded.includes('height=')) {
+          return decoded.replace('>', ' height="709">');
+        }
+        return decoded;
+      }
+    );
+  }
+  
+  // Step 10: Handle unencoded Truth Social embeds (ensure they're properly formatted)
+  if (processedContent.includes('<iframe src="https://truthsocial.com/')) {
+    processedContent = processedContent.replace(
+      /<iframe src="https:\/\/truthsocial\.com\/[^"]*" class="truthsocial-embed"[^>]*><\/iframe>/gi,
+      (match) => {
+        // Ensure the iframe has proper attributes
+        if (!match.includes('width=')) {
+          return match.replace('>', ' width="600">');
+        }
+        return match;
+      }
+    );
+  }
+  
+  // Step 11: Handle unencoded Facebook embeds (ensure they're properly formatted)
+  if (processedContent.includes('<iframe src="https://www.facebook.com/plugins/')) {
+    processedContent = processedContent.replace(
+      /<iframe src="https:\/\/www\.facebook\.com\/plugins\/[^"]*"[^>]*><\/iframe>/gi,
+      (match) => {
+        // Ensure the iframe has proper attributes
+        if (!match.includes('width=')) {
+          return match.replace('>', ' width="500">');
+        }
+        if (!match.includes('height=')) {
+          return match.replace('>', ' height="709">');
+        }
+        return match;
+      }
+    );
+  }
+  
+  // Step 12: Handle styled spans containing Twitter content
   if (processedContent.includes('<span style="font-size: 12px') && processedContent.includes('&lt;blockquote')) {
     processedContent = processedContent.replace(
       /<span[^>]*style="[^"]*font-size:\s*12px[^"]*"[^>]*>[\s\S]*?&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;[\s\S]*?<\/span>/gi,
@@ -109,7 +218,7 @@ function processPostContent(content: string): string {
     );
   }
   
-  // Step 6: Clean up malformed HTML entities only in Twitter embeds
+  // Step 13: Clean up malformed HTML entities only in Twitter embeds
   // Only decode entities within blockquotes to avoid corrupting other content
   processedContent = processedContent.replace(
     /<blockquote[^>]*class="twitter-tweet"[^>]*>[\s\S]*?<\/blockquote>/gi,
@@ -127,7 +236,7 @@ function processPostContent(content: string): string {
     }
   );
   
-  // Step 7: Ensure Twitter embeds have proper structure
+  // Step 14: Ensure Twitter embeds have proper structure
   processedContent = processedContent.replace(
     /<blockquote[^>]*class="twitter-tweet"[^>]*>[\s\S]*?<\/blockquote>/gi,
     (match) => {
