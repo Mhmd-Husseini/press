@@ -126,6 +126,36 @@ function processPostContent(content: string): string {
       return match;
     }
   );
+
+  // Step 7.5: Handle complex HTML-encoded Facebook embeds wrapped in styled spans
+  // Pattern: <span style="...">&lt;iframe src="</span><a href="...">...</a><span style="...">" width="500" height="250" ...&gt;&lt;/iframe&gt;</span>
+  processedContent = processedContent.replace(
+    /<span[^>]*style="[^"]*font-size:\s*small[^"]*"[^>]*>&lt;iframe src="<\/span><a[^>]*href="https:\/\/www\.facebook\.com\/plugins\/[^"]*"[^>]*>[\s\S]*?<\/a><span[^>]*style="[^"]*font-size:\s*small[^"]*"[^>]*>"[^>]*width="500"[^>]*height="[^"]*"[^>]*&gt;&lt;\/iframe&gt;<\/span>/gi,
+    (match) => {
+      // Extract the Facebook URL from the link
+      const urlMatch = match.match(/href="(https:\/\/www\.facebook\.com\/plugins\/[^"]*)"/);
+      if (urlMatch) {
+        const fbUrl = urlMatch[1];
+        return `<iframe src="${fbUrl}" width="500" height="709" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`;
+      }
+      return match;
+    }
+  );
+
+  // Step 7.6: Handle Facebook video embeds with different dimensions
+  // Pattern: <span style="...">&lt;iframe src="</span><a href="...">...</a><span style="...">" width="267" height="591" ...&gt;&lt;/iframe&gt;</span>
+  processedContent = processedContent.replace(
+    /<span[^>]*style="[^"]*font-size:\s*small[^"]*"[^>]*>&lt;iframe src="<\/span><a[^>]*href="https:\/\/www\.facebook\.com\/plugins\/[^"]*"[^>]*>[\s\S]*?<\/a><span[^>]*style="[^"]*font-size:\s*small[^"]*"[^>]*>"[^>]*width="267"[^>]*height="[^"]*"[^>]*&gt;&lt;\/iframe&gt;<\/span>/gi,
+    (match) => {
+      // Extract the Facebook URL from the link
+      const urlMatch = match.match(/href="(https:\/\/www\.facebook\.com\/plugins\/[^"]*)"/);
+      if (urlMatch) {
+        const fbUrl = urlMatch[1];
+        return `<iframe src="${fbUrl}" width="267" height="591" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`;
+      }
+      return match;
+    }
+  );
   
   // Step 8: Handle simple HTML-encoded Truth Social embeds
   if (processedContent.includes('&lt;iframe src="https://truthsocial.com/')) {
