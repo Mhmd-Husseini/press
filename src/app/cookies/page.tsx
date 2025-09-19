@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 // Define metadata for SEO
 export const metadata: Metadata = {
-  title: 'Cookies Policy | Phoenix Press',
-  description: 'Learn how Phoenix Press uses cookies and similar technologies on our website.',
+  title: 'Cookies Policy | Bidderij',
+  description: 'Learn how Bidderij uses cookies and similar technologies on our website.',
 };
 
 export default async function CookiesPage() {
@@ -20,7 +20,7 @@ export default async function CookiesPage() {
     en: {
       title: 'Cookies Policy',
       lastUpdated: 'Last Updated: June 1, 2024',
-      introduction: 'This Cookies Policy explains what cookies are and how Phoenix Press uses them on our website. We encourage you to read this policy to understand what cookies are, how we use them, and the choices you have regarding their use.',
+      introduction: 'This Cookies Policy explains what cookies are and how Bidderij uses them on our website. We encourage you to read this policy to understand what cookies are, how we use them, and the choices you have regarding their use.',
       sections: [
         {
           heading: '1. What are Cookies?',

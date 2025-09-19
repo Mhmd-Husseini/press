@@ -113,23 +113,23 @@ export const Footer = () => {
             <div className="flex items-center">
               <div className={`relative h-10 w-10 ${isRTL ? 'ml-2' : 'mr-2'} bg-white/10 p-1 rounded`}>
                 <Image
-                  src="/phoenix-logo.svg"
-                  alt="Phoenix Press"
+                  src="/bidderij-logo.svg"
+                  alt="Bidderij"
                   width={36}
                   height={36}
                   className="object-contain"
                 />
               </div>
               <div>
-                <span className="text-xl font-bold tracking-tight text-white">Phoenix</span>
-                <span className={`text-accent font-bold ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+                <span className="text-xl font-bold tracking-tight text-white">Bidderij</span>
+                {isRTL && <span className="text-sm font-medium text-gray-400 mr-2">بدّارج</span>}
               </div>
             </div>
 
             <p className={`mt-4 text-gray-400 text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
               {isRTL 
-                ? 'فينيكس بريس هي مؤسسة إخبارية عالمية تقدم تغطية شاملة وتحليلات متعمقة للأحداث العالمية والمحلية.' 
-                : 'Phoenix Press is a global news organization providing comprehensive coverage and in-depth analysis of world and local events.'}
+                ? 'بدّارج هي مؤسسة إخبارية عالمية تقدم تغطية شاملة وتحليلات متعمقة للأحداث العالمية والمحلية.' 
+                : 'Bidderij is a global news organization providing comprehensive coverage and in-depth analysis of world and local events.'}
             </p>
 
             <div className={`mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>

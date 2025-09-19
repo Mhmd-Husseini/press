@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 // Define metadata for SEO
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Phoenix Press',
-  description: 'Learn how Phoenix Press handles your personal data and respects your privacy.',
+  title: 'Privacy Policy | Bidderij',
+  description: 'Learn how Bidderij handles your personal data and respects your privacy.',
 };
 
 export default async function PrivacyPage() {
@@ -23,7 +23,7 @@ export default async function PrivacyPage() {
       sections: [
         {
           heading: '1. Introduction',
-          text: 'Phoenix Press ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services. Please read this privacy policy carefully. By continuing to use our website and services, you consent to the practices described in this policy.'
+          text: 'Bidderij ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services. Please read this privacy policy carefully. By continuing to use our website and services, you consent to the practices described in this policy.'
         },
         {
           heading: '2. Information We Collect',

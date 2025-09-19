@@ -4,8 +4,8 @@ import MainLayout from '@/components/layouts/MainLayout';
 
 // Define metadata for SEO
 export const metadata: Metadata = {
-  title: 'Terms of Service | Phoenix Press',
-  description: 'Terms and conditions for using Phoenix Press services.',
+  title: 'Terms of Service | Bidderij',
+  description: 'Terms and conditions for using Bidderij services.',
 };
 
 export default async function TermsPage() {
@@ -22,7 +22,7 @@ export default async function TermsPage() {
       sections: [
         {
           heading: '1. Introduction',
-          text: 'Welcome to Phoenix Press. These Terms of Service ("Terms") govern your access to and use of the Phoenix Press website, services, and applications (collectively, the "Service"). By accessing or using the Service, you agree to be bound by these Terms.'
+          text: 'Welcome to Bidderij. These Terms of Service ("Terms") govern your access to and use of the Bidderij website, services, and applications (collectively, the "Service"). By accessing or using the Service, you agree to be bound by these Terms.'
         },
         {
           heading: '2. Using Our Service',
@@ -30,7 +30,7 @@ export default async function TermsPage() {
         },
         {
           heading: '3. Content and Intellectual Property',
-          text: 'All content on Phoenix Press, including articles, images, videos, and other materials, is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, or create derivative works of our content without explicit permission.'
+          text: 'All content on Bidderij, including articles, images, videos, and other materials, is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, or create derivative works of our content without explicit permission.'
         },
         {
           heading: '4. User Accounts',
@@ -42,7 +42,7 @@ export default async function TermsPage() {
         },
         {
           heading: '6. Limitation of Liability',
-          text: 'To the maximum extent permitted by law, Phoenix Press will not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly.'
+          text: 'To the maximum extent permitted by law, Bidderij will not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly.'
         },
         {
           heading: '7. Changes to Terms',
@@ -50,7 +50,7 @@ export default async function TermsPage() {
         },
         {
           heading: '8. Governing Law',
-          text: 'These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which Phoenix Press is established, without regard to its conflict of law provisions.'
+          text: 'These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which Bidderij is established, without regard to its conflict of law provisions.'
         },
         {
           heading: '9. Contact Us',

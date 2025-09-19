@@ -1,0 +1,101 @@
+<svg width="500" height="160" viewBox="0 0 500 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:0.05" />
+    </linearGradient>
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981" />
+      <stop offset="50%" style="stop-color:#059669" />
+      <stop offset="100%" style="stop-color:#047857" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#10B981" />
+      <stop offset="100%" style="stop-color:#059669" />
+    </linearGradient>
+    <linearGradient id="lebaneseGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ED1C24" />
+      <stop offset="50%" style="stop-color:#FFFFFF" />
+      <stop offset="100%" style="stop-color:#ED1C24" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#10B981" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  
+  <!-- Background circle with economic theme -->
+  <circle cx="80" cy="80" r="70" fill="url(#bgGradient)"/>
+  <circle cx="80" cy="80" r="65" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Economic graph icon with Lebanese theme -->
+  <g transform="translate(30, 30)" filter="url(#shadow)">
+    <!-- Chart background -->
+    <rect x="10" y="20" width="60" height="40" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.3" rx="2"/>
+    
+    <!-- Chart bars representing economic growth -->
+    <rect x="15" y="50" width="4" height="10" fill="#FFFFFF" opacity="0.7"/>
+    <rect x="22" y="45" width="4" height="15" fill="#FFFFFF" opacity="0.8"/>
+    <rect x="29" y="40" width="4" height="20" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="36" y="30" width="4" height="30" fill="#FFFFFF"/>
+    <rect x="43" y="35" width="4" height="25" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="50" y="25" width="4" height="35" fill="#FFFFFF" opacity="0.8"/>
+    
+    <!-- Trend line showing upward growth -->
+    <path d="M15 60 L22 55 L29 50 L36 40 L43 45 L50 35" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" fill="none"/>
+    
+    <!-- Lebanese flag accent -->
+    <rect x="55" y="15" width="8" height="50" fill="url(#lebaneseGradient)"/>
+    <rect x="55" y="15" width="2.67" height="50" fill="#ED1C24"/>
+    <rect x="60.33" y="15" width="2.67" height="50" fill="#FFFFFF"/>
+    <rect x="65.66" y="15" width="2.34" height="50" fill="#ED1C24"/>
+    
+    <!-- Cedar tree symbol -->
+    <path d="M62 25 L62 55 L60 50 L62 45 L60 40 L62 35 L60 30 L62 25 Z" fill="#00A651"/>
+    
+    <!-- Economic indicators -->
+    <circle cx="70" cy="10" r="6" fill="#F59E0B"/>
+    <circle cx="70" cy="10" r="4" fill="#FFFFFF"/>
+    
+    <!-- Decorative economic symbols -->
+    <circle cx="75" cy="35" r="3" fill="#F59E0B" opacity="0.8"/>
+    <circle cx="80" cy="50" r="2" fill="#F59E0B" opacity="0.6"/>
+    <circle cx="77" cy="65" r="3" fill="#F59E0B" opacity="0.7"/>
+  </g>
+  
+  <!-- Enhanced English text -->
+  <text x="130" y="55" font-family="Inter, sans-serif" font-size="42" font-weight="800" fill="url(#textGradient)">
+    Bidderij
+  </text>
+  
+  <!-- Enhanced Arabic text -->
+  <text x="130" y="85" font-family="Cairo, sans-serif" font-size="32" font-weight="700" fill="#6B7280" dir="rtl">
+    بدّارج
+  </text>
+  
+  <!-- Slogan in English -->
+  <text x="130" y="110" font-family="Inter, sans-serif" font-size="16" font-weight="500" fill="#9CA3AF" font-style="italic">
+    World Economy in Lebanese Dialect
+  </text>
+  
+  <!-- Slogan in Arabic -->
+  <text x="130" y="130" font-family="Cairo, sans-serif" font-size="14" font-weight="500" fill="#9CA3AF" font-style="italic" dir="rtl">
+    اقتصاد العالم باللهجة اللبنانية
+  </text>
+  
+  <!-- Enhanced decorative underline with economic colors -->
+  <line x1="130" y1="140" x2="470" y2="140" stroke="url(#textGradient)" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Economic accent dots -->
+  <circle cx="140" cy="145" r="3" fill="#10B981"/>
+  <circle cx="150" cy="145" r="2.5" fill="#059669"/>
+  <circle cx="160" cy="145" r="3" fill="#047857"/>
+  <circle cx="170" cy="145" r="2" fill="#F59E0B"/>
+  
+  <!-- Subtle background pattern -->
+  <g opacity="0.1">
+    <circle cx="450" cy="40" r="4" fill="#10B981"/>
+    <circle cx="460" cy="50" r="3" fill="#059669"/>
+    <circle cx="470" cy="35" r="3.5" fill="#ED1C24"/>
+    <circle cx="480" cy="45" r="2" fill="#00A651"/>
+  </g>
+</svg>

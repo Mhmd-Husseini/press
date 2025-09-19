@@ -120,9 +120,65 @@ export const Header = () => {
         <div className="container mx-auto md:px-6">
           <div className="flex justify-between items-center">
             {/* Logo */}
-              <Link href="/" className="flex items-center">
-                  <span className="text-xl font-bold text-primary-bg">Phoenix </span>
-                  <span className={`text-xl font-bold text-accent ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+              <Link href="/" className="flex items-center group">
+                {/* Enhanced Economic Logo Icon */}
+                <div className="relative">
+                  <div className="w-10 h-10 md:w-14 md:h-14 rounded-3xl flex items-center justify-center shadow-2xl group-hover:shadow-3xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 border-2 border-white/20" style={{background: 'linear-gradient(to bottom right, var(--primary-bg), var(--accent-color))'}}>
+                    {/* Modern Economic Chart Design */}
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" className="text-white md:w-8 md:h-8">
+                      {/* Background circle for depth */}
+                      <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.2"/>
+                      
+                      {/* Modern bar chart with gradient effect */}
+                      <rect x="4" y="20" width="3" height="8" fill="currentColor" opacity="0.6" rx="1"/>
+                      <rect x="8" y="16" width="3" height="12" fill="currentColor" opacity="0.7" rx="1"/>
+                      <rect x="12" y="12" width="3" height="16" fill="currentColor" opacity="0.8" rx="1"/>
+                      <rect x="16" y="8" width="3" height="20" fill="currentColor" opacity="0.9" rx="1"/>
+                      <rect x="20" y="10" width="3" height="18" fill="currentColor" opacity="0.8" rx="1"/>
+                      <rect x="24" y="6" width="3" height="22" fill="currentColor" rx="1"/>
+                      
+                      {/* Modern trend line with glow effect */}
+                      <path d="M5 22 L9 18 L13 14 L17 10 L21 12 L25 8" stroke="#FEF3C7" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.9"/>
+                      
+                      {/* Lebanese Cedar Tree - Modernized */}
+                      <g transform="translate(26, 4)">
+                        <path d="M0 0 L-1 2 L0 4 L1 2 Z" fill="#FFFFFF" opacity="0.8"/>
+                        <path d="M0 2 L-0.5 3 L0 4 L0.5 3 Z" fill="#FFFFFF" opacity="0.6"/>
+                        <rect x="-0.2" y="4" width="0.4" height="2" fill="#FFFFFF" opacity="0.7"/>
+                      </g>
+                      
+                      {/* Lebanese Flag Stripes - Subtle */}
+                      <rect x="28" y="2" width="1" height="28" fill="#ED1C24" opacity="0.6"/>
+                      <rect x="29" y="2" width="1" height="28" fill="#FFFFFF" opacity="0.4"/>
+                      <rect x="30" y="2" width="1" height="28" fill="#ED1C24" opacity="0.6"/>
+                    </svg>
+                  </div>
+                  
+                  
+                  {/* Subtle glow effect */}
+                  <div className="absolute inset-0 rounded-3xl blur-sm group-hover:blur-md transition-all duration-500" style={{background: 'linear-gradient(to bottom right, var(--primary-bg)/20, var(--accent-color)/20)'}}></div>
+                </div>
+                
+                {/* Enhanced Logo Text with Slogan */}
+                <div className={`ml-2 md:ml-4 ${isRTL ? 'mr-2 md:mr-4 ml-0' : ''}`}>
+                  <div className="flex flex-col">
+                    {/* Brand Name - English or Arabic based on locale */}
+                    {isRTL ? (
+                      <span className="text-lg md:text-2xl font-black bg-clip-text text-transparent transition-all duration-700 tracking-tight" style={{background: 'linear-gradient(to right, var(--primary-bg), var(--accent-color))', WebkitBackgroundClip: 'text'}}>
+                        بدّارج
+                      </span>
+                    ) : (
+                      <span className="text-lg md:text-2xl font-black bg-clip-text text-transparent transition-all duration-700 tracking-tight" style={{background: 'linear-gradient(to right, var(--primary-bg), var(--accent-color))', WebkitBackgroundClip: 'text'}}>
+                        Bidderij
+                      </span>
+                    )}
+                    
+                    {/* Enhanced Slogan */}
+                      <span className="text-xs font-semibold text-gray-600 italic group-hover:text-gray-700 transition-colors duration-500">
+                        {isRTL ? 'اقتصاد العالم باللهجة اللبنانية' : 'World Economy in Lebanese Dialect'}
+                      </span>
+                  </div>
+                </div>
               </Link>
 
             {/* Search Bar - Desktop */}

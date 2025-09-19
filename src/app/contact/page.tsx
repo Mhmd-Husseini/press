@@ -281,7 +281,7 @@ export default function ContactPage() {
 
                 {/* Company Div */}
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md text-center">
-                  <h3 className="text-xl font-bold text-gray-900">Phoenix Press</h3>
+                  <h3 className="text-xl font-bold text-gray-900">Bidderij</h3>
                   <p className="text-gray-600">
                     {isRTL ? 'المقر الرئيسي للأخبار العالمية' : 'Global News Headquarters'}
                   </p>
