@@ -123,13 +123,13 @@ export const Header = () => {
                 <Link href="/" className="flex items-center">
                   {isRTL ? (
                     <>
-                      <span className="text-xl font-bold text-primary-bg">إقتصادي</span>
-                      <span className="text-xl font-bold text-accent">.كوم</span>
+                      <span className="text-lg md:text-xl font-bold text-primary-bg">إقتصادي</span>
+                      <span className="text-lg md:text-xl font-bold text-accent">.كوم</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-xl font-bold text-primary-bg">Ektisadi</span>
-                      <span className="text-xl font-bold text-accent">.com</span>
+                      <span className="text-lg md:text-xl font-bold text-primary-bg">Ektisadi</span>
+                      <span className="text-lg md:text-xl font-bold text-accent">.com</span>
                     </>
                   )}
                 </Link>
