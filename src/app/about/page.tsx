@@ -19,11 +19,11 @@ export default function AboutPage() {
 
   const content = {
     en: {
-      title: 'About Bidderij',
+      title: 'About Phoenix Press',
       subtitle: 'Delivering trusted news since 2005',
       mission: {
         title: 'Our Mission',
-        text: 'Bidderij is dedicated to delivering accurate, impartial, and timely news coverage to audiences around the world. We strive to uphold the highest standards of journalism, ensuring that our reporting is factual, balanced, and comprehensive.'
+        text: 'Phoenix Press is dedicated to delivering accurate, impartial, and timely news coverage to audiences around the world. We strive to uphold the highest standards of journalism, ensuring that our reporting is factual, balanced, and comprehensive.'
       },
       values: {
         title: 'Our Values',
@@ -48,7 +48,7 @@ export default function AboutPage() {
       },
       history: {
         title: 'Our History',
-        text: 'Founded in 2005, Bidderij began as a small digital news platform covering local events. Over the years, we have grown into a comprehensive news organization with correspondents in major cities worldwide. Our commitment to quality journalism has earned us numerous awards and the trust of millions of readers who rely on us for their daily news.'
+        text: 'Founded in 2005, Phoenix Press began as a small digital news platform covering local events. Over the years, we have grown into a comprehensive news organization with correspondents in major cities worldwide. Our commitment to quality journalism has earned us numerous awards and the trust of millions of readers who rely on us for their daily news.'
       },
       team: {
         title: 'Our Team',
@@ -134,8 +134,8 @@ export default function AboutPage() {
               <div className="md:w-1/2">
                 <div className="relative h-72 w-full rounded-lg overflow-hidden shadow-lg">
                   <Image
-                    src="/bidderij-logo.svg"
-                    alt="Bidderij Logo"
+                    src="/phoenix-logo.svg"
+                    alt="Phoenix Press Logo"
                     fill
                     className="object-contain bg-gray-900 p-12"
                   />

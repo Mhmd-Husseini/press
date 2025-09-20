@@ -23,35 +23,35 @@ const cairoFont = Cairo({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Bidderij',
-    default: 'Bidderij - بدّارج | Where Stories Rise',
+    template: '%s | Phoenix Press',
+    default: 'Phoenix Press - فينيقيا | Where Stories Rise',
   },
-  description: "Bidderij delivers timely news and thoughtful analysis on the most important stories from around the world, with a focus on accuracy and integrity.",
-  keywords: ["news", "bidderij", "journalism", "media", "articles", "press", "stories"],
-  authors: [{ name: "Bidderij Media Group" }],
-  creator: "Bidderij Media Group",
-  publisher: "Bidderij Media Group",
+  description: "Phoenix Press delivers timely news and thoughtful analysis on the most important stories from around the world, with a focus on accuracy and integrity.",
+  keywords: ["news", "phoenix press", "journalism", "media", "articles", "press", "stories"],
+  authors: [{ name: "Phoenix Media Group" }],
+  creator: "Phoenix Media Group",
+  publisher: "Phoenix Media Group",
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://bidderij.com/',
-    siteName: 'Bidderij',
-    title: 'Bidderij - Where Stories Rise',
-    description: 'Bidderij delivers timely news and thoughtful analysis on the most important stories from around the world.',
+    url: 'https://phoenix-press.com/',
+    siteName: 'Phoenix Press',
+    title: 'Phoenix Press - Where Stories Rise',
+    description: 'Phoenix Press delivers timely news and thoughtful analysis on the most important stories from around the world.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Bidderij - بدّارج'
+        alt: 'Phoenix Press - فينيقيا'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bidderij - Where Stories Rise',
-    description: 'Bidderij delivers timely news and thoughtful analysis on the most important stories from around the world.',
-    creator: '@Bidderij',
+    title: 'Phoenix Press - Where Stories Rise',
+    description: 'Phoenix Press delivers timely news and thoughtful analysis on the most important stories from around the world.',
+    creator: '@PhoenixPress',
     images: ['/twitter-image.png']
   }
 };
@@ -64,7 +64,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/bidderij-favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/phoenix-logo.svg" type="image/svg+xml" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${cairoFont.variable} antialiased bg-gray-50`}

@@ -4,8 +4,8 @@ import Link from 'next/link';
 import MainLayout from '@/components/layouts/MainLayout';
 
 export const metadata: Metadata = {
-  title: 'Careers | Bidderij',
-  description: 'Explore career opportunities at Bidderij. Join our team of talented professionals.',
+  title: 'Careers | Phoenix Press',
+  description: 'Explore career opportunities at Phoenix Press. Join our team of talented professionals.',
 };
 
 export default async function CareerPage() {
@@ -19,11 +19,11 @@ export default async function CareerPage() {
     en: {
       title: 'Careers',
       subtitle: 'Join Our Team',
-      description: 'Thank you for your interest in working with Bidderij. We are committed to bringing together talented professionals who are passionate about journalism and media.',
+      description: 'Thank you for your interest in working with Phoenix Press. We are committed to bringing together talented professionals who are passionate about journalism and media.',
       noVacancies: 'Currently, we have no open positions available.',
       checkLater: 'Please check back later for future opportunities.',
       contactUs: 'If you would like to submit your resume for future consideration, please email us at:',
-      emailAddress: 'careers@bidderij.com',
+      emailAddress: 'careers@phoenixpress.com',
       returnHome: 'Return to Home'
     },
     ar: {
@@ -33,7 +33,7 @@ export default async function CareerPage() {
       noVacancies: 'حالياً، لا توجد لدينا وظائف شاغرة متاحة.',
       checkLater: 'يرجى العودة لاحقاً للاطلاع على الفرص المستقبلية.',
       contactUs: 'إذا كنت ترغب في تقديم سيرتك الذاتية للنظر فيها مستقبلاً، يرجى مراسلتنا عبر البريد الإلكتروني:',
-      emailAddress: 'careers@bidderij.com',
+      emailAddress: 'careers@phoenixpress.com',
       returnHome: 'العودة إلى الصفحة الرئيسية'
     }
   };

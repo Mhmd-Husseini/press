@@ -148,10 +148,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
 
     return {
-      title: `${categoryTranslation.name} | Bidderij`,
+      title: `${categoryTranslation.name} | Phoenix Press`,
       description: categoryTranslation.description || `Browse all articles in the ${categoryTranslation.name} category.`,
       openGraph: {
-        title: `${categoryTranslation.name} | Bidderij`,
+        title: `${categoryTranslation.name} | Phoenix Press`,
         description: categoryTranslation.description || `Browse all articles in the ${categoryTranslation.name} category.`,
         type: 'website',
       },
@@ -159,7 +159,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Bidderij | Category',
+      title: 'Phoenix Press | Category',
       description: 'Browse articles by category',
     };
   }
