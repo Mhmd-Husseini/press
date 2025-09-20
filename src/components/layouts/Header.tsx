@@ -120,10 +120,19 @@ export const Header = () => {
         <div className="container mx-auto md:px-6">
           <div className="flex justify-between items-center">
             {/* Logo */}
-              <Link href="/" className="flex items-center">
-                  <span className="text-xl font-bold text-primary-bg">Phoenix </span>
-                  <span className={`text-xl font-bold text-accent ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
-              </Link>
+                <Link href="/" className="flex items-center">
+                  {isRTL ? (
+                    <>
+                      <span className="text-xl font-bold text-primary-bg">إقتصادي</span>
+                      <span className="text-xl font-bold text-accent">.كوم</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xl font-bold text-primary-bg">Ektisadi</span>
+                      <span className="text-xl font-bold text-accent">.com</span>
+                    </>
+                  )}
+                </Link>
 
             {/* Search Bar - Desktop */}
             <div className="hidden md:flex items-center">
