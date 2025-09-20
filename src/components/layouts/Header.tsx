@@ -97,10 +97,10 @@ export const Header = () => {
       <div className="w-full py-2 bg-primary-bg border-b border-gray-700">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex justify-between items-center">
-            <div className={`text-sm text-text-light ${isRTL ? 'text-right' : 'text-left'}`}>
+            <div className={`text-[0.7rem] md:text-sm text-text-light ${isRTL ? 'text-right' : 'text-left'}`}>
               {currentDate}
             </div>
-            <div className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} text-sm`}>
+            <div className={`flex ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} text-[0.7rem] md:text-sm`}>
               <Link href="/contact" className="text-text-light hover:text-gray-300 transition-colors">
                 {isRTL ? 'اتصل بنا' : 'Contact Us'}
               </Link>
