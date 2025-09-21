@@ -64,7 +64,7 @@ jobs:
           
           # Authentication
           JWT_ACCESS_SECRET="${{ secrets.JWT_ACCESS_SECRET }}"
-          NEXTAUTH_URL="http://${{ secrets.EC2_HOST }}"
+          NEXTAUTH_URL="https://ektisadi.com"
           NEXTAUTH_SECRET="your-super-secure-nextauth-secret-key-2024-phoenix-press"
           
           # AWS S3 Configuration
@@ -82,7 +82,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED=1
           
           # Application URL
-          NEXT_PUBLIC_APP_URL="http://${{ secrets.EC2_HOST }}"
+          NEXT_PUBLIC_APP_URL="https://ektisadi.com"
           EOF
           
           cp .env.production .env
@@ -98,9 +98,18 @@ jobs:
             cp -r .next/static .next/standalone/.next/
             cp -r public .next/standalone/
             
-            # Start application
-            pm2 start ecosystem.config.js
-            sudo systemctl reload nginx
+          # Start application
+          pm2 start ecosystem.config.js
+          sudo systemctl reload nginx
+          
+          # Fix standalone environment files (ensure domain is used)
+          sed -i 's|NEXTAUTH_URL="http://.*"|NEXTAUTH_URL="https://ektisadi.com"|g' .next/standalone/.env
+          sed -i 's|NEXT_PUBLIC_APP_URL="http://.*"|NEXT_PUBLIC_APP_URL="https://ektisadi.com"|g' .next/standalone/.env
+          sed -i 's|NEXTAUTH_URL="http://.*"|NEXTAUTH_URL="https://ektisadi.com"|g' .next/standalone/.env.production
+          sed -i 's|NEXT_PUBLIC_APP_URL="http://.*"|NEXT_PUBLIC_APP_URL="https://ektisadi.com"|g' .next/standalone/.env.production
+          
+          # Restart PM2 to apply changes
+          pm2 restart phoenix-press --update-env
 
     - name: Health Check
       uses: appleboy/ssh-action@v1.0.0
