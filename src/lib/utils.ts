@@ -71,7 +71,16 @@ export function getTextFromHtml(html: string): string {
  * @returns Formatted date string
  */
 export const formatDateLocalized = (dateString: string, locale: string = 'en'): string => {
+  if (!dateString) return '';
+  
   const date = new Date(dateString);
+  
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    console.warn('Invalid date string:', dateString);
+    return '';
+  }
+  
   const localeString = locale === 'ar' ? 'ar-AE' : 'en-US';
   
   return new Intl.DateTimeFormat(localeString, {
