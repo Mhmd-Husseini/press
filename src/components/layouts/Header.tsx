@@ -253,7 +253,7 @@ export const Header = () => {
               <>
                 {/* Desktop: Individual rotating news */}
                 <div className="hidden md:block py-1">
-                  <span className={`text-text-light text-base font-medium transition-all duration-700 ease-in-out ${isTransitioning ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <span className={`text-text-light font-medium transition-all duration-700 ease-in-out ${isTransitioning ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${isRTL ? 'text-right text-base' : 'text-left text-sm'}`}>
                     {currentNews?.text}
                   </span>
                 </div>
@@ -274,7 +274,7 @@ export const Header = () => {
               <>
                 {/* Desktop: Fallback individual news */}
                 <div className="hidden md:block py-1">
-                  <span className={`text-text-light text-base font-medium transition-all duration-700 ease-in-out ${isTransitioning ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${isRTL ? 'text-right' : 'text-left'}`}>
+                  <span className={`text-text-light font-medium transition-all duration-700 ease-in-out ${isTransitioning ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${isRTL ? 'text-right text-base' : 'text-left text-sm'}`}>
                     {isRTL 
                       ? 'الرئيس يعلن عن خطة جديدة للإصلاح الاقتصادي'
                       : 'President announces new economic reform plan'}

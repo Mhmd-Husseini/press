@@ -420,18 +420,18 @@ export default async function PostPage(props: PageProps) {
     
     return (
       <MainLayout>
-        <div className={`container mx-auto py-8 px-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className={`container mx-auto px-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="max-w-4xl mx-auto">
             {/* Category Link */}
             <Link 
               href={`/categories/${categoryTranslation.slug}`}
-              className="inline-block px-3 py-1 bg-primary-600 text-white rounded-md mb-4 hover:bg-primary-700 transition"
+              className="inline-block px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition"
             >
               {categoryTranslation.name}
             </Link>
             
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">{postTranslation.title}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">{postTranslation.title}</h1>
             
             {/* Author and Meta information */}
             <div className="flex items-center text-gray-600 mb-6 gap-4">
