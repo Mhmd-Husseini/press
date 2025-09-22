@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation';
 import UserFormWrapper from './user-form-wrapper'
 
 // This is a Server Component
-export default async function EditUserPage({ params }: { params: { id: string } }) {
-  const userId = params.id;
+export default async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const userId = resolvedParams.id;
   
   // Fetch user data on the server
   const { success, user, error } = await getUserById(userId);

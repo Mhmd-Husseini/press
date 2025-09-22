@@ -4,10 +4,11 @@ import { getUserById } from '@/app/actions/user';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import RoleGuard from '@/components/shared/RoleGuard';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 
-export default function UserDetailPage({ params }: { params: { id: string } }) {
-  const userId = params.id;
+export default function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const userId = resolvedParams.id;
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

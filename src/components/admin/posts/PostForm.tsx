@@ -1177,21 +1177,35 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <button 
-                              type="button"
-                              className="bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
-                              onClick={() => handleRemoveMedia(item.id)}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
+                          {/* Always visible remove button */}
+                          <button 
+                            type="button"
+                            className="absolute -top-2 -right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors shadow-md"
+                            onClick={() => handleRemoveMedia(item.id)}
+                            title="Remove image"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
                         </div>
                         
                         {/* Editable metadata */}
                         <div className="flex-1 space-y-3">
+                          {/* Remove button in metadata section */}
+                          <div className="flex justify-end">
+                            <button 
+                              type="button"
+                              className="inline-flex items-center px-3 py-1.5 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                              onClick={() => handleRemoveMedia(item.id)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              Remove Image
+                            </button>
+                          </div>
+                          
                           <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                               Title
