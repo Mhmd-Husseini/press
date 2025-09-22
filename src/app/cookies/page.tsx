@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 // Define metadata for SEO
 export const metadata: Metadata = {
-  title: 'Cookies Policy | Phoenix Press',
-  description: 'Learn how Phoenix Press uses cookies and similar technologies on our website.',
+  title: 'Cookies Policy | Ektisadi.com',
+  description: 'Learn how Ektisadi.com uses cookies and similar technologies on our website.',
 };
 
 export default async function CookiesPage() {
@@ -19,105 +19,105 @@ export default async function CookiesPage() {
   const content = {
     en: {
       title: 'Cookies Policy',
-      lastUpdated: 'Last Updated: June 1, 2024',
-      introduction: 'This Cookies Policy explains what cookies are and how Phoenix Press uses them on our website. We encourage you to read this policy to understand what cookies are, how we use them, and the choices you have regarding their use.',
+      lastUpdated: 'Last Updated: September 22, 2025',
+      introduction: 'This Cookies Policy explains how Ektisadi.com uses cookies ("Cookies") and similar tracking technologies on our website. We recommend reading this policy carefully to understand the type of data we collect, how we use it, and the options available to you for managing cookies.',
       sections: [
         {
           heading: '1. What are Cookies?',
-          text: 'Cookies are small text files that are stored on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and provide information to the website owners. Cookies can be "persistent" or "session" cookies. Persistent cookies remain on your device when you go offline, while session cookies are deleted as soon as you close your web browser.'
+          text: 'Cookies are small text files that are stored on your computer or mobile device when you visit websites. They are widely used to enhance website efficiency and improve user experience.\n\nPersistent Cookies: Remain on your device even after closing the browser and are used to remember user settings and preferences.\n\nSession Cookies: Are automatically deleted when the browser is closed.'
         },
         {
-          heading: '2. How We Use Cookies',
-          text: 'We use cookies for several reasons. Some cookies are required for technical reasons for our website to operate, and we refer to these as "essential" or "necessary" cookies. Other cookies enable us to track and target the interests of our users to enhance the experience on our website. Third parties may also serve cookies through our website for advertising, analytics, and other purposes.'
+          heading: '2. Our Use of Cookies',
+          text: 'We use cookies for the following purposes:\n\n1. Enabling technical operation of the website and its essential functions ("Essential" cookies).\n2. Analyzing performance and improving user experience.\n3. Customizing content and advertisements to match user interests.\n4. Facilitating third-party services such as advertising and analytics.'
         },
         {
-          heading: '3. Types of Cookies We Use',
+          heading: '3. Types of Cookies Used',
           subsections: [
             {
-              title: 'Essential Cookies',
-              description: 'These cookies are necessary for the website to function and cannot be switched off in our systems. They are usually only set in response to actions made by you which amount to a request for services, such as setting your privacy preferences, logging in, or filling in forms.'
+              title: 'A. Essential Cookies',
+              description: 'Essential for website operation and cannot be disabled in our systems. Include login, privacy preferences, and form usage.'
             },
             {
-              title: 'Performance Cookies',
-              description: 'These cookies allow us to count visits and traffic sources so we can measure and improve the performance of our site. They help us to know which pages are the most and least popular and see how visitors move around the site.'
+              title: 'B. Performance Cookies',
+              description: 'Allow measuring visit counts and sources and analyzing page usage to improve website performance.'
             },
             {
-              title: 'Functional Cookies',
-              description: 'These cookies enable the website to provide enhanced functionality and personalization. They may be set by us or by third-party providers whose services we have added to our pages.'
+              title: 'C. Functional Cookies',
+              description: 'Enable the website to provide enhanced functionality and personalized experience, and may be set by us or third-party service providers.'
             },
             {
-              title: 'Targeting Cookies',
-              description: 'These cookies may be set through our site by our advertising partners. They may be used by those companies to build a profile of your interests and show you relevant advertisements on other sites.'
+              title: 'D. Targeting and Advertising Cookies',
+              description: 'May be set through our advertising partners to build interest profiles and display relevant advertisements to you on other sites.'
             }
           ]
         },
         {
           heading: '4. Third-Party Cookies',
-          text: 'In addition to our own cookies, we may also use various third-party cookies to report usage statistics of the website, deliver advertisements on and through the website, and so on.'
+          text: 'The website may use third-party cookies for analysis, advertising, and reporting website usage. It is emphasized that any third party is subject to their own privacy policies.'
         },
         {
-          heading: '5. How to Control and Delete Cookies',
-          text: 'Most web browsers allow you to control cookies through their settings preferences. However, if you limit the ability of websites to set cookies, you may worsen your overall user experience, since it will no longer be personalized to you. It may also stop you from saving customized settings like login information.'
+          heading: '5. Controlling and Deleting Cookies',
+          text: 'Most internet browsers allow control of cookies, including rejecting all of them or modifying their settings. Please note that disabling some cookies may affect website usage experience and functionality, including saving your custom settings and automatic login.'
         },
         {
-          heading: '6. Changes to This Cookies Policy',
-          text: 'We may update our Cookies Policy from time to time. We will notify you of any changes by posting the new Cookies Policy on this page and updating the "Last Updated" date.'
+          heading: '6. Updates to Cookies Policy',
+          text: 'Ektisadi.com administration reserves the right to modify this policy at any time, provided that the new version is published on the website with updating the "Last Updated" date. Continued use of the website after modifications is considered explicit consent thereto.'
         },
         {
           heading: '7. Contact Us',
-          text: 'If you have any questions about our Cookies Policy, please contact us at privacy@phoenixpress.com.'
+          text: 'For any inquiries or requests related to the cookies policy, please contact us via email: contact@ektisadi.com'
         }
       ]
     },
     ar: {
       title: 'سياسة ملفات تعريف الارتباط',
-      lastUpdated: 'آخر تحديث: 1 يونيو 2024',
-      introduction: 'توضح سياسة ملفات تعريف الارتباط هذه ماهية ملفات تعريف الارتباط وكيفية استخدام فينيكس بريس لها على موقعنا الإلكتروني. نشجعك على قراءة هذه السياسة لفهم ماهية ملفات تعريف الارتباط، وكيفية استخدامنا لها، والخيارات المتاحة لك بشأن استخدامها.',
+      lastUpdated: 'آخر تحديث: 22 أيلول / سبتمبر 2025',
+      introduction: 'توضح سياسة ملفات تعريف الارتباط هذه كيفية استخدام اقتصادي.كوم لملفات تعريف الارتباط ("Cookies") وتقنيات التتبع المماثلة على موقعنا الإلكتروني. نوصي بقراءة هذه السياسة بعناية لفهم نوع البيانات التي نجمعها، كيفية استخدامها، والخيارات المتاحة لك بشأن إدارة ملفات تعريف الارتباط.',
       sections: [
         {
           heading: '1. ما هي ملفات تعريف الارتباط؟',
-          text: 'ملفات تعريف الارتباط هي ملفات نصية صغيرة يتم تخزينها على جهاز الكمبيوتر أو الجهاز المحمول الخاص بك عند زيارة موقع ويب. يتم استخدامها على نطاق واسع لجعل مواقع الويب تعمل بكفاءة أكبر وتوفير المعلومات لأصحاب المواقع. يمكن أن تكون ملفات تعريف الارتباط "دائمة" أو ملفات تعريف ارتباط "جلسة". تبقى ملفات تعريف الارتباط الدائمة على جهازك عندما تكون غير متصل بالإنترنت، بينما يتم حذف ملفات تعريف ارتباط الجلسة بمجرد إغلاق متصفح الويب الخاص بك.'
+          text: 'ملفات تعريف الارتباط هي ملفات نصية صغيرة يتم تخزينها على جهاز الكمبيوتر أو الجهاز المحمول الخاص بك عند زيارة مواقع الإنترنت. تُستخدم على نطاق واسع لتعزيز كفاءة الموقع وتحسين تجربة المستخدم.\n\nملفات تعريف الارتباط الدائمة: تبقى على جهازك حتى بعد إغلاق المتصفح، وتُستخدم لتذكر إعدادات وتفضيلات المستخدم.\n\nملفات تعريف الارتباط الخاصة بالجلسة: تُحذف تلقائيًا عند إغلاق المتصفح.'
         },
         {
-          heading: '2. كيف نستخدم ملفات تعريف الارتباط',
-          text: 'نستخدم ملفات تعريف الارتباط لعدة أسباب. بعض ملفات تعريف الارتباط مطلوبة لأسباب تقنية لتشغيل موقعنا الإلكتروني، ونشير إليها باسم ملفات تعريف الارتباط "الأساسية" أو "الضرورية". تمكننا ملفات تعريف الارتباط الأخرى من تتبع واستهداف اهتمامات مستخدمينا لتعزيز التجربة على موقعنا الإلكتروني. قد تقدم أطراف ثالثة أيضًا ملفات تعريف ارتباط من خلال موقعنا الإلكتروني للإعلان والتحليلات وأغراض أخرى.'
+          heading: '2. استخدامنا لملفات تعريف الارتباط',
+          text: 'نستخدم ملفات تعريف الارتباط للأغراض التالية:\n\n1. تمكين التشغيل التقني للموقع ووظائفه الأساسية (ملفات تعريف الارتباط "الضرورية").\n2. تحليل الأداء وتحسين تجربة المستخدم.\n3. تخصيص المحتوى والإعلانات بما يتوافق مع اهتمامات المستخدمين.\n4. تسهيل خدمات الطرف الثالث مثل الإعلانات والتحليلات.'
         },
         {
-          heading: '3. أنواع ملفات تعريف الارتباط التي نستخدمها',
+          heading: '3. أنواع ملفات تعريف الارتباط المستخدمة',
           subsections: [
             {
-              title: 'ملفات تعريف الارتباط الضرورية',
-              description: 'هذه الملفات ضرورية لعمل الموقع الإلكتروني ولا يمكن إيقافها في أنظمتنا. عادةً ما يتم تعيينها فقط استجابةً للإجراءات التي تقوم بها والتي تشكل طلبًا للخدمات، مثل تعيين تفضيلات الخصوصية الخاصة بك، أو تسجيل الدخول، أو ملء النماذج.'
+              title: 'أ. ملفات تعريف الارتباط الضرورية',
+              description: 'أساسية لتشغيل الموقع ولا يمكن تعطيلها في أنظمتنا. تشمل تسجيل الدخول، تفضيلات الخصوصية، واستخدام النماذج.'
             },
             {
-              title: 'ملفات تعريف الارتباط للأداء',
-              description: 'تسمح لنا ملفات تعريف الارتباط هذه بإحصاء الزيارات ومصادر حركة المرور حتى نتمكن من قياس وتحسين أداء موقعنا. فهي تساعدنا على معرفة الصفحات الأكثر والأقل شعبية ومعرفة كيفية تنقل الزوار في الموقع.'
+              title: 'ب. ملفات تعريف الارتباط الخاصة بالأداء',
+              description: 'تتيح قياس عدد الزيارات ومصادرها وتحليل استخدام الصفحات لتحسين أداء الموقع.'
             },
             {
-              title: 'ملفات تعريف الارتباط الوظيفية',
-              description: 'تمكن ملفات تعريف الارتباط هذه الموقع الإلكتروني من توفير وظائف وتخصيص محسنة. قد يتم تعيينها من قبلنا أو من قبل مزودي الطرف الثالث الذين أضفنا خدماتهم إلى صفحاتنا.'
+              title: 'ج. ملفات تعريف الارتباط الوظيفية',
+              description: 'تمكّن الموقع من تقديم وظائف محسّنة وتجربة شخصية، وقد يتم تعيينها من قبلنا أو من مزودي خدمات الطرف الثالث.'
             },
             {
-              title: 'ملفات تعريف الارتباط للاستهداف',
-              description: 'قد يتم تعيين ملفات تعريف الارتباط هذه من خلال موقعنا بواسطة شركائنا في الإعلان. قد تستخدمها تلك الشركات لبناء ملف تعريف لاهتماماتك وإظهار الإعلانات ذات الصلة لك على مواقع أخرى.'
+              title: 'د. ملفات تعريف الارتباط للاستهداف والإعلانات',
+              description: 'قد يتم تعيينها عبر شركائنا في الإعلان لبناء ملفات تعريف الاهتمامات وعرض إعلانات ملائمة لك على مواقع أخرى.'
             }
           ]
         },
         {
-          heading: '4. ملفات تعريف الارتباط من الطرف الثالث',
-          text: 'بالإضافة إلى ملفات تعريف الارتباط الخاصة بنا، قد نستخدم أيضًا ملفات تعريف ارتباط متنوعة من طرف ثالث للإبلاغ عن إحصاءات استخدام الموقع الإلكتروني، وتقديم الإعلانات على الموقع الإلكتروني ومن خلاله، وما إلى ذلك.'
+          heading: '4. ملفات تعريف الارتباط من طرف ثالث',
+          text: 'قد يستخدم الموقع ملفات تعريف الارتباط من أطراف ثالثة لأغراض التحليل والإعلان والإبلاغ عن استخدام الموقع. يُشدد على أن أي طرف ثالث يخضع لسياسات الخصوصية الخاصة به.'
         },
         {
-          heading: '5. كيفية التحكم في ملفات تعريف الارتباط وحذفها',
-          text: 'تسمح لك معظم متصفحات الويب بالتحكم في ملفات تعريف الارتباط من خلال تفضيلات الإعدادات الخاصة بها. ومع ذلك، إذا قمت بالحد من قدرة مواقع الويب على تعيين ملفات تعريف الارتباط، فقد تؤدي إلى تدهور تجربة المستخدم الإجمالية لديك، حيث لن يتم تخصيصها لك بعد الآن. قد يمنعك أيضًا من حفظ الإعدادات المخصصة مثل معلومات تسجيل الدخول.'
+          heading: '5. التحكم في ملفات تعريف الارتباط وحذفها',
+          text: 'تتيح معظم متصفحات الإنترنت التحكم في ملفات تعريف الارتباط، بما في ذلك رفض جميعها أو تعديل إعداداتها. يُرجى الانتباه إلى أن تعطيل بعض ملفات تعريف الارتباط قد يؤثر على تجربة استخدام الموقع ووظائفه، بما في ذلك حفظ إعداداتك المخصصة وتسجيل الدخول التلقائي.'
         },
         {
-          heading: '6. التغييرات في سياسة ملفات تعريف الارتباط هذه',
-          text: 'قد نقوم بتحديث سياسة ملفات تعريف الارتباط الخاصة بنا من وقت لآخر. سنخطرك بأي تغييرات من خلال نشر سياسة ملفات تعريف الارتباط الجديدة على هذه الصفحة وتحديث تاريخ "آخر تحديث".'
+          heading: '6. التحديثات على سياسة ملفات تعريف الارتباط',
+          text: 'تحتفظ إدارة اقتصادي.كوم بحق تعديل هذه السياسة في أي وقت، على أن تُنشر النسخة الجديدة على الموقع مع تحديث تاريخ "آخر تحديث". ويعتبر استمرار استخدام الموقع بعد التعديلات بمثابة موافقة صريحة عليها.'
         },
         {
-          heading: '7. اتصل بنا',
-          text: 'إذا كانت لديك أي أسئلة حول سياسة ملفات تعريف الارتباط الخاصة بنا، يرجى الاتصال بنا على privacy@phoenixpress.com.'
+          heading: '7. الاتصال بنا',
+          text: 'لأي استفسارات أو طلبات تتعلق بسياسة ملفات تعريف الارتباط، يُرجى التواصل معنا عبر البريد الإلكتروني: contact@ektisadi.com'
         }
       ]
     }

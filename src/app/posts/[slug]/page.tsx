@@ -414,7 +414,7 @@ export default async function PostPage(props: PageProps) {
     const author = (post as any).postAuthor;
     const authorName = author 
       ? (locale === 'ar' && author.nameAr ? author.nameAr : author.nameEn)
-      : 'Phoenix Staff';
+      : 'Ektisadi Staff';
     const authorCountry = author?.country;
     const authorAvatar = author?.avatar;
     

@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 // Define metadata for SEO
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Phoenix Press',
-  description: 'Learn how Phoenix Press handles your personal data and respects your privacy.',
+  title: 'Privacy Policy | Ektisadi.com',
+  description: 'Learn how Ektisadi.com handles your personal data and respects your privacy.',
 };
 
 export default async function PrivacyPage() {
@@ -19,93 +19,85 @@ export default async function PrivacyPage() {
   const content = {
     en: {
       title: 'Privacy Policy',
-      lastUpdated: 'Last Updated: June 1, 2024',
+      lastUpdated: 'Last Updated: September 22, 2025',
       sections: [
         {
           heading: '1. Introduction',
-          text: 'Phoenix Press ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services. Please read this privacy policy carefully. By continuing to use our website and services, you consent to the practices described in this policy.'
+          text: 'Ektisadi.com ("we", "the Website") is committed to protecting the privacy of its users and ensuring the confidentiality of their personal data in accordance with the provisions in force in the Lebanese Republic, particularly Law No. 81/2018 on Electronic Transactions and Personal Data. This policy explains how we collect, use, disclose, and protect your data when you visit our website or use our services. Your continued use of the website constitutes explicit consent to the practices outlined in this policy.'
         },
         {
-          heading: '2. Information We Collect',
-          text: 'We may collect personal information that you voluntarily provide to us when you register an account, subscribe to our newsletter, respond to surveys, or contact us. The personal information we collect may include your name, email address, postal address, phone number, and demographic information. We may also automatically collect certain information when you visit our website, including your IP address, browser type, operating system, referring website, pages visited, and the dates/times of visits.'
+          heading: '2. Data We Collect',
+          text: 'We may collect personal data voluntarily provided by users when registering an account, subscribing to newsletters, participating in surveys, or contacting us. This data includes, for example: name, email address, postal address, phone number, and demographic information. We may also automatically collect technical data, including IP address, browser type, operating system, referring website, pages visited, and dates and times of access.'
         },
         {
-          heading: '3. How We Use Your Information',
-          text: 'We may use the information we collect for various purposes, including to: provide, operate, and maintain our services; improve, personalize, and expand our services; understand and analyze how you use our services; develop new products, services, features, and functionality; communicate with you for customer service, updates, and marketing purposes; process transactions; prevent fraudulent transactions; monitor and analyze usage patterns; and detect, prevent, and address technical issues.'
+          heading: '3. How We Use Data',
+          text: 'The data we collect is used for the following purposes: 1- Operating and maintaining services provided through the website. 2- Improving, developing, and personalizing services. 3- Analyzing visitor usage and understanding browsing patterns. 4- Developing new features and additional services. 5- Communicating with users for technical support, updates, or promotional campaigns. 6- Completing financial transactions and subscriptions. 7- Preventing fraudulent or illegal activities. 8- Handling technical issues and protecting service security.'
         },
         {
-          heading: '4. Disclosure of Your Information',
-          text: 'We may share your information with third parties in certain situations. We may share your information with service providers who perform services on our behalf, such as payment processing, data analysis, email delivery, hosting services, and customer service. We may also share your information when required by law or to protect our rights.'
+          heading: '4. Data Sharing',
+          text: 'We may share your personal data with third parties exclusively in the following cases: 1- Contracted service providers (such as hosting, payment processing, email, customer service), within the limits necessary to perform their tasks. 2- Compliance with legal obligations or execution of orders issued by competent authorities according to Lebanese laws. 3- Protecting the rights of Ektisadi.com or our users or their safety, within the framework permitted by applicable laws.'
         },
         {
-          heading: '5. Cookies and Tracking Technologies',
-          text: 'We use cookies and similar tracking technologies to collect information about your browsing activities. Cookies are small files that a site or its service provider transfers to your device which enables the site to recognize your browser and remember certain information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our service. For more information about our use of cookies, please see our Cookies Policy.'
+          heading: '5. Cookies',
+          text: 'The website relies on cookies and similar technologies to enhance user experience and collect data about browsing patterns. Users have the freedom to adjust their browser settings to reject all cookies or alert them when sent, with the understanding that some website features may not work properly if rejected. For more details, please review our Cookies Policy.'
         },
         {
-          heading: '6. Security of Your Information',
-          text: 'We use administrative, technical, and physical security measures to protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that no security measures are perfect or impenetrable, and we cannot guarantee the security of your personal information.'
+          heading: '6. Data Protection',
+          text: 'The website administration implements reasonable administrative, technical, and organizational measures to protect personal data from any unauthorized access, use, modification, or disclosure. However, users acknowledge that no electronic system can be absolutely secure, and the website administration bears no responsibility for security breaches beyond its control.'
         },
         {
-          heading: '7. Your Rights',
-          text: 'Depending on your location, you may have certain rights regarding your personal information, such as the right to access, correct, or delete your personal information. To exercise these rights, please contact us using the information provided at the end of this policy.'
+          heading: '7. User Rights',
+          text: 'According to applicable Lebanese laws, users have certain rights regarding their personal data, including the right to access, correct, modify, or request deletion. To exercise these rights, users can contact us via the email listed below.'
         },
         {
-          heading: '8. Children\'s Privacy',
-          text: 'Our services are not intended for individuals under the age of 16. We do not knowingly collect personal information from children under 16. If we learn we have collected or received personal information from a child under 16, we will delete that information.'
+          heading: '8. Privacy Policy Modifications',
+          text: 'Ektisadi.com administration reserves the right to modify this policy at any time. Continued use of the service after publishing any modifications constitutes explicit consent thereto. All updates are placed with the "Last Updated" date at the top of this page.'
         },
         {
-          heading: '9. Changes to This Privacy Policy',
-          text: 'We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes.'
-        },
-        {
-          heading: '10. Contact Us',
-          text: 'If you have any questions about this Privacy Policy, please contact us at privacy@phoenixpress.com.'
+          heading: '9. Contact Us',
+          text: 'For any inquiries or requests related to the privacy policy, please contact us via email: contact@ektisadi.com'
         }
       ]
     },
     ar: {
       title: 'سياسة الخصوصية',
-      lastUpdated: 'آخر تحديث: 1 يونيو 2024',
+      lastUpdated: 'آخر تحديث: 22 أيلول / سبتمبر 2025',
       sections: [
         {
-          heading: '1. مقدمة',
-          text: 'تلتزم فينيكس بريس ("نحن" أو "الخاص بنا") بحماية خصوصيتك. توضح سياسة الخصوصية هذه كيفية جمع واستخدام والكشف عن وحماية معلوماتك عند زيارة موقعنا الإلكتروني أو استخدام خدماتنا. يرجى قراءة سياسة الخصوصية هذه بعناية. من خلال الاستمرار في استخدام موقعنا وخدماتنا، فإنك توافق على الممارسات الموصوفة في هذه السياسة.'
+          heading: '1. المقدمة',
+          text: 'تلتزم اقتصادي.كوم ("نحن"، "الموقع") بحماية خصوصية مستخدميها وضمان سرية بياناتهم الشخصية وفقًا للأحكام المرعية في الجمهورية اللبنانية، ولا سيما قانون المعاملات الإلكترونية والبيانات ذات الطابع الشخصي رقم 81/2018. توضّح هذه السياسة كيفية جمع بياناتك واستخدامها والكشف عنها وحمايتها عند زيارتك لموقعنا أو استخدامك لخدماتنا. إن استمرارك في استخدام الموقع يُعدّ موافقة صريحة منك على الممارسات المبينة في هذه السياسة.'
         },
         {
-          heading: '2. المعلومات التي نجمعها',
-          text: 'قد نجمع معلومات شخصية تقدمها طواعية عند تسجيل حساب، أو الاشتراك في نشرتنا الإخبارية، أو الرد على الاستطلاعات، أو الاتصال بنا. قد تشمل المعلومات الشخصية التي نجمعها اسمك وعنوان بريدك الإلكتروني وعنوانك البريدي ورقم هاتفك والمعلومات الديموغرافية. قد نقوم أيضًا بجمع معلومات معينة تلقائيًا عند زيارة موقعنا، بما في ذلك عنوان IP الخاص بك ونوع المتصفح ونظام التشغيل والموقع الإلكتروني المرجعي والصفحات التي تمت زيارتها وتواريخ/أوقات الزيارات.'
+          heading: '2. البيانات التي نجمعها',
+          text: 'قد نقوم بجمع بيانات شخصية يقدّمها المستخدم طوعًا عند تسجيل حساب، الاشتراك في النشرات الدورية، المشاركة في الاستطلاعات، أو التواصل معنا. وتشمل هذه البيانات على سبيل المثال: الاسم، عنوان البريد الإلكتروني، العنوان البريدي، رقم الهاتف، والمعلومات الديموغرافية. كما قد نقوم بجمع بيانات تقنية تلقائيًا، منها عنوان بروتوكول الإنترنت (IP)، نوع المتصفح، نظام التشغيل، الموقع الإلكتروني المرجعي، الصفحات التي تمت زيارتها، وتواريخ وأوقات الدخول.'
         },
         {
-          heading: '3. كيف نستخدم معلوماتك',
-          text: 'قد نستخدم المعلومات التي نجمعها لأغراض مختلفة، بما في ذلك: توفير وتشغيل وصيانة خدماتنا؛ تحسين وتخصيص وتوسيع خدماتنا؛ فهم وتحليل كيفية استخدامك لخدماتنا؛ تطوير منتجات وخدمات وميزات ووظائف جديدة؛ التواصل معك لخدمة العملاء والتحديثات والتسويق؛ معالجة المعاملات؛ منع المعاملات الاحتيالية؛ مراقبة وتحليل أنماط الاستخدام؛ والكشف عن المشكلات التقنية ومنعها ومعالجتها.'
+          heading: '3. كيفية استخدام البيانات',
+          text: 'تُستخدم البيانات التي نجمعها للأغراض التالية: 1- تشغيل وصيانة الخدمات المقدّمة عبر الموقع. 2- تحسين الخدمات وتطويرها وإضفاء طابع شخصي عليها. 3- تحليل استخدام الزوار وفهم أنماط التصفح. 4- تطوير ميزات جديدة وخدمات إضافية. 5- التواصل مع المستخدمين لأغراض الدعم الفني أو التحديثات أو الحملات الترويجية. 6- إتمام المعاملات المالية والاشتراكات. 7- منع الأنشطة الاحتيالية أو غير القانونية. 8- معالجة الأعطال التقنية وحماية أمن الخدمة.'
         },
         {
-          heading: '4. الكشف عن معلوماتك',
-          text: 'قد نشارك معلوماتك مع أطراف ثالثة في حالات معينة. قد نشارك معلوماتك مع مقدمي الخدمات الذين يؤدون خدمات نيابة عنا، مثل معالجة الدفع وتحليل البيانات وتسليم البريد الإلكتروني وخدمات الاستضافة وخدمة العملاء. قد نشارك أيضًا معلوماتك عندما يكون ذلك مطلوبًا بموجب القانون أو لحماية حقوقنا.'
+          heading: '4. مشاركة البيانات',
+          text: 'قد نشارك بياناتك الشخصية مع أطراف ثالثة حصراً في الحالات التالية: 1- مقدّمي الخدمات المتعاقدين معنا (مثل الاستضافة، معالجة المدفوعات، البريد الإلكتروني، خدمة العملاء)، وذلك ضمن الحدود اللازمة لأداء مهامهم. 2- الامتثال للالتزامات القانونية أو تنفيذ أمر صادر عن السلطات المختصة وفقًا للقوانين اللبنانية. 3- حماية حقوق اقتصادي.كوم أو حقوق مستخدمينا أو سلامتهم، في إطار ما تجيزه القوانين النافذة.'
         },
         {
-          heading: '5. ملفات تعريف الارتباط وتقنيات التتبع',
-          text: 'نستخدم ملفات تعريف الارتباط وتقنيات التتبع المماثلة لجمع معلومات حول أنشطة التصفح الخاصة بك. ملفات تعريف الارتباط هي ملفات صغيرة ينقلها موقع أو مقدم خدمة إلى جهازك مما يمكن الموقع من التعرف على متصفحك وتذكر معلومات معينة. يمكنك توجيه متصفحك لرفض جميع ملفات تعريف الارتباط أو للإشارة عند إرسال ملف تعريف ارتباط. ومع ذلك، إذا لم تقبل ملفات تعريف الارتباط، فقد لا تتمكن من استخدام بعض أجزاء من خدمتنا. لمزيد من المعلومات حول استخدامنا لملفات تعريف الارتباط، يرجى الاطلاع على سياسة ملفات تعريف الارتباط الخاصة بنا.'
+          heading: '5. ملفات تعريف الارتباط (Cookies)',
+          text: 'يعتمد الموقع على ملفات تعريف الارتباط وتقنيات مشابهة لتعزيز تجربة المستخدم وجمع بيانات حول أنماط التصفح. للمستخدم حرية ضبط إعدادات متصفحه لرفض جميع ملفات تعريف الارتباط أو تنبيهه عند إرسالها، مع العلم أن بعض ميزات الموقع قد لا تعمل بشكل صحيح في حال رفضها. لمزيد من التفاصيل، يُرجى مراجعة سياسة ملفات تعريف الارتباط الخاصة بنا.'
         },
         {
-          heading: '6. أمان معلوماتك',
-          text: 'نستخدم إجراءات أمنية إدارية وتقنية ومادية لحماية معلوماتك الشخصية. في حين أننا اتخذنا خطوات معقولة لتأمين المعلومات الشخصية التي تقدمها لنا، يرجى أن تكون على علم بأنه لا توجد تدابير أمنية مثالية أو غير قابلة للاختراق، ولا يمكننا ضمان أمان معلوماتك الشخصية.'
+          heading: '6. حماية البيانات',
+          text: 'تعتمد إدارة الموقع تدابير إدارية وتقنية وتنظيمية معقولة لحماية البيانات الشخصية من أي وصول أو استخدام أو تعديل أو إفشاء غير مصرّح به. ومع ذلك، يقرّ المستخدم بأن أي نظام إلكتروني لا يمكن أن يكون آمنًا بشكل مطلق، ولا تتحمّل إدارة الموقع أي مسؤولية عن خرق أمني خارج عن سيطرتها.'
         },
         {
-          heading: '7. حقوقك',
-          text: 'اعتمادًا على موقعك، قد يكون لديك بعض الحقوق المتعلقة بمعلوماتك الشخصية، مثل الحق في الوصول إلى معلوماتك الشخصية أو تصحيحها أو حذفها. لممارسة هذه الحقوق، يرجى الاتصال بنا باستخدام المعلومات المقدمة في نهاية هذه السياسة.'
+          heading: '7. حقوق المستخدم',
+          text: 'وفقًا للقوانين اللبنانية المرعية، يتمتع المستخدم بحقوق معينة تتعلق ببياناته الشخصية، تشمل الحق في الاطلاع، التصحيح، التعديل، أو طلب الحذف. لممارسة هذه الحقوق، يمكن للمستخدم التواصل معنا عبر البريد الإلكتروني المدرج أدناه.'
         },
         {
-          heading: '8. خصوصية الأطفال',
-          text: 'خدماتنا غير مخصصة للأفراد دون سن 16 عامًا. نحن لا نجمع عن علم معلومات شخصية من الأطفال دون سن 16 عامًا. إذا علمنا أننا جمعنا أو تلقينا معلومات شخصية من طفل دون سن 16 عامًا، فسنقوم بحذف تلك المعلومات.'
+          heading: '8. تعديلات سياسة الخصوصية',
+          text: 'تحتفظ إدارة اقتصادي.كوم بحقها في تعديل هذه السياسة في أي وقت. ويُعتبر استمرار استخدام الخدمة بعد نشر أي تعديلات بمثابة موافقة صريحة عليها. توضع جميع التحديثات مع تاريخ "آخر تحديث" في أعلى هذه الصفحة.'
         },
         {
-          heading: '9. التغييرات في سياسة الخصوصية هذه',
-          text: 'قد نقوم بتحديث سياسة الخصوصية الخاصة بنا من وقت لآخر. سنخطرك بأي تغييرات من خلال نشر سياسة الخصوصية الجديدة على هذه الصفحة وتحديث تاريخ "آخر تحديث". يُنصح بمراجعة سياسة الخصوصية هذه بشكل دوري لأي تغييرات.'
-        },
-        {
-          heading: '10. اتصل بنا',
-          text: 'إذا كانت لديك أي أسئلة حول سياسة الخصوصية هذه، يرجى الاتصال بنا على privacy@phoenixpress.com.'
+          heading: '9. الاتصال بنا',
+          text: 'لأي استفسارات أو طلبات تتعلق بسياسة الخصوصية، يُرجى التواصل معنا عبر البريد الإلكتروني: contact@ektisadi.com'
         }
       ]
     }

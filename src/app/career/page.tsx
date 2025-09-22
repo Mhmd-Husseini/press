@@ -4,8 +4,8 @@ import Link from 'next/link';
 import MainLayout from '@/components/layouts/MainLayout';
 
 export const metadata: Metadata = {
-  title: 'Careers | Phoenix Press',
-  description: 'Explore career opportunities at Phoenix Press. Join our team of talented professionals.',
+  title: 'Careers | Ektisadi Press',
+  description: 'Explore career opportunities at Ektisadi Press. Join our team of talented professionals.',
 };
 
 export default async function CareerPage() {
@@ -19,21 +19,21 @@ export default async function CareerPage() {
     en: {
       title: 'Careers',
       subtitle: 'Join Our Team',
-      description: 'Thank you for your interest in working with Phoenix Press. We are committed to bringing together talented professionals who are passionate about journalism and media.',
+      description: 'Thank you for your interest in working with Ektisadi Press. We are committed to bringing together talented professionals who are passionate about journalism and media.',
       noVacancies: 'Currently, we have no open positions available.',
       checkLater: 'Please check back later for future opportunities.',
       contactUs: 'If you would like to submit your resume for future consideration, please email us at:',
-      emailAddress: 'careers@phoenixpress.com',
+      emailAddress: 'careers@ektisadipress.com',
       returnHome: 'Return to Home'
     },
     ar: {
       title: 'الوظائف',
       subtitle: 'انضم إلى فريقنا',
-      description: 'شكراً لاهتمامك بالعمل مع فينيكس برس. نحن ملتزمون بجمع المهنيين الموهوبين الذين يشعرون بشغف تجاه الصحافة والإعلام.',
+      description: 'شكراً لاهتمامك بالعمل مع الاقتصادي برس. نحن ملتزمون بجمع المهنيين الموهوبين الذين يشعرون بشغف تجاه الصحافة والإعلام.',
       noVacancies: 'حالياً، لا توجد لدينا وظائف شاغرة متاحة.',
       checkLater: 'يرجى العودة لاحقاً للاطلاع على الفرص المستقبلية.',
       contactUs: 'إذا كنت ترغب في تقديم سيرتك الذاتية للنظر فيها مستقبلاً، يرجى مراسلتنا عبر البريد الإلكتروني:',
-      emailAddress: 'careers@phoenixpress.com',
+      emailAddress: 'careers@ektisadipress.com',
       returnHome: 'العودة إلى الصفحة الرئيسية'
     }
   };
@@ -69,7 +69,7 @@ export default async function CareerPage() {
             </p>
             
             <p className="font-semibold text-blue-600 mb-8">
-              <a href="mailto:careers@phoenixpress.com" className="hover:underline">
+              <a href="mailto:careers@ektisadipress.com" className="hover:underline">
                 {isRTL ? content.ar.emailAddress : content.en.emailAddress}
               </a>
             </p>

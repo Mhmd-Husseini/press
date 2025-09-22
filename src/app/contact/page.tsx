@@ -66,15 +66,15 @@ export default function ContactPage() {
       submitButton: "Send Message",
       successMessage: "Thank you for your message! We will get back to you soon.",
       contactInformation: "Contact Information",
-      phoneNumber: "+1 (555) 123-4567",
-      emailAddress: "contact@phoenixpress.com",
+      phoneNumber: "+961-5-488447",
+      emailAddress: "contact@ektisadi.com",
       hoursTitle: "Hours of Operation",
-      hours: "Monday to Friday: 9am - 5pm",
-      weekend: "Saturday & Sunday: Closed",
+      hours: "24/7",
+      weekend: "",
       addressTitle: "Headquarters",
-      address: "123 News Avenue, Media District",
-      cityState: "New York, NY 10001",
-      country: "United States",
+      address: "Chouifat, Lebanon",
+      cityState: "",
+      country: "",
     },
     ar: {
       title: "اتصل بنا",
@@ -91,15 +91,15 @@ export default function ContactPage() {
       submitButton: "إرسال الرسالة",
       successMessage: "شكرا لرسالتك! سنرد عليك قريبا.",
       contactInformation: "معلومات الاتصال",
-      phoneNumber: "+1 (555) 123-4567",
-      emailAddress: "contact@phoenixpress.com",
+      phoneNumber: "+961-5-488447",
+      emailAddress: "contact@ektisadi.com",
       hoursTitle: "ساعات العمل",
-      hours: "الاثنين إلى الجمعة: 9 صباحًا - 5 مساءً",
-      weekend: "السبت والأحد: مغلق",
-      addressTitle: "المقر الرئيسي",
-      address: "123 شارع الأخبار، حي الإعلام",
-      cityState: "نيويورك، نيويورك 10001",
-      country: "الولايات المتحدة الأمريكية",
+      hours: "24/7",
+      weekend: "",
+      addressTitle: "العنوان",
+      address: "الشويفات – لبنان",
+      cityState: "",
+      country: "",
     }
   };
 
@@ -281,9 +281,9 @@ export default function ContactPage() {
 
                 {/* Company Div */}
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md text-center">
-                  <h3 className="text-xl font-bold text-gray-900">Phoenix Press</h3>
+                  <h3 className="text-xl font-bold text-gray-900">إقتصادي.كوم</h3>
                   <p className="text-gray-600">
-                    {isRTL ? 'المقر الرئيسي للأخبار العالمية' : 'Global News Headquarters'}
+                    {isRTL ? 'أخبار الاقتصاد بلغة الناس' : 'Economic News in People\'s Language'}
                   </p>
                 </div>
               </div>

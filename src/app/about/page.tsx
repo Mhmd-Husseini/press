@@ -19,77 +19,77 @@ export default function AboutPage() {
 
   const content = {
     en: {
-      title: 'About Phoenix Press',
-      subtitle: 'Delivering trusted news since 2005',
+      title: 'About Us',
+      subtitle: 'About Ektisadi.com',
       mission: {
         title: 'Our Mission',
-        text: 'Phoenix Press is dedicated to delivering accurate, impartial, and timely news coverage to audiences around the world. We strive to uphold the highest standards of journalism, ensuring that our reporting is factual, balanced, and comprehensive.'
+        text: 'Our economic website launched in 2025, a year marked by crises and anxiety at both regional and global levels, to provide a reliable and simplified platform that delivers economic news and analysis in the language of ordinary people. Our mission is to unravel the complexity that surrounds many Arab, regional, and global economic issues, bringing them closer to the ordinary reader without compromising depth or accuracy, keeping economics understandable and accessible to everyone, not monopolized by experts.'
       },
       values: {
         title: 'Our Values',
         items: [
           {
             title: 'Accuracy',
-            text: 'We are committed to reporting the truth. Our journalists verify facts and sources before publishing.'
+            text: 'Strict commitment to verifying information and presenting it with clarity and solid objectivity.'
           },
           {
             title: 'Independence',
-            text: 'We maintain editorial independence from political, commercial, and other influences that could compromise our integrity.'
+            text: 'Complete editorial independence away from any influential political or commercial bias.'
           },
           {
-            title: 'Fairness',
-            text: 'We present multiple perspectives on complex issues, avoiding bias and providing context for our audience.'
+            title: 'Freedom',
+            text: 'Freedom of presentation and discussion without constraints, reflecting intellectual diversity and enriching public dialogue.'
           },
           {
             title: 'Transparency',
-            text: 'We are open about our methods and sources wherever possible, and we promptly correct errors when they occur.'
+            text: 'Clarity in our sources and editorial approach to build genuine trust with our audience.'
           }
         ]
       },
       history: {
         title: 'Our History',
-        text: 'Founded in 2005, Phoenix Press began as a small digital news platform covering local events. Over the years, we have grown into a comprehensive news organization with correspondents in major cities worldwide. Our commitment to quality journalism has earned us numerous awards and the trust of millions of readers who rely on us for their daily news.'
+        text: 'Ektisadi.com launched on September 21, 2025, from a firm conviction that economics is a daily issue that affects the lives of individuals and communities, and should not remain captive to dry terminology or monopolized by experts. From here, it seeks to deconstruct Arab, regional, and global economic concepts and present them to the ordinary reader with reliability and accuracy, while maintaining the necessary analytical depth.'
       },
       team: {
         title: 'Our Team',
-        text: 'Our diverse team includes award-winning journalists, experienced editors, and digital media specialists dedicated to bringing you the news that matters. With backgrounds in various fields and specialties, our team brings rich perspectives to our coverage.'
+        text: 'The website includes an elite group of veteran economic journalists in coverage and analysis, alongside a generation of aspiring professionals who are taking steady steps towards professionalism. The team combines established expertise with creative energy, to provide solid economic content that is, at the same time, close to people\'s interests.'
       }
     },
     ar: {
-      title: 'عن فينيكس برس',
-      subtitle: 'نقدم أخبارًا موثوقة منذ 2005',
+      title: 'من نحن؟',
+      subtitle: 'عن إقتصادي.كوم',
       mission: {
         title: 'مهمتنا',
-        text: 'تكرس فينيكس برس جهودها لتقديم تغطية إخبارية دقيقة ومحايدة وفي الوقت المناسب للجماهير في جميع أنحاء العالم. نسعى جاهدين للحفاظ على أعلى معايير الصحافة، مما يضمن أن تقاريرنا واقعية ومتوازنة وشاملة.'
+        text: 'ينطلق موقعنا الاقتصادي في عام 2025، عام يموج بالأزمات والقلق على المستويين الإقليمي والعالمي، ليقدّم منصة موثوقة ومبسّطة تنقل الأخبار والتحليلات الاقتصادية بلغة عامة الناس. رسالتنا أن نفكّك التعقيد الذي يغلّف الكثير من القضايا الاقتصادية العربية والإقليمية والعالمية، فنقرّبها إلى القارئ العادي من دون إخلال بالعمق أو الدقة، ليبقى الاقتصاد مفهوماً متاحاً للجميع لا حكرًا على الخبراء.'
       },
       values: {
         title: 'قيمنا',
         items: [
           {
             title: 'الدقة',
-            text: 'نحن ملتزمون بنقل الحقيقة. يتحقق صحفيونا من الحقائق والمصادر قبل النشر.'
+            text: 'التزام صارم بالتحقق من المعلومات وصياغتها بوضوح وموضوعية راسخة.'
           },
           {
             title: 'الاستقلالية',
-            text: 'نحافظ على الاستقلالية التحريرية من التأثيرات السياسية والتجارية وغيرها التي يمكن أن تضر بنزاهتنا.'
+            text: 'استقلال تحريري كامل بعيدًا عن أي انحياز سياسي أو تجاري مؤثّر.'
           },
           {
-            title: 'العدالة',
-            text: 'نقدم وجهات نظر متعددة حول القضايا المعقدة، ونتجنب التحيز ونقدم السياق لجمهورنا.'
+            title: 'الحرية',
+            text: 'حرية الطرح والنقاش بلا قيود، تعكس التعددية الفكرية وتثري الحوار العام.'
           },
           {
             title: 'الشفافية',
-            text: 'نحن منفتحون على أساليبنا ومصادرنا حيثما أمكن ذلك، ونصحح الأخطاء فور حدوثها.'
+            text: 'وضوح في مصادرنا ونهجنا التحريري لبناء ثقة حقيقية مع جمهورنا.'
           }
         ]
       },
       history: {
         title: 'تاريخنا',
-        text: 'تأسست فينيكس برس في عام 2005، وبدأت كمنصة إخبارية رقمية صغيرة تغطي الأحداث المحلية. على مر السنين، نمونا لنصبح مؤسسة إخبارية شاملة مع مراسلين في المدن الرئيسية في جميع أنحاء العالم. لقد أكسبنا التزامنا بالصحافة الجيدة العديد من الجوائز وثقة الملايين من القراء الذين يعتمدون علينا للحصول على أخبارهم اليومية.'
+        text: 'انطلق موقع إقتصادي.كوم في 21 أيلول/ سبتمبر 2025، من قناعة راسخة بأن الاقتصاد قضية يومية تمسّ حياة الأفراد والمجتمعات، ولا يجوز أن يبقى أسيراً للمصطلحات الجافة أو محتكراً من قبل الخبراء. من هنا، يسعى إلى تفكيك المفاهيم الاقتصادية العربية والإقليمية والعالمية وتقديمها إلى القارئ العادي بموثوقية ودقّة، مع الحفاظ على العمق التحليلي اللازم.'
       },
       team: {
         title: 'فريقنا',
-        text: 'يضم فريقنا المتنوع صحفيين حائزين على جوائز، ومحررين ذوي خبرة، ومتخصصين في وسائل الإعلام الرقمية مكرسين لتقديم الأخبار المهمة لك. مع خلفيات في مختلف المجالات والتخصصات، يجلب فريقنا وجهات نظر غنية لتغطيتنا.'
+        text: 'يضمّ الموقع نخبة من الصحافيين الاقتصاديين المخضرمين في التغطية والتحليل، إلى جانب جيلٍ من الطامحين الذين يسيرون بخطوات ثابتة نحو الاحتراف. يجمع الفريق بين الخبرة الراسخة والطاقة الإبداعية، ليقدّم محتوى اقتصاديًا رصينًا، وفي الوقت نفسه قريبًا من اهتمامات الناس.'
       }
     }
   };
@@ -132,13 +132,12 @@ export default function AboutPage() {
                 <p className="text-gray-700 leading-relaxed">{t.history.text}</p>
               </div>
               <div className="md:w-1/2">
-                <div className="relative h-72 w-full rounded-lg overflow-hidden shadow-lg">
-                  <Image
-                    src="/phoenix-logo.svg"
-                    alt="Phoenix Press Logo"
-                    fill
-                    className="object-contain bg-gray-900 p-12"
-                  />
+                <div className="relative h-72 w-full rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-6xl font-bold text-red-600 mb-4">E</div>
+                    <p className="text-red-700 font-semibold text-lg">Ektisadi Press</p>
+                    <p className="text-red-600 text-sm mt-2">Economic News & Analysis</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -147,25 +146,7 @@ export default function AboutPage() {
           {/* Team Section */}
           <section>
             <h3 className="text-2xl font-bold text-gray-800 mb-4">{t.team.title}</h3>
-            <p className="text-gray-700 leading-relaxed mb-8">{t.team.text}</p>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((index) => (
-                <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <div className="aspect-w-1 aspect-h-1 bg-gray-200">
-                    <div className="flex items-center justify-center h-full">
-                      <svg className="h-16 w-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <p className="font-medium text-gray-900">{isRTL ? 'اسم الموظف' : 'Team Member'} {index}</p>
-                    <p className="text-sm text-gray-500">{isRTL ? 'المنصب' : 'Position'}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="text-gray-700 leading-relaxed">{t.team.text}</p>
           </section>
         </div>
       </div>

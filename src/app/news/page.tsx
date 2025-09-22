@@ -103,11 +103,11 @@ async function fetchPosts(page: number, search: string = '', locale: string) {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'All News | Phoenix Press',
-    description: 'Browse all the latest news and articles from Phoenix Press.',
+    title: 'All News | Ektisadi Press',
+    description: 'Browse all the latest news and articles from Ektisadi Press.',
     openGraph: {
-      title: 'All News | Phoenix Press',
-      description: 'Browse all the latest news and articles from Phoenix Press.',
+      title: 'All News | Ektisadi Press',
+      description: 'Browse all the latest news and articles from Ektisadi Press.',
       type: 'website',
     },
   };

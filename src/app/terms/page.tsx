@@ -4,8 +4,8 @@ import MainLayout from '@/components/layouts/MainLayout';
 
 // Define metadata for SEO
 export const metadata: Metadata = {
-  title: 'Terms of Service | Phoenix Press',
-  description: 'Terms and conditions for using Phoenix Press services.',
+  title: 'Terms of Service | Ektisadi.com',
+  description: 'Terms and conditions for using Ektisadi.com services.',
 };
 
 export default async function TermsPage() {
@@ -18,85 +18,61 @@ export default async function TermsPage() {
   const content = {
     en: {
       title: 'Terms of Service',
-      lastUpdated: 'Last Updated: June 1, 2024',
+      lastUpdated: 'Last Updated: September 22, 2025',
       sections: [
         {
           heading: '1. Introduction',
-          text: 'Welcome to Phoenix Press. These Terms of Service ("Terms") govern your access to and use of the Phoenix Press website, services, and applications (collectively, the "Service"). By accessing or using the Service, you agree to be bound by these Terms.'
+          text: 'Welcome to Ektisadi.com ("the Website"). These Terms of Service ("Terms") govern your access to and use of the Website and all related services and applications (collectively referred to as "the Service"). Your access to or use of the Service constitutes explicit and binding acceptance of these Terms, in accordance with applicable Lebanese laws, particularly the Publications Law and the Audio-Visual Media Law where applicable.'
         },
         {
-          heading: '2. Using Our Service',
-          text: 'You may use our Service only as permitted by these Terms and any applicable laws. You may not use our Service to engage in illegal, fraudulent, or harmful activities.'
+          heading: '2. Use of Service',
+          text: 'The user undertakes to use the Service within the limits set forth in these Terms and in accordance with all applicable Lebanese laws and regulations. The user is prohibited from using the Service for any illegal, fraudulent, harmful, or activities contrary to public order and public morals.'
         },
         {
           heading: '3. Content and Intellectual Property',
-          text: 'All content on Phoenix Press, including articles, images, videos, and other materials, is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, or create derivative works of our content without explicit permission.'
+          text: 'All materials published on Ektisadi.com, including but not limited to articles, studies, images, videos, and designs, are the exclusive property of the Website and subject to protection under Lebanese and international intellectual property, copyright, and trademark laws. Reproduction, distribution, modification, or creation of derivative works from the content is prohibited without obtaining prior written permission from the Website administration.'
         },
         {
-          heading: '4. User Accounts',
-          text: 'When you create an account with us, you must provide accurate and complete information. You are responsible for the security of your account and for all activities that occur under your account. We reserve the right to terminate accounts that violate our Terms.'
+          heading: '4. Modifications to Terms',
+          text: 'Ektisadi.com administration reserves the right to modify these Terms in whole or in part at any time, provided that the modified version is published on the Website. The user\'s continued use of the Service after publication of modifications constitutes explicit and prior acceptance thereof.'
         },
         {
-          heading: '5. Privacy',
-          text: 'Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and disclose information about you.'
+          heading: '5. Governing Law and Dispute Resolution',
+          text: 'These Terms are subject to and interpreted in accordance with the provisions of applicable Lebanese laws. The competent Lebanese courts in Beirut have exclusive jurisdiction to consider any dispute that may arise from the interpretation or implementation of these Terms.'
         },
         {
-          heading: '6. Limitation of Liability',
-          text: 'To the maximum extent permitted by law, Phoenix Press will not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly.'
-        },
-        {
-          heading: '7. Changes to Terms',
-          text: 'We may modify these Terms at any time. We will provide notice of significant changes. Your continued use of the Service after such modifications constitutes your acceptance of the modified Terms.'
-        },
-        {
-          heading: '8. Governing Law',
-          text: 'These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which Phoenix Press is established, without regard to its conflict of law provisions.'
-        },
-        {
-          heading: '9. Contact Us',
-          text: 'If you have any questions about these Terms, please contact us at legal@phoenixpress.com.'
+          heading: '6. Contact Us',
+          text: 'For any inquiries or comments related to these Terms, you can contact the Website administration via email: contact@ektisadi.com'
         }
       ]
     },
     ar: {
       title: 'شروط الخدمة',
-      lastUpdated: 'آخر تحديث: 1 يونيو 2024',
+      lastUpdated: 'آخر تحديث: 22 أيلول / سبتمبر 2025',
       sections: [
         {
-          heading: '1. مقدمة',
-          text: 'مرحبًا بك في فينيكس بريس. تحكم شروط الخدمة هذه ("الشروط") وصولك إلى واستخدامك لموقع فينيكس بريس والخدمات والتطبيقات (مجتمعة، "الخدمة"). من خلال الوصول إلى الخدمة أو استخدامها، فإنك توافق على الالتزام بهذه الشروط.'
+          heading: '1 - المقدمة',
+          text: 'مرحبًا بك في اقتصادي.كوم ("الموقع"). إن شروط الخدمة هذه ("الشروط") تنظّم وصولك إلى واستخدامك للموقع وكافة الخدمات والتطبيقات المرتبطة به (ويُشار إليها مجتمعة بـ"الخدمة"). إن دخولك إلى الخدمة أو استخدامها يشكّل قبولًا صريحًا وملزمًا بأحكام هذه الشروط، وذلك وفقًا للقوانين اللبنانية المرعية الإجراء، ولا سيما قانون المطبوعات وقانون الإعلام المرئي والمسموع حيثما ينطبق.'
         },
         {
-          heading: '2. استخدام خدمتنا',
-          text: 'يمكنك استخدام خدمتنا فقط على النحو المسموح به في هذه الشروط وأي قوانين معمول بها. لا يجوز لك استخدام خدمتنا للانخراط في أنشطة غير قانونية أو احتيالية أو ضارة.'
+          heading: '2 - استعمال الخدمة',
+          text: 'يلتزم المستخدم باستخدام الخدمة ضمن الحدود المقررة في هذه الشروط ووفقًا لجميع القوانين والأنظمة اللبنانية المرعية الإجراء. يُحظر على المستخدم استعمال الخدمة في أي نشاط غير قانوني، أو احتيالي، أو ضار، أو مخالف للنظام العام والآداب العامة.'
         },
         {
-          heading: '3. المحتوى والملكية الفكرية',
-          text: 'جميع المحتويات على فينيكس بريس، بما في ذلك المقالات والصور ومقاطع الفيديو والمواد الأخرى، محمية بموجب حقوق النشر والعلامات التجارية وقوانين الملكية الفكرية الأخرى. لا يجوز لك إعادة إنتاج أو توزيع أو تعديل أو إنشاء أعمال مشتقة من المحتوى الخاص بنا دون إذن صريح.'
+          heading: '3 - المحتوى والملكية الفكرية',
+          text: 'تُعتبر جميع المواد المنشورة على اقتصادي.كوم، بما في ذلك على سبيل المثال لا الحصر المقالات، الدراسات، الصور، مقاطع الفيديو، والتصاميم، ملكًا حصريًا للموقع وخاضعة لحماية قوانين الملكية الفكرية وحقوق النشر والعلامات التجارية اللبنانية والدولية. يُمنع إعادة إنتاج أو توزيع أو تعديل أو إنشاء أعمال مشتقة من المحتوى دون الحصول على إذن خطّي ومسبق من إدارة الموقع.'
         },
         {
-          heading: '4. حسابات المستخدمين',
-          text: 'عندما تقوم بإنشاء حساب معنا، يجب عليك تقديم معلومات دقيقة وكاملة. أنت مسؤول عن أمان حسابك وعن جميع الأنشطة التي تتم تحت حسابك. نحتفظ بالحق في إنهاء الحسابات التي تنتهك شروطنا.'
+          heading: '4 - التعديلات على الشروط',
+          text: 'تحتفظ إدارة اقتصادي.كوم بالحق في تعديل هذه الشروط كليًا أو جزئيًا في أي وقت، على أن يُصار إلى نشر النسخة المعدّلة على الموقع. ويُعتبر استمرار المستخدم في استخدام الخدمة بعد نشر التعديلات بمثابة قبول صريح ومسبق لها.'
         },
         {
-          heading: '5. الخصوصية',
-          text: 'خصوصيتك مهمة بالنسبة لنا. يرجى مراجعة سياسة الخصوصية الخاصة بنا لفهم كيفية جمع واستخدام والكشف عن المعلومات المتعلقة بك.'
+          heading: '5 - القانون الحاكم وحل النزاعات',
+          text: 'تخضع هذه الشروط وتُفسّر وفقًا لأحكام القوانين اللبنانية النافذة. وتكون المحاكم اللبنانية المختصة في بيروت صاحبة الولاية الحصرية للنظر في أي نزاع قد ينشأ عن تفسير أو تنفيذ هذه الشروط.'
         },
         {
-          heading: '6. تحديد المسؤولية',
-          text: 'إلى أقصى حد يسمح به القانون، لن تكون فينيكس بريس مسؤولة عن أي أضرار غير مباشرة أو عرضية أو خاصة أو تبعية أو عقابية، أو أي خسارة للأرباح أو الإيرادات، سواء تم تكبدها بشكل مباشر أو غير مباشر.'
-        },
-        {
-          heading: '7. التغييرات في الشروط',
-          text: 'قد نقوم بتعديل هذه الشروط في أي وقت. سنقدم إشعارًا بالتغييرات المهمة. يشكل استمرار استخدامك للخدمة بعد هذه التعديلات قبولًا منك للشروط المعدلة.'
-        },
-        {
-          heading: '8. القانون الحاكم',
-          text: 'تخضع هذه الشروط وتفسر وفقًا لقوانين الولاية القضائية التي تأسست فيها فينيكس بريس، بغض النظر عن أحكام تعارض القوانين.'
-        },
-        {
-          heading: '9. اتصل بنا',
-          text: 'إذا كان لديك أي أسئلة حول هذه الشروط، يرجى الاتصال بنا على legal@phoenixpress.com.'
+          heading: '6 - الاتصال بنا',
+          text: 'لأي استفسارات أو ملاحظات تتعلق بهذه الشروط، يمكن التواصل مع إدارة الموقع عبر البريد الإلكتروني: contact@ektisadi.com'
         }
       ]
     }

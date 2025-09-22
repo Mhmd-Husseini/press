@@ -23,35 +23,35 @@ const cairoFont = Cairo({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Phoenix Press',
-    default: 'Phoenix Press - فينيقيا | Where Stories Rise',
+    template: '%s | Ektisadi Press',
+    default: 'Ektisadi Press - الاقتصادي | Where Stories Rise',
   },
-  description: "Phoenix Press delivers timely news and thoughtful analysis on the most important stories from around the world, with a focus on accuracy and integrity.",
-  keywords: ["news", "phoenix press", "journalism", "media", "articles", "press", "stories"],
-  authors: [{ name: "Phoenix Media Group" }],
-  creator: "Phoenix Media Group",
-  publisher: "Phoenix Media Group",
+  description: "Ektisadi Press delivers timely news and thoughtful analysis on the most important stories from around the world, with a focus on accuracy and integrity.",
+  keywords: ["news", "ektisadi press", "journalism", "media", "articles", "press", "stories"],
+  authors: [{ name: "Ektisadi Media Group" }],
+  creator: "Ektisadi Media Group",
+  publisher: "Ektisadi Media Group",
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://phoenix-press.com/',
-    siteName: 'Phoenix Press',
-    title: 'Phoenix Press - Where Stories Rise',
-    description: 'Phoenix Press delivers timely news and thoughtful analysis on the most important stories from around the world.',
+    url: 'https://ektisadi-press.com/',
+    siteName: 'Ektisadi Press',
+    title: 'Ektisadi Press - Where Stories Rise',
+    description: 'Ektisadi Press delivers timely news and thoughtful analysis on the most important stories from around the world.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Phoenix Press - فينيقيا'
+        alt: 'Ektisadi Press - الاقتصادي'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Phoenix Press - Where Stories Rise',
-    description: 'Phoenix Press delivers timely news and thoughtful analysis on the most important stories from around the world.',
-    creator: '@PhoenixPress',
+    title: 'Ektisadi Press - Where Stories Rise',
+    description: 'Ektisadi Press delivers timely news and thoughtful analysis on the most important stories from around the world.',
+    creator: '@EktisadiPress',
     images: ['/twitter-image.png']
   }
 };
@@ -64,7 +64,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/phoenix-logo.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${cairoFont.variable} antialiased bg-gray-50`}

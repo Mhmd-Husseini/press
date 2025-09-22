@@ -176,7 +176,7 @@ export const ArticleCard = ({
         )}
         
         <div className="flex justify-between items-center text-xs text-gray-500">
-          <span>{authorName || 'Phoenix Staff'}</span>
+          <span>{authorName || 'Ektisadi Staff'}</span>
           <span className={`text-gray-500 text-xs ${isRTL ? 'text-right' : 'text-left'}`}>
             {formatDateLocalized(publishedAt, locale)}
           </span>

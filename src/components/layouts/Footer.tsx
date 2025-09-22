@@ -42,7 +42,7 @@ export const Footer = () => {
       links: displayCategories
     },
     company: {
-      title: { en: 'Company', ar: 'الشركة' },
+      title: { en: 'Platform', ar: 'الموقع' },
       links: [
         { name: { en: 'About Us', ar: 'من نحن' }, slug: 'about' },
         { name: { en: 'Contact', ar: 'اتصل بنا' }, slug: 'contact' },
@@ -111,25 +111,17 @@ export const Footer = () => {
           {/* Logo & About - Takes 2 columns on large screens */}
           <div className="md:col-span-1">
             <div className="flex items-center">
-              <div className={`relative h-10 w-10 ${isRTL ? 'ml-2' : 'mr-2'} bg-white/10 p-1 rounded`}>
-                <Image
-                  src="/phoenix-logo.svg"
-                  alt="Phoenix Press"
-                  width={36}
-                  height={36}
-                  className="object-contain"
-                />
-              </div>
+
               <div>
-                <span className="text-xl font-bold tracking-tight text-white">Phoenix</span>
-                <span className={`text-accent font-bold ${isRTL ? 'mr-1' : 'ml-1'}`}>Press</span>
+                <span className="text-xl text-accent font-bold tracking-tight ">Ektisadi</span>
+                <span className={`text-white text-xl font-bold`}>.com</span>
               </div>
             </div>
 
             <p className={`mt-4 text-gray-400 text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
               {isRTL 
-                ? 'فينيكس بريس هي مؤسسة إخبارية عالمية تقدم تغطية شاملة وتحليلات متعمقة للأحداث العالمية والمحلية.' 
-                : 'Phoenix Press is a global news organization providing comprehensive coverage and in-depth analysis of world and local events.'}
+                ? 'الاقتصادي بريس هي مؤسسة إخبارية عالمية تقدم تغطية شاملة وتحليلات متعمقة للأحداث العالمية والمحلية.' 
+                : 'Ektisadi Press is a global news organization providing comprehensive coverage and in-depth analysis of world and local events.'}
             </p>
 
             <div className={`mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -213,10 +205,10 @@ export const Footer = () => {
         <div className="border-t border-gray-700/50 mt-10 pt-6">
           <div className={`flex flex-col md:flex-row justify-between items-center ${isRTL ? 'text-right' : 'text-left'}`}>
             <p className="text-gray-500 text-sm">
-              &copy; {new Date().getFullYear()} Phoenix Press. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
+              &copy; {new Date().getFullYear()} Ektisadi Press. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
             </p>
             <p className="text-gray-500 text-xs mt-2 md:mt-0">
-              {isRTL ? 'تم تصميمه وتطويره بواسطة فريق فينيكس المبدع' : 'Designed and developed by the Phoenix Creative Team'}
+              {isRTL ? 'تم تصميمه وتطويره بواسطة فريق الاقتصادي المبدع' : 'Designed and developed by the Ektisadi Creative Team'}
             </p>
           </div>
         </div>

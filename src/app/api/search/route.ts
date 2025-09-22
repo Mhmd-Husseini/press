@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
       }
       
       if (!authorName) {
-        authorName = 'Phoenix Staff';
+        authorName = 'Ektisadi Staff';
       }
       
       return {

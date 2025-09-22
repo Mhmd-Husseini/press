@@ -3,6 +3,6 @@
   <rect x="240" y="125" width="320" height="200" rx="8" fill="#e0e0e0"/>
   <path d="M480 165 L520 225 L440 275 L360 225 L400 175 Z" fill="#bbbbbb"/>
   <circle cx="400" cy="155" r="15" fill="#bbbbbb"/>
-  <text x="400" y="350" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#666666">Phoenix Press</text>
+  <text x="400" y="350" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#666666">Ektisadi Press</text>
   <text x="400" y="380" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#888888">No image available</text>
 </svg> 

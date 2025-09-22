@@ -130,7 +130,7 @@ function SearchContent() {
                   summary={result.excerpt}
                   slug={result.slug}
                   imageUrl={result.imageUrl || '/images/default-post-image.svg'}
-                  authorName={result.authorName || 'Phoenix Staff'}
+                  authorName={result.authorName || 'Ektisadi Staff'}
                   publishedAt={result.publishedAt || result.createdAt}
                   size="medium"
                   variant="vertical"
