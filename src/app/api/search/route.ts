@@ -69,9 +69,13 @@ export async function GET(request: NextRequest) {
         },
         postAuthor: true,
         media: {
-          where: {
-            type: 'IMAGE',
-            deletedAt: null
+          include: {
+            media: {
+              where: {
+                type: 'IMAGE',
+                deletedAt: null
+              }
+            }
           },
           take: 1
         }

@@ -66,8 +66,14 @@ export async function POST(request: NextRequest) {
             captionAr: fileMetadata.captionAr || null,
             size: fileSize,
             mimeType: fileType,
-            // Only set postId if it's provided and valid
-            ...(postId ? { postId } : {})
+            // Only create PostMedia relationship if postId is provided
+            ...(postId ? {
+              posts: {
+                create: {
+                  postId: postId
+                }
+              }
+            } : {})
           }
         });
         
@@ -82,7 +88,13 @@ export async function POST(request: NextRequest) {
     if (postId && mediaItems.length > 0) {
       const post = await prisma.post.findUnique({
         where: { id: postId },
-        include: { media: true }
+        include: { 
+          media: {
+            include: {
+              media: true
+            }
+          }
+        }
       });
       
       // If the post exists and has no media yet, update to include the first uploaded image as featured

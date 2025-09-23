@@ -57,7 +57,7 @@ export type PostWithRelations = Post & {
     firstName?: string; 
     lastName?: string;
   };
-  media?: Media[];
+  media?: { media: Media }[];
   tags?: { 
     tag: { 
       id: string; 
@@ -246,7 +246,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         }),
         ...(data.mediaIds && data.mediaIds.length > 0 && {
           media: {
-            connect: data.mediaIds.map(mediaId => ({ id: mediaId }))
+            create: data.mediaIds.map(mediaId => ({
+              media: {
+                connect: { id: mediaId }
+              }
+            }))
           }
         })
       },
@@ -264,7 +268,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         declinedBy: true,
         publishedBy: true,
         unpublishedBy: true,
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
         tags: {
           include: {
             tag: true
@@ -399,7 +407,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         declinedBy: true,
         publishedBy: true,
         unpublishedBy: true,
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
         tags: {
           include: {
             tag: true
@@ -437,7 +449,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         declinedBy: true,
         publishedBy: true,
         unpublishedBy: true,
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
         tags: {
           include: {
             tag: true
@@ -473,7 +489,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
             editor: true,
             approvedBy: true,
             publishedBy: true,
-            media: true,
+            media: {
+          include: {
+            media: true
+          }
+        },
             tags: {
               include: {
                 tag: true
@@ -592,7 +612,12 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
     // Handle mediaIds if provided
     if (data.mediaIds && Array.isArray(data.mediaIds)) {
       updateData.media = {
-        connect: data.mediaIds.map(mediaId => ({ id: mediaId }))
+        deleteMany: {}, // Delete all current media associations
+        create: data.mediaIds.map(mediaId => ({
+          media: {
+            connect: { id: mediaId }
+          }
+        }))
       };
       delete updateData.mediaIds;
     }
@@ -749,7 +774,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         declinedBy: true,
         publishedBy: true,
         unpublishedBy: true,
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
         tags: {
           include: {
             tag: true
@@ -948,7 +977,11 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         declinedBy: true,
         publishedBy: true,
         unpublishedBy: true,
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
         tags: {
           include: {
             tag: true

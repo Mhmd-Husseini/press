@@ -95,7 +95,11 @@ export async function POST(request: NextRequest) {
             altText: title,
             size: imageFile.size,
             mimeType: imageFile.type,
-            postId: post.id // Important! Associate with the created post
+            posts: {
+              create: {
+                postId: post.id
+              }
+            }
           }
         });
         
@@ -104,7 +108,11 @@ export async function POST(request: NextRequest) {
           where: { id: post.id },
           include: {
             translations: true,
-            media: true,
+            media: {
+              include: {
+                media: true
+              }
+            },
           }
         });
         

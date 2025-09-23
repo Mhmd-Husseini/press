@@ -210,9 +210,10 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
         setMetaFields(initialMetaFields);
       }
       
-      // Set media if post has any
+      // Set media if post has any - extract from junction table
       if (post.media && post.media.length > 0) {
-        setUploadedMedia(post.media);
+        const mediaItems = post.media.map(postMedia => postMedia.media);
+        setUploadedMedia(mediaItems);
       }
 
       // Find the selected author if post has postAuthor
