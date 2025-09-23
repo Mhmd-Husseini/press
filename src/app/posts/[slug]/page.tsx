@@ -359,7 +359,11 @@ async function fetchPost(slug: string) {
           },
         },
         postAuthor: true,
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
       },
     });
 

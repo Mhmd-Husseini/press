@@ -64,7 +64,11 @@ async function fetchCategoryPosts(slug: string, locale: string, page: number = 1
         },
         include: {
           translations: true,
-          media: true,
+          media: {
+            include: {
+              media: true
+            }
+          },
         },
         orderBy: {
           publishedAt: 'desc', // Ensure newest posts appear first

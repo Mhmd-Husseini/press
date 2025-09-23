@@ -49,7 +49,11 @@ export default async function Home() {
             translations: true
           }
         },
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
         author: true,
         createdBy: true,
         updatedBy: true
@@ -73,7 +77,11 @@ export default async function Home() {
             translations: true
           }
         },
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
         author: true,
         createdBy: true,
         updatedBy: true
@@ -127,7 +135,11 @@ export default async function Home() {
             translations: true
           }
         },
-        media: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
         author: true,
         createdBy: true,
         updatedBy: true
