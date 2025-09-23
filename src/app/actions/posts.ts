@@ -94,7 +94,11 @@ export async function fetchPublishedPosts({
       },
       author: true,
       postAuthor: true,
-      media: true,
+      media: {
+        include: {
+          media: true
+        }
+      },
       tags: {
         include: {
           tag: true
@@ -182,7 +186,11 @@ export async function fetchPostBySlug(slug: string, locale = 'en'): Promise<Post
       },
       author: true,
       postAuthor: true,
-      media: true,
+      media: {
+        include: {
+          media: true
+        }
+      },
       tags: {
         include: {
           tag: true

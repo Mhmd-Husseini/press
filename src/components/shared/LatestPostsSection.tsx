@@ -123,9 +123,9 @@ export const LatestPostsSection = ({
             <div className="lg:col-span-5">
               <div className="h-[620px] flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
                 <div className="relative h-96 w-full">
-                  {mainPost.media && mainPost.media[0]?.url ? (
+                  {mainPost.media && mainPost.media[0]?.media?.url ? (
                     <Image
-                      src={mainPost.media[0].url}
+                      src={mainPost.media[0].media?.url}
                       alt={getPostTitle(mainPost)}
                       fill
                       className="object-cover"

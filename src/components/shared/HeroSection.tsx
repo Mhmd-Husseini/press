@@ -142,7 +142,7 @@ const HeroSection: React.FC<HeroProps> = ({
     media: []
   };
 
-  const imageUrl = story.media && story.media.length > 0 ? story.media[0].url : null;
+  const imageUrl = story.media && story.media.length > 0 ? story.media[0].media?.url : null;
   const title = getTitle(story);
   const summary = getSummary(story);
   const slug = getSlug(story);
