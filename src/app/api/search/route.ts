@@ -132,8 +132,8 @@ export async function GET(request: NextRequest) {
       
       // Get image URL from media if available
       let imageUrl = '';
-      if (post.media && post.media.length > 0 && post.media[0].url) {
-        imageUrl = post.media[0].url;
+      if (post.media && post.media.length > 0 && post.media[0].media?.url) {
+        imageUrl = post.media[0].media.url;
       }
       
       // Get category name

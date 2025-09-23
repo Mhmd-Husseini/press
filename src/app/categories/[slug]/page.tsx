@@ -90,7 +90,7 @@ async function fetchCategoryPosts(slug: string, locale: string, page: number = 1
         if (!postTranslation) return null;
 
         // Find featured image
-        const featuredImage = post.media.find(m => m.type === MediaType.IMAGE)?.url || '/images/default-post-image.svg';
+        const featuredImage = post.media.find(pm => pm.media.type === MediaType.IMAGE)?.media?.url || '/images/default-post-image.svg';
 
         return {
           id: post.id,

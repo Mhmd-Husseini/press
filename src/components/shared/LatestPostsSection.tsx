@@ -201,9 +201,9 @@ export const LatestPostsSection = ({
             {secondaryPosts.map((post) => (
               <div key={post.id} className="border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
                 <div className="relative h-72 w-full">
-                  {post.media && post.media[0]?.url ? (
+                  {post.media && post.media[0]?.media?.url ? (
                     <Image
-                      src={post.media[0].url}
+                      src={post.media[0].media.url}
                       alt={getPostTitle(post)}
                       fill
                       className="object-cover"

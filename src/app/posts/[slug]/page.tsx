@@ -404,11 +404,11 @@ export default async function PostPage(props: PageProps) {
 
     
     // Get featured image if available
-    const featuredImage = post.media.find((m: Media) => m.type === MediaType.IMAGE);
+    const featuredImage = post.media.find((pm: any) => pm.media.type === MediaType.IMAGE)?.media;
     const imageUrl = featuredImage ? featuredImage.url : '/images/default-post-image.svg';
     
     // Get all images for potential gallery display
-    const allImages = post.media.filter((m: Media) => m.type === MediaType.IMAGE);
+    const allImages = post.media.filter((pm: any) => pm.media.type === MediaType.IMAGE).map((pm: any) => pm.media);
     
     // Get author information from postAuthor
     const author = (post as any).postAuthor;

@@ -69,7 +69,7 @@ async function fetchPosts(page: number, search: string = '', locale: string) {
         const categoryTranslation = post.category?.translations?.find(t => t.locale === locale) || 
                                   post.category?.translations?.[0];
 
-        const featuredImage = post.media.find(m => m.type === MediaType.IMAGE)?.url || '/images/default-post-image.svg';
+        const featuredImage = post.media.find(pm => pm.media.type === MediaType.IMAGE)?.media?.url || '/images/default-post-image.svg';
 
         return {
           id: post.id,

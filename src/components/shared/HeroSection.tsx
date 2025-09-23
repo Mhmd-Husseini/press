@@ -323,7 +323,7 @@ const HeroSection: React.FC<HeroProps> = ({
                           {post.media && post.media.length > 0 ? (
                             <div className="relative h-20 w-28 flex-shrink-0 overflow-hidden rounded">
                               <Image
-                                src={post.media[0].url}
+                                src={post.media[0].media?.url || '/images/default-post-image.svg'}
                                 alt={postTitle}
                                 fill
                                 className="object-cover"

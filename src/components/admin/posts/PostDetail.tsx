@@ -313,8 +313,8 @@ export default function PostDetail({ post }: PostDetailProps) {
               <div key={item.id} className="relative group">
                 <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
                   <img 
-                    src={item.url} 
-                    alt={item.altText || 'Post media'} 
+                    src={item.media?.url} 
+                    alt={item.media?.altText || 'Post media'} 
                     className="w-full h-full object-cover"
                   />
                 </div>

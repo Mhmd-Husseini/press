@@ -232,7 +232,7 @@ export default async function Home() {
                                             post.translations[0]?.slug || '';
                             
                             // Get post image if available
-                            const postImage = post.media && post.media.length > 0 ? post.media[0].url : null;
+                            const postImage = post.media && post.media.length > 0 ? post.media[0].media?.url : null;
                             
                             return (
                               <a 
