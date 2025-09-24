@@ -107,11 +107,11 @@ async function fetchPosts(page: number, search: string = '', locale: string) {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'All News | Ektisadi Press',
-    description: 'Browse all the latest news and articles from Ektisadi Press.',
+    title: 'All News | Ektisadi.com',
+    description: 'Browse all the latest news and articles from Ektisadi.com.',
     openGraph: {
-      title: 'All News | Ektisadi Press',
-      description: 'Browse all the latest news and articles from Ektisadi Press.',
+      title: 'All News | Ektisadi.com',
+      description: 'Browse all the latest news and articles from Ektisadi.com.',
       type: 'website',
     },
   };

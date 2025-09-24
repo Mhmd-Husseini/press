@@ -152,10 +152,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
 
     return {
-      title: `${categoryTranslation.name} | Ektisadi Press`,
+      title: `${categoryTranslation.name} | Ektisadi.com`,
       description: categoryTranslation.description || `Browse all articles in the ${categoryTranslation.name} category.`,
       openGraph: {
-        title: `${categoryTranslation.name} | Ektisadi Press`,
+        title: `${categoryTranslation.name} | Ektisadi.com`,
         description: categoryTranslation.description || `Browse all articles in the ${categoryTranslation.name} category.`,
         type: 'website',
       },
@@ -163,7 +163,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Ektisadi Press | Category',
+      title: 'Ektisadi.com | Category',
       description: 'Browse articles by category',
     };
   }

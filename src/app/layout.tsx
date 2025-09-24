@@ -23,35 +23,35 @@ const cairoFont = Cairo({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Ektisadi Press',
-    default: 'Ektisadi Press - الاقتصادي | Where Stories Rise',
+    template: '%s | Ektisadi.com',
+    default: 'Ektisadi.com - الاقتصادي.كوم | الإقتصاد والناس والعالم',
   },
-  description: "Ektisadi Press delivers timely news and thoughtful analysis on the most important stories from around the world, with a focus on accuracy and integrity.",
-  keywords: ["news", "ektisadi press", "journalism", "media", "articles", "press", "stories"],
+  description: "الاقتصادي.كوم يقدم الأخبار في الوقت المناسب والتحليلات من جميع أنحاء العالم.",
+  keywords: ["news", "ektisadi.com", "economy", "journalism", "media", "articles", "press", "stories"],
   authors: [{ name: "Ektisadi Media Group" }],
   creator: "Ektisadi Media Group",
   publisher: "Ektisadi Media Group",
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://ektisadi-press.com/',
-    siteName: 'Ektisadi Press',
-    title: 'Ektisadi Press - Where Stories Rise',
-    description: 'Ektisadi Press delivers timely news and thoughtful analysis on the most important stories from around the world.',
+    url: 'https://ektisadi.com/',
+    siteName: 'Ektisadi.com',
+    title: 'Ektisadi.com - الاقتصادي.كوم | الإقتصاد والناس والعالم',
+    description: 'الاقتصادي.كوم يقدم الأخبار في الوقت المناسب والتحليلات من جميع أنحاء العالم.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Ektisadi Press - الاقتصادي'
+        alt: 'Ektisadi.com - الاقتصادي.كوم | الإقتصاد والناس والعالم'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ektisadi Press - Where Stories Rise',
-    description: 'Ektisadi Press delivers timely news and thoughtful analysis on the most important stories from around the world.',
-    creator: '@EktisadiPress',
+    title: 'Ektisadi.com - الاقتصادي.كوم | الإقتصاد والناس والعالم',
+    description: 'الاقتصادي.كوم يقدم الأخبار في الوقت المناسب والتحليلات من جميع أنحاء العالم.',
+    creator: '@Ektisadi.com',
     images: ['/twitter-image.png']
   }
 };

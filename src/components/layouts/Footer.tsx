@@ -120,8 +120,8 @@ export const Footer = () => {
 
             <p className={`mt-4 text-gray-400 text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
               {isRTL 
-                ? 'الاقتصادي بريس هي مؤسسة إخبارية عالمية تقدم تغطية شاملة وتحليلات متعمقة للأحداث العالمية والمحلية.' 
-                : 'Ektisadi Press is a global news organization providing comprehensive coverage and in-depth analysis of world and local events.'}
+                ? 'الاقتصادي.كوم هو موقع إخباري تثقيفي يقدم تغطية شاملة وتحليلات متعمقة للأحداث العالمية والمحلية, خاصة في المجال الاقتصادي.' 
+                : 'Ektisadi.com is a news organization providing comprehensive coverage and in-depth analysis of world and local events, especially in the economic field.'}
             </p>
 
             <div className={`mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -205,7 +205,7 @@ export const Footer = () => {
         <div className="border-t border-gray-700/50 mt-10 pt-6">
           <div className={`flex flex-col md:flex-row justify-between items-center ${isRTL ? 'text-right' : 'text-left'}`}>
             <p className="text-gray-500 text-sm">
-              &copy; {new Date().getFullYear()} Ektisadi Press. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
+              &copy; {new Date().getFullYear()} Ektisadi.com. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
             </p>
             <p className="text-gray-500 text-xs mt-2 md:mt-0">
               {isRTL ? 'تم تصميمه وتطويره بواسطة فريق الاقتصادي المبدع' : 'Designed and developed by the Ektisadi Creative Team'}

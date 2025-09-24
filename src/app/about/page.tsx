@@ -135,7 +135,7 @@ export default function AboutPage() {
                 <div className="relative h-72 w-full rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-6xl font-bold text-red-600 mb-4">E</div>
-                    <p className="text-red-700 font-semibold text-lg">Ektisadi Press</p>
+                    <p className="text-red-700 font-semibold text-lg">Ektisadi.com</p>
                     <p className="text-red-600 text-sm mt-2">Economic News & Analysis</p>
                   </div>
                 </div>

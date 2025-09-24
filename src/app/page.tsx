@@ -107,7 +107,11 @@ export default async function Home() {
           },
           include: {
             translations: true,
-            media: true
+            media: {
+              include: {
+                media: true
+              }
+            }
           }
         }
       },
