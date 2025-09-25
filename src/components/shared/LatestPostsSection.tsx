@@ -121,17 +121,11 @@ export const LatestPostsSection = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Main featured post - Spans 4 columns */}
           {mainPost && (
-<<<<<<< HEAD
             <div className="lg:col-span-4">
               <div className="space-y-6">
                 {/* Main post */}
                 <div className="flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
                 <div className="relative h-72 w-full">
-=======
-            <div className="lg:col-span-5">
-              <div className="h-[820px] flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="relative h-96 w-full">
->>>>>>> 2e9a84f6c586433cf43ec6fdaa9bf7f9cd737869
                   {mainPost.media && mainPost.media[0]?.media?.url ? (
                     <Image
                       src={mainPost.media[0].media?.url}
@@ -163,38 +157,14 @@ export const LatestPostsSection = ({
                     </h3>
                   </Link>
                   
-<<<<<<< HEAD
                   {getPostSummary(mainPost) && (
                     <p className="text-sm text-gray-600 mb-4 line-clamp-4 leading-relaxed font-medium">
-=======
-                  {/* {getPostSummary(mainPost) && (
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2 leading-relaxed font-medium">
->>>>>>> 2e9a84f6c586433cf43ec6fdaa9bf7f9cd737869
                       {getPostSummary(mainPost)}
                     </p>
-                  )} */}
-                  
-<<<<<<< HEAD
-                  {/* Show a placeholder if no summary */}
-                  {!getPostSummary(mainPost) && (
-=======
-                  {getPostContent(mainPost) && (
-                    <div 
-                      className="text-sm text-gray-700 leading-relaxed overflow-hidden"
-                      style={{
-                        height: 'calc(100% - 80px)', // Subtract approximate height of title and footer (no summary now)
-                        display: '-webkit-box',
-                        WebkitBoxOrient: 'vertical',
-                        WebkitLineClamp: Math.floor((720 - 288 - 80) / 20) // Calculate lines based on remaining space
-                      }}
-                    >
-                      {getPostContent(mainPost).replace(/<[^>]*>/g, '')}
-                    </div>
                   )}
                   
-                  {/* Show a placeholder if no summary or content */}
-                  {!getPostSummary(mainPost) && !getPostContent(mainPost) && (
->>>>>>> 2e9a84f6c586433cf43ec6fdaa9bf7f9cd737869
+                  {/* Show a placeholder if no summary */}
+                  {!getPostSummary(mainPost) && (
                     <div 
                       className="text-sm text-gray-500 flex items-center justify-center bg-gray-50 rounded"
                       style={{ height: 'calc(100% - 80px)' }}

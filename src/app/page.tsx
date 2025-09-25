@@ -69,11 +69,7 @@ export default async function Home() {
       orderBy: {
         publishedAt: 'desc'
       },
-<<<<<<< HEAD
-      take: 12,
-=======
       take: 13,
->>>>>>> 2e9a84f6c586433cf43ec6fdaa9bf7f9cd737869
       include: {
         translations: true,
         category: {
