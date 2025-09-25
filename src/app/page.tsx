@@ -69,7 +69,7 @@ export default async function Home() {
       orderBy: {
         publishedAt: 'desc'
       },
-      take: 8,
+      take: 12,
       include: {
         translations: true,
         category: {

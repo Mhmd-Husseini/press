@@ -87,7 +87,8 @@ export const LatestPostsSection = ({
   // Split posts for different layouts - Al Arabiya style
   const mainPost = sortedPosts[0]; // Main featured post
   const secondaryPosts = sortedPosts.slice(1, 3); // Two secondary posts
-  const remainingPosts = sortedPosts.slice(3); // Rest of the posts
+  const additionalCardPost = sortedPosts[3]; // Additional card under main post
+  const remainingPosts = sortedPosts.slice(4); // Rest of the posts (starting from 5th)
 
   return (
     <section className="bg-white py-6 border-t border-gray-200" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -118,11 +119,13 @@ export const LatestPostsSection = ({
 
         {/* Al Arabiya style layout with one main post and multiple smaller posts */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Main featured post - Spans 5 columns */}
+          {/* Main featured post - Spans 4 columns */}
           {mainPost && (
-            <div className="lg:col-span-5">
-              <div className="h-[620px] flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="relative h-96 w-full">
+            <div className="lg:col-span-4">
+              <div className="space-y-6">
+                {/* Main post */}
+                <div className="flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="relative h-72 w-full">
                   {mainPost.media && mainPost.media[0]?.media?.url ? (
                     <Image
                       src={mainPost.media[0].media?.url}
@@ -147,7 +150,7 @@ export const LatestPostsSection = ({
                     </Link>
                   )}
                 </div>
-                <div className={`p-4 flex-1 flex flex-col ${isRTL ? 'text-right' : 'text-left'}`}>
+                <div className={`p-4 flex flex-col ${isRTL ? 'text-right' : 'text-left'}`}>
                   <Link href={`/posts/${getPostSlug(mainPost)}`}>
                     <h3 className="text-lg font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors leading-tight">
                       {getPostTitle(mainPost)}
@@ -155,30 +158,16 @@ export const LatestPostsSection = ({
                   </Link>
                   
                   {getPostSummary(mainPost) && (
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2 leading-relaxed font-medium">
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-4 leading-relaxed font-medium">
                       {getPostSummary(mainPost)}
                     </p>
                   )}
                   
-                  {getPostContent(mainPost) && (
-                    <div 
-                      className="text-sm text-gray-700 leading-relaxed overflow-hidden"
-                      style={{
-                        height: 'calc(100% - 120px)', // Subtract approximate height of title, summary, and footer
-                        display: '-webkit-box',
-                        WebkitBoxOrient: 'vertical',
-                        WebkitLineClamp: Math.floor((520 - 288 - 120) / 20) // Calculate lines based on remaining space
-                      }}
-                    >
-                      {getPostContent(mainPost).replace(/<[^>]*>/g, '')}
-                    </div>
-                  )}
-                  
-                  {/* Show a placeholder if no summary or content */}
-                  {!getPostSummary(mainPost) && !getPostContent(mainPost) && (
+                  {/* Show a placeholder if no summary */}
+                  {!getPostSummary(mainPost) && (
                     <div 
                       className="text-sm text-gray-500 flex items-center justify-center bg-gray-50 rounded"
-                      style={{ height: 'calc(100% - 120px)' }}
+                      style={{ height: 'calc(100% - 80px)' }}
                     >
                       <span className="text-center">
                         {isRTL ? 'اضغط لقراءة المقال كاملاً' : 'Click to read the full article'}
@@ -186,17 +175,67 @@ export const LatestPostsSection = ({
                     </div>
                   )}
                   
-                  <div className="mt-auto pt-2 border-t border-gray-100">
+                  <div className="pt-2 border-t border-gray-100">
                     <div className="text-xs text-gray-500">
                       {formatDateLocalized(String(mainPost.publishedAt || mainPost.createdAt), locale)}
                     </div>
                   </div>
                 </div>
+                </div>
+                
+                {/* Additional card under main post */}
+                {sortedPosts[3] && (
+                  <div className="border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
+                    <div className="relative h-72 w-full">
+                      {sortedPosts[3].media && sortedPosts[3].media[0]?.media?.url ? (
+                        <Image
+                          src={sortedPosts[3].media[0].media.url}
+                          alt={getPostTitle(sortedPosts[3])}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      ) : (
+                        <div className="bg-gray-200 h-full w-full flex items-center justify-center">
+                          <svg className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
+                        </div>
+                      )}
+                      {getCategoryName(sortedPosts[3]) && (
+                        <Link 
+                          href={`/categories/${getCategorySlug(sortedPosts[3])}`}
+                          className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} bg-accent text-white text-xs px-2 py-1 font-medium z-10`}
+                        >
+                          {getCategoryName(sortedPosts[3])}
+                        </Link>
+                      )}
+                    </div>
+                    <div className={`p-3 flex-grow flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
+                      <div>
+                        <Link href={`/posts/${getPostSlug(sortedPosts[3])}`}>
+                          <h3 className="text-base font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors leading-tight">
+                            {getPostTitle(sortedPosts[3])}
+                          </h3>
+                        </Link>
+                        {getPostSummary(sortedPosts[3]) && (
+                          <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                            {getPostSummary(sortedPosts[3])}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-auto pt-2 border-t border-gray-100">
+                        {formatDateLocalized(String(sortedPosts[3].publishedAt || sortedPosts[3].createdAt), locale)}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* Two medium-sized secondary posts - Each spans 3 columns */}
+
+          {/* Two medium-sized secondary posts - Each spans 4 columns */}
           <div className="lg:col-span-4 flex flex-col space-y-6">
             {secondaryPosts.map((post) => (
               <div key={post.id} className="border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
@@ -246,8 +285,8 @@ export const LatestPostsSection = ({
             ))}
           </div>
 
-          {/* List of smaller articles - Spans 3 columns */}
-          <div className={`lg:col-span-3 border-${isRTL ? 'r' : 'l'} border-gray-200 ${isRTL ? 'pr-4' : 'pl-4'}`}>
+          {/* List of smaller articles - Spans 4 columns */}
+          <div className={`lg:col-span-4 border-${isRTL ? 'r' : 'l'} border-gray-200 ${isRTL ? 'pr-4' : 'pl-4'}`}>
             <h3 className={`text-sm font-semibold text-primary-bg mb-3 pb-2 border-b border-gray-200 ${isRTL ? 'text-right' : 'text-left'}`}>
               {isRTL ? 'آخر الأخبار' : 'More News'}
             </h3>
