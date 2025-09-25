@@ -121,7 +121,7 @@ export const LatestPostsSection = ({
           {/* Main featured post - Spans 5 columns */}
           {mainPost && (
             <div className="lg:col-span-5">
-              <div className="h-[620px] flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="h-[820px] flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
                 <div className="relative h-96 w-full">
                   {mainPost.media && mainPost.media[0]?.media?.url ? (
                     <Image
@@ -154,20 +154,20 @@ export const LatestPostsSection = ({
                     </h3>
                   </Link>
                   
-                  {getPostSummary(mainPost) && (
+                  {/* {getPostSummary(mainPost) && (
                     <p className="text-sm text-gray-600 mb-2 line-clamp-2 leading-relaxed font-medium">
                       {getPostSummary(mainPost)}
                     </p>
-                  )}
+                  )} */}
                   
                   {getPostContent(mainPost) && (
                     <div 
                       className="text-sm text-gray-700 leading-relaxed overflow-hidden"
                       style={{
-                        height: 'calc(100% - 120px)', // Subtract approximate height of title, summary, and footer
+                        height: 'calc(100% - 80px)', // Subtract approximate height of title and footer (no summary now)
                         display: '-webkit-box',
                         WebkitBoxOrient: 'vertical',
-                        WebkitLineClamp: Math.floor((520 - 288 - 120) / 20) // Calculate lines based on remaining space
+                        WebkitLineClamp: Math.floor((720 - 288 - 80) / 20) // Calculate lines based on remaining space
                       }}
                     >
                       {getPostContent(mainPost).replace(/<[^>]*>/g, '')}
@@ -178,7 +178,7 @@ export const LatestPostsSection = ({
                   {!getPostSummary(mainPost) && !getPostContent(mainPost) && (
                     <div 
                       className="text-sm text-gray-500 flex items-center justify-center bg-gray-50 rounded"
-                      style={{ height: 'calc(100% - 120px)' }}
+                      style={{ height: 'calc(100% - 80px)' }}
                     >
                       <span className="text-center">
                         {isRTL ? 'اضغط لقراءة المقال كاملاً' : 'Click to read the full article'}
