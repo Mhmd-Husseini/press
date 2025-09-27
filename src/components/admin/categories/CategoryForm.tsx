@@ -12,6 +12,7 @@ function CategoryFormContent({ category, isEdit = false }: CategoryFormProps) {
   
   const [formData, setFormData] = useState<FormData>({
     parentId: null,
+    order: 0,
     translations: [
       { locale: 'en', name: '', description: '', slug: '', dir: 'ltr' },
       { locale: 'ar', name: '', description: '', slug: '', dir: 'rtl' }
@@ -83,6 +84,7 @@ function CategoryFormContent({ category, isEdit = false }: CategoryFormProps) {
       
       setFormData({
         parentId: category.parentId,
+        order: category.order || 0,
         translations
       });
     } else if (parentId) {
@@ -100,6 +102,15 @@ function CategoryFormContent({ category, isEdit = false }: CategoryFormProps) {
     setFormData(prev => ({
       ...prev,
       parentId: value
+    }));
+  };
+
+  const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    
+    setFormData(prev => ({
+      ...prev,
+      order: value
     }));
   };
 
@@ -222,6 +233,25 @@ function CategoryFormContent({ category, isEdit = false }: CategoryFormProps) {
             </option>
           ))}
         </select>
+      </div>
+      
+      <div>
+        <label htmlFor="order" className="block text-sm font-medium text-gray-700">
+          Order (for header display)
+        </label>
+        <input
+          type="number"
+          id="order"
+          name="order"
+          value={formData.order}
+          onChange={handleOrderChange}
+          min="0"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="0"
+        />
+        <p className="mt-1 text-sm text-gray-500">
+          Lower numbers appear first in the header. Subcategories ignore this order.
+        </p>
       </div>
       
       <div className="border-b border-gray-200">
@@ -391,6 +421,7 @@ type Translation = {
 
 type FormData = {
   parentId: string | null;
+  order: number;
   translations: Translation[];
 };
 
