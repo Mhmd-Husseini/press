@@ -60,10 +60,11 @@ export default async function Home() {
       }
     });
 
-    // Get latest posts (published, not necessarily featured)
+    // Get latest posts (published, excluding featured posts)
     const latestPosts = await prisma.post.findMany({
       where: {
         status: PostStatus.PUBLISHED,
+        featured: false,
         deletedAt: null
       },
       orderBy: {
