@@ -60,17 +60,16 @@ export default async function Home() {
       }
     });
 
-    // Get latest posts (published, excluding featured posts)
-    const latestPosts = await prisma.post.findMany({
+    // Get latest posts (published, excluding first 5 featured posts)
+    const allLatestPosts = await prisma.post.findMany({
       where: {
         status: PostStatus.PUBLISHED,
-        featured: false,
         deletedAt: null
       },
       orderBy: {
         publishedAt: 'desc'
       },
-      take: 14,
+      take: 20, // Get more to account for filtering
       include: {
         translations: true,
         category: {
@@ -88,6 +87,14 @@ export default async function Home() {
         updatedBy: true
       }
     });
+
+    // Get IDs of first 5 featured posts to exclude from latest
+    const featuredPostIds = featuredPosts.slice(0, 5).map(post => post.id);
+    
+    // Filter out the first 5 featured posts from latest posts
+    const latestPosts = allLatestPosts
+      .filter(post => !featuredPostIds.includes(post.id))
+      .slice(0, 14); // Take 14 after filtering
 
     // Get top-level categories only (those without a parent)
     const categoriesWithPosts = await prisma.category.findMany({
