@@ -39,7 +39,7 @@ export default async function Home() {
         deletedAt: null
       },
       orderBy: {
-        publishedAt: 'desc'
+        createdAt: 'desc'
       },
       take: 7,
       include: {
@@ -69,7 +69,7 @@ export default async function Home() {
       orderBy: {
         publishedAt: 'desc'
       },
-      take: 13,
+      take: 14,
       include: {
         translations: true,
         category: {

@@ -158,7 +158,7 @@ export const LatestPostsSection = ({
                   </Link>
                   
                   {getPostSummary(mainPost) && (
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-4 leading-relaxed font-medium">
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2 leading-relaxed">
                       {getPostSummary(mainPost)}
                     </p>
                   )}
