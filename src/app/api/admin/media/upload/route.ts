@@ -9,7 +9,7 @@ const authService = new AuthService();
 export async function POST(request: NextRequest) {
   try {
     // Check if user has permission to upload media
-    const canUploadMedia = await authService.hasPermission(request, 'upload_media');
+    const canUploadMedia = await authService.hasPermission(request, 'manage_media');
     if (!canUploadMedia) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
