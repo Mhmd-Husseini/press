@@ -454,7 +454,7 @@ export default async function PostPage(props: PageProps) {
                       <span className="text-gray-700"> - {authorCountry}</span>
                     )}
                   </span>
-                  <span className="text-sm text-gray-500">{formatDateLocalized((post.publishedAt || post.createdAt).toISOString(), locale)}</span>
+                  <span className="text-sm text-gray-500">{formatDateLocalized(post.createdAt.toISOString(), locale)}</span>
                 </div>
               </div>
             </div>

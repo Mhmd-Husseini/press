@@ -70,12 +70,7 @@ export async function GET(request: NextRequest) {
         postAuthor: true,
         media: {
           include: {
-            media: {
-              where: {
-                type: 'IMAGE',
-                deletedAt: null
-              }
-            }
+            media: true
           },
           take: 1
         }
@@ -132,8 +127,11 @@ export async function GET(request: NextRequest) {
       
       // Get image URL from media if available
       let imageUrl = '';
-      if (post.media && post.media.length > 0 && post.media[0].media?.url) {
-        imageUrl = post.media[0].media.url;
+      if (post.media && post.media.length > 0) {
+        const imageMedia = post.media.find(pm => pm.media?.type === 'IMAGE');
+        if (imageMedia?.media?.url) {
+          imageUrl = imageMedia.media.url;
+        }
       }
       
       // Get category name

@@ -38,6 +38,10 @@ const HeroSection: React.FC<HeroProps> = ({
   const [currentSlide, setCurrentSlide] = useState(0);
   const totalSlides = slidePosts.length;
 
+  // Touch/swipe state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
   // Function to advance to the next slide
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -51,6 +55,30 @@ const HeroSection: React.FC<HeroProps> = ({
   // Function to go to a specific slide
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
+  };
+
+  // Touch event handlers for swipe gestures
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
   };
 
   // Set up auto-advancing timer (10 seconds - a bit faster for news)
@@ -192,7 +220,12 @@ const HeroSection: React.FC<HeroProps> = ({
             {/* Main featured story with navigation controls */}
             <div className="relative overflow-hidden rounded-sm">
               {/* Full-width image */}
-              <div className="relative h-[480px] w-full">
+              <div 
+                className="relative h-[480px] w-full"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
