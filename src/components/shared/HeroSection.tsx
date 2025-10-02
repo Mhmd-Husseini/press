@@ -184,7 +184,7 @@ const HeroSection: React.FC<HeroProps> = ({
     <section className="bg-white" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Breaking news bar - Al Arabiya Style */}
       {breakingStory && (
-        <div className="bg-accent py-2 sticky top-0 z-50 shadow-md">
+        <div className="bg-accent py-2 sticky top-0 z-50 shadow-md" style={{ minHeight: '40px' }}>
           <div className="container mx-auto px-4">
             <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
               <div className="bg-primary-bg text-white px-3 py-1 font-bold text-sm">
