@@ -425,7 +425,7 @@ export default async function PostPage(props: PageProps) {
     return (
       <MainLayout>
         <div className={`container mx-auto px-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto lg:mb-12 mb-8">
             {/* Category Link */}
             <Link 
               href={`/categories/${categoryTranslation.slug}`}

@@ -124,7 +124,8 @@ export const Footer = () => {
                 : 'Ektisadi.com is a news organization providing comprehensive coverage and in-depth analysis of world and local events, especially in the economic field.'}
             </p>
 
-            <div className={`mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+            {/* Social media section commented out until pages are active */}
+            {/* <div className={`mt-6 ${isRTL ? 'text-right' : 'text-left'}`}>
               <p className="font-semibold text-white text-sm">
                 {isRTL ? 'تابعنا على' : 'Follow us on'}
               </p>
@@ -141,7 +142,7 @@ export const Footer = () => {
                   </a>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Three equal columns with equal gaps */}
@@ -207,9 +208,9 @@ export const Footer = () => {
             <p className="text-gray-500 text-sm">
               &copy; {new Date().getFullYear()} Ektisadi.com. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
             </p>
-            <p className="text-gray-500 text-xs mt-2 md:mt-0">
+            {/* <p className="text-gray-500 text-xs mt-2 md:mt-0">
               {isRTL ? 'تم تصميمه وتطويره بواسطة فريق الاقتصادي المبدع' : 'Designed and developed by the Ektisadi Creative Team'}
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

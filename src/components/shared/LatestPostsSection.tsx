@@ -124,63 +124,49 @@ export const LatestPostsSection = ({
             <div className="lg:col-span-4">
               <div className="space-y-6">
                 {/* Main post */}
-                <div className="flex flex-col border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="relative h-72 w-full">
-                  {mainPost.media && mainPost.media[0]?.media?.url ? (
-                    <Image
-                      src={mainPost.media[0].media?.url}
-                      alt={getPostTitle(mainPost)}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  ) : (
-                    <div className="bg-gray-200 h-full w-full flex items-center justify-center">
-                      <svg className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                      </svg>
+                <div className="border border-gray-200 hover:shadow-md transition-shadow flex flex-col">
+                  <div className="relative h-72 w-full">
+                    {mainPost.media && mainPost.media[0]?.media?.url ? (
+                      <Image
+                        src={mainPost.media[0].media?.url}
+                        alt={getPostTitle(mainPost)}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    ) : (
+                      <div className="bg-gray-200 h-full w-full flex items-center justify-center">
+                        <svg className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                      </div>
+                    )}
+                    {getCategoryName(mainPost) && (
+                      <Link 
+                        href={`/categories/${getCategorySlug(mainPost)}`}
+                        className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} bg-accent text-white text-xs px-2 py-1 font-medium z-10`}
+                      >
+                        {getCategoryName(mainPost)}
+                      </Link>
+                    )}
+                  </div>
+                  <div className={`p-3 flex-grow flex flex-col justify-between ${isRTL ? 'text-right' : 'text-left'}`}>
+                    <div>
+                      <Link href={`/posts/${getPostSlug(mainPost)}`}>
+                        <h3 className="text-base font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors leading-tight">
+                          {getPostTitle(mainPost)}
+                        </h3>
+                      </Link>
+                      {getPostSummary(mainPost) && (
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                          {getPostSummary(mainPost)}
+                        </p>
+                      )}
                     </div>
-                  )}
-                  {getCategoryName(mainPost) && (
-                    <Link 
-                      href={`/categories/${getCategorySlug(mainPost)}`}
-                      className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} bg-accent text-white text-xs px-2 py-1 font-medium z-10`}
-                    >
-                      {getCategoryName(mainPost)}
-                    </Link>
-                  )}
-                </div>
-                <div className={`p-4 flex flex-col ${isRTL ? 'text-right' : 'text-left'}`}>
-                  <Link href={`/posts/${getPostSlug(mainPost)}`}>
-                    <h3 className="text-lg font-bold text-primary-bg mb-2 line-clamp-2 hover:text-accent transition-colors leading-tight">
-                      {getPostTitle(mainPost)}
-                    </h3>
-                  </Link>
-                  
-                  {getPostSummary(mainPost) && (
-                    <p className="text-sm text-gray-600 mb-2 leading-relaxed">
-                      {getPostSummary(mainPost)}
-                    </p>
-                  )}
-                  
-                  {/* Show a placeholder if no summary */}
-                  {!getPostSummary(mainPost) && (
-                    <div 
-                      className="text-sm text-gray-500 flex items-center justify-center bg-gray-50 rounded"
-                      style={{ height: 'calc(100% - 80px)' }}
-                    >
-                      <span className="text-center">
-                        {isRTL ? 'اضغط لقراءة المقال كاملاً' : 'Click to read the full article'}
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="pt-2 border-t border-gray-100">
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 mt-auto pt-2 border-t border-gray-100">
                       {formatDateLocalized(String(mainPost.publishedAt || mainPost.createdAt), locale)}
                     </div>
                   </div>
-                </div>
                 </div>
                 
                 {/* Additional card under main post */}

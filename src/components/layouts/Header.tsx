@@ -25,8 +25,8 @@ export const Header = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Open search in a new tab
-      window.open(`/search?q=${encodeURIComponent(searchQuery)}&locale=${currentLocale}`, '_blank');
+      // Navigate to search in the same tab
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}&locale=${currentLocale}`;
       setMobileSearchOpen(false);
     }
   };
