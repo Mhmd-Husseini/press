@@ -239,7 +239,7 @@ export const Header = () => {
       </nav>
 
       {/* Breaking News Bar */}
-      <div className="w-full bg-accent py-2 md:py-0 overflow-hidden" style={{ minHeight: '40px' }}>
+      <div className="w-full bg-accent py-2 overflow-hidden" style={{ minHeight: '40px' }}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center">
             <span className={`text-text-light font-bold uppercase text-xs ${isRTL ? 'ml-3' : 'mr-3'} px-2 py-1 bg-primary-bg rounded flex items-center justify-center hidden md:flex`}>
@@ -252,7 +252,7 @@ export const Header = () => {
             ) : allNews.length > 0 ? (
               <>
                 {/* Desktop: Individual rotating news */}
-                <div className="hidden md:block py-1 flex-1 overflow-hidden">
+                <div className="hidden md:block flex-1 overflow-hidden">
                   <span className={`text-text-light font-medium transition-all duration-700 ease-in-out whitespace-nowrap overflow-hidden text-ellipsis block ${isTransitioning ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${isRTL ? 'text-right text-base' : 'text-left text-sm'}`}>
                     {currentNews?.text}
                   </span>
@@ -273,7 +273,7 @@ export const Header = () => {
             ) : (
               <>
                 {/* Desktop: Fallback individual news */}
-                <div className="hidden md:block py-1 flex-1 overflow-hidden">
+                <div className="hidden md:block flex-1 overflow-hidden">
                   <span className={`text-text-light font-medium transition-all duration-700 ease-in-out whitespace-nowrap overflow-hidden text-ellipsis block ${isTransitioning ? 'opacity-30 scale-95' : 'opacity-100 scale-100'} ${isRTL ? 'text-right text-base' : 'text-left text-sm'}`}>
                     {isRTL 
                       ? 'الرئيس يعلن عن خطة جديدة للإصلاح الاقتصادي'
