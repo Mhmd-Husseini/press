@@ -247,7 +247,7 @@ export default function PostForm({ post, isEdit = false }: PostFormProps) {
     else if (categoryId && !formData.categoryId) {
       setFormData(prev => ({ ...prev, categoryId }));
     }
-  }, [post, isEdit, categoryId, formData.categoryId]);
+  }, [post, isEdit, categoryId]);
 
   const handleChangeCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData(prev => ({

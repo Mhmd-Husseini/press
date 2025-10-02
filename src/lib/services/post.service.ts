@@ -538,7 +538,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
 
     // Transform all relationship IDs to proper Prisma format
     // Category relationship
-    if (data.categoryId) {
+    if (data.categoryId !== undefined) {
       updateData.category = {
         connect: { id: data.categoryId }
       };
