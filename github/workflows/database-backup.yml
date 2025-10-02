@@ -1,0 +1,138 @@
+name: Weekly Database Backup
+
+on:
+  schedule:
+    # Run every 2 weeks on Sunday at 2 AM UTC
+    - cron: '0 2 * * 0/2'
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  backup-database:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+          
+      - name: Create database backup
+        env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+          DATABASE_HOST: ${{ secrets.DB_HOST }}
+          DATABASE_PORT: ${{ secrets.DB_PORT }}
+          DATABASE_USER: ${{ secrets.DB_USER }}
+          DATABASE_NAME: ${{ secrets.DB_NAME }}
+        run: |
+          echo "🗄️ Creating database backup..."
+          
+          # Create backup filename with timestamp
+          BACKUP_FILE="phoenix_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
+          
+          # Create compressed database dump
+          pg_dump \
+            -h $DATABASE_HOST \
+            -p $DATABASE_PORT \
+            -U $DATABASE_USER \
+            -d $DATABASE_NAME \
+            | gzip \
+            > $BACKUP_FILE
+          
+          echo "📦 Backup file: $BACKUP_FILE"
+          echo "📊 Backup size: $(du -h $BACKUP_FILE | cut -f1)"
+          
+      - name: Upload backup to S3
+        run: |
+          echo "📤 Uploading backup to S3..."
+          
+          aws s3 cp $BACKUP_FILE \
+            s3://inventory-managment-husseini/database-backups/${BACKUP_FILE}
+          
+          echo "✅ Backup uploaded successfully!"
+          
+      - name: Clean up old S3 backups
+        run: |
+          echo "🧹 Cleaning up old backups (keeping last 12)..."
+          
+          # Remove backups older than 12 weeks (to keep ~6 months of backups)
+          aws s3api list-objects-v2 \
+            --bucket inventory-managment-husseini \
+            --prefix database-backups/phoenix_backup_ \
+            --query 'Contents[?LastModified < `'"$(date -u -d '12 weeks ago' '+%Y-%m-%dT%H:%M:%S+00:00')"'`].Key' \
+            --output text \
+          | while read key; do
+            if [ ! -z "$key" ]; then
+              echo "🗑️ Deleting old backup: $key"
+              aws s3 rm s3://inventory-managment-husseini/$key
+            fi
+          done
+          
+      - name: Create backup summary
+        run: |
+          BACKUP_FILE="phoenix_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
+          
+          cat > backup-summary.md << EOF
+          ## 📊 Database Backup Summary
+          
+          **Backup Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          **Backup File:** \`$BACKUP_FILE\`
+          
+          **Storage Location:** s3://inventory-managment-husseini/database-backups/
+          
+          **Backup Size:** $(du -h phoenix_backup_*.sql.gz | cut -f1)
+          
+          **Backup Frequency:** Every 2 weeks
+          
+          **Retention Policy:** 12 weeks (6 months)
+          
+          ### 📋 Backup Details
+          - Database: PostgreSQL
+          - Compression: gzip
+          - Format: SQL dump
+          - Encryption: In transit (HTTPS to S3), At rest (S3 default)
+          
+          ### 🔄 Next Backup
+          Scheduled for: $(( $(date -u +%U) + 2 )) weeks from now
+          
+          ---
+          *This backup was created automatically by GitHub Actions*
+          EOF
+          
+          echo "$(cat backup-summary.md)"
+          
+      - name: Clean up local files
+        run: |
+          rm -f phoenix_backup_*.sql.gz backup-summary.md
+          
+      - name: Backup Success Notification
+        if: success()
+        run: |
+          echo "✅ Database backup completed successfully!"
+          echo "📅 Next backup scheduled for 2 weeks from now"
+          echo "🔗 Check S3 bucket: inventory-managment-husseini/database-backups/"
+          
+      - name: Backup Failure Notification
+        if: failure()
+        run: |
+          echo "❌ Database backup failed!"
+          echo "🔧 Please check:"
+          echo "   - Database connection settings"
+          echo "   - AWS credentials"
+          echo "   - Database user permissions"
