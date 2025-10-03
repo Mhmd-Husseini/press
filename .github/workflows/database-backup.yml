@@ -21,13 +21,39 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
           
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
-          mask-aws-account-id: false
+      - name: Validate AWS credentials format
+        run: |
+          echo "🔍 Validating AWS credentials format..."
+          ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          SECRET_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          
+          if [[ ${#ACCESS_KEY} -eq 20 ]] && [[ $ACCESS_KEY =~ ^AKIA[0-9A-Z]{16}$ ]]; then
+            echo "✅ AWS Access Key format is valid"
+          else
+            echo "❌ AWS Access Key format is invalid"
+            echo "   Length: ${#ACCESS_KEY}"
+            echo "   Starts with AKIA: $([[ $ACCESS_KEY == AKIA* ]] && echo 'Yes' || echo 'No')"
+            exit 1
+          fi
+          
+          if [[ ${#SECRET_KEY} -eq 40 ]] && [[ $SECRET_KEY =~ ^[A-Za-z0-9/+=]{40}$ ]]; then
+            echo "✅ AWS Secret Key format is valid"
+          else
+            echo "❌ AWS Secret Key format is invalid"
+            echo "   Length: ${#SECRET_KEY}"
+            exit 1
+          fi
+          
+      # Option: Use AWS CLI directly instead of the action
+      - name: Configure AWS CLI credentials
+        run: |
+          mkdir -p ~/.aws
+          cat > ~/.aws/credentials << EOF
+          [default]
+          aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region = eu-north-1
+          EOF
           
       - name: Test AWS credentials
         run: |
