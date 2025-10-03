@@ -12,6 +12,23 @@ DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="phoenix_backup_${DATE}.sql.gz"
 BACKUP_PATH="/tmp/${BACKUP_FILE}"
 
+# Check if AWS CLI is installed, install if missing
+if ! command -v aws &> /dev/null; then
+    echo "📦 Installing AWS CLI..."
+    
+    # Install unzip if not available
+    if ! command -v unzip &> /dev/null; then
+        sudo apt-get update && sudo apt-get install -y unzip
+    fi
+    
+    # Download and install AWS CLI v2
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+    rm -rf aws awscliv2.zip
+    echo "✅ AWS CLI installed successfully"
+fi
+
 # Load environment variables
 if [ -f ".env.production" ]; then
     source .env.production
