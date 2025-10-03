@@ -22,11 +22,18 @@ jobs:
           sudo apt-get install -y postgresql-client
           
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-north-1
+          mask-aws-account-id: false
+          
+      - name: Test AWS credentials
+        run: |
+          echo "🔍 Testing AWS credentials..."
+          aws sts get-caller-identity || echo "❌ AWS credentials failed"
+          aws s3 ls s3://inventory-managment-husseini/ --region eu-north-1 || echo "❌ S3 access failed"
           
       - name: Create database backup
         env:
