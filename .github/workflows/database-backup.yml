@@ -16,152 +16,41 @@ jobs:
         with:
           ref: staging # Always checkout staging branch for scheduled backups
         
-      - name: Install PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-          
-      - name: Validate AWS credentials format
-        run: |
-          echo "🔍 Validating AWS credentials format..."
-          ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY_ID }}"
-          SECRET_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          
-          if [[ ${#ACCESS_KEY} -eq 20 ]] && [[ $ACCESS_KEY =~ ^AKIA[0-9A-Z]{16}$ ]]; then
-            echo "✅ AWS Access Key format is valid"
-          else
-            echo "❌ AWS Access Key format is invalid"
-            echo "   Length: ${#ACCESS_KEY}"
-            echo "   Starts with AKIA: $([[ $ACCESS_KEY == AKIA* ]] && echo 'Yes' || echo 'No')"
-            exit 1
-          fi
-          
-          if [[ ${#SECRET_KEY} -eq 40 ]] && [[ $SECRET_KEY =~ ^[A-Za-z0-9/+=]{40}$ ]]; then
-            echo "✅ AWS Secret Key format is valid"
-          else
-            echo "❌ AWS Secret Key format is invalid"
-            echo "   Length: ${#SECRET_KEY}"
-            exit 1
-          fi
-          
-      # Option: Use AWS CLI directly instead of the action
-      - name: Configure AWS CLI credentials
-        run: |
-          mkdir -p ~/.aws
-          cat > ~/.aws/credentials << EOF
-          [default]
-          aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          region = eu-north-1
-          EOF
-          
-      - name: Test AWS credentials
-        run: |
-          echo "🔍 Testing AWS credentials..."
-          aws sts get-caller-identity || echo "❌ AWS credentials failed"
-          aws s3 ls s3://inventory-managment-husseini/ --region eu-north-1 || echo "❌ S3 access failed"
-          
-      - name: Create database backup
-        env:
-          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
-          DATABASE_HOST: ${{ secrets.DB_HOST }}
-          DATABASE_PORT: ${{ secrets.DB_PORT }}
-          DATABASE_USER: ${{ secrets.DB_USER }}
-          DATABASE_NAME: ${{ secrets.DB_NAME }}
-        run: |
-          echo "🗄️ Creating database backup..."
-          
-          # Create backup filename with timestamp
-          BACKUP_FILE="phoenix_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
-          
-          # Create compressed database dump
-          pg_dump \
-            -h $DATABASE_HOST \
-            -p $DATABASE_PORT \
-            -U $DATABASE_USER \
-            -d $DATABASE_NAME \
-            | gzip \
-            > $BACKUP_FILE
-          
-          echo "📦 Backup file: $BACKUP_FILE"
-          echo "📊 Backup size: $(du -h $BACKUP_FILE | cut -f1)"
-          
-      - name: Upload backup to S3
-        run: |
-          echo "📤 Uploading backup to S3..."
-          
-          aws s3 cp $BACKUP_FILE \
-            s3://inventory-managment-husseini/database-backups/${BACKUP_FILE}
-          
-          echo "✅ Backup uploaded successfully!"
-          
-      - name: Clean up old S3 backups
-        run: |
-          echo "🧹 Cleaning up old backups (keeping last 12)..."
-          
-          # Remove backups older than 12 weeks (to keep ~6 months of backups)
-          aws s3api list-objects-v2 \
-            --bucket inventory-managment-husseini \
-            --prefix database-backups/phoenix_backup_ \
-            --query 'Contents[?LastModified < `'"$(date -u -d '12 weeks ago' '+%Y-%m-%dT%H:%M:%S+00:00')"'`].Key' \
-            --output text \
-          | while read key; do
-            if [ ! -z "$key" ]; then
-              echo "🗑️ Deleting old backup: $key"
-              aws s3 rm s3://inventory-managment-husseini/$key
-            fi
-          done
-          
-      - name: Create backup summary
-        run: |
-          BACKUP_FILE="phoenix_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
-          
-          cat > backup-summary.md << EOF
-          ## 📊 Database Backup Summary
-          
-          **Backup Date:** $(date -u '+%Y-%m-%d %H%M:%S UTC')
-          
-          **Backup File:** \`$BACKUP_FILE\`
-          
-          **Storage Location:** s3://inventory-managment-husseini/database-backups/
-          
-          **Backup Size:** $(du -h phoenix_backup_*.sql.gz | cut -f1)
-          
-          **Backup Frequency:** Every 2 weeks
-          
-          **Retention Policy:** 12 weeks (6 months)
-          
-          ### 📋 Backup Details
-          - Database: PostgreSQL
-          - Compression: gzip
-          - Format: SQL dump
-          - Encryption: In transit (HTTPS to S3), At rest (S3 default)
-          
-          ### 🔄 Next Backup
-          Scheduled for: $(( $(date -u +%U) + 2 )) weeks from now
-          
-          ---
-          *This backup was created automatically by GitHub Actions*
-          EOF
-          
-          echo "$(cat backup-summary.md)"
-          
-      - name: Clean up local files
-        run: |
-          rm -f phoenix_backup_*.sql.gz backup-summary.md
-          
+      - name: Run backup on EC2 server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "🗄️ Starting automated database backup..."
+            cd /var/www/phoenix-press
+            
+            # Download latest backup script from repository
+            curl -o scripts/backup-database.sh \
+              https://raw.githubusercontent.com/Mhmd-Husseini/press/staging/scripts/backup-database.sh
+            
+            # Make it executable
+            chmod +x scripts/backup-database.sh
+            
+            # Run the backup script
+            ./scripts/backup-database.sh
+            
+            echo "✅ Database backup completed successfully!"
+            echo "📅 Next backup scheduled for 2 weeks from now"
+            
       - name: Backup Success Notification
         if: success()
         run: |
-          echo "✅ Database backup completed successfully!"
-          echo "📅 Next backup scheduled for 2 weeks from now"
+          echo "🎉 Database backup completed successfully!"
           echo "🔗 Check S3 bucket: inventory-managment-husseini/database-backups/"
+          echo "📅 Next backup: 2 weeks from now"
           
       - name: Backup Failure Notification
         if: failure()
         run: |
           echo "❌ Database backup failed!"
           echo "🔧 Please check:"
-          echo "   - Database connection settings"
-          echo "   - AWS credentials"
-          echo "   - Database user permissions"
+          echo "   - EC2 server connectivity"
+          echo "   - Database connection in EC2"
+          echo "   - S3 permissions for EC2 IAM role"
