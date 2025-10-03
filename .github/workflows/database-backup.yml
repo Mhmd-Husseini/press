@@ -92,7 +92,7 @@ jobs:
           cat > backup-summary.md << EOF
           ## 📊 Database Backup Summary
           
-          **Backup Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          **Backup Date:** $(date -u '+%Y-%m-%d %H%M:%S UTC')
           
           **Backup File:** \`$BACKUP_FILE\`
           
