@@ -290,6 +290,151 @@ type PageProps = {
   }>;
 };
 
+// Generate metadata for social media sharing
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  try {
+    const { slug } = await params;
+    const decodedSlug = decodeURIComponent(slug);
+    
+    // Get the current locale from cookies
+    const cookieStore = await cookies();
+    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+    
+    // Find post by slug
+    const post = await prisma.post.findFirst({
+      where: {
+        translations: {
+          some: {
+            slug: decodedSlug,
+          },
+        },
+        status: PostStatus.PUBLISHED,
+      },
+      include: {
+        translations: true,
+        category: {
+          include: {
+            translations: true,
+          },
+        },
+        postAuthor: true,
+        media: {
+          include: {
+            media: true
+          }
+        },
+      },
+    });
+
+    if (!post) {
+      return {
+        title: 'Post Not Found',
+        description: 'The requested post could not be found.',
+      };
+    }
+    
+    // Get translation for the current locale
+    const postTranslation = post.translations.find((t: PostTranslation) => t.locale === locale) || 
+                          post.translations[0];
+    
+    // Get category translation
+    const categoryTranslation = post.category?.translations?.find((t: CategoryTranslation) => t.locale === locale) || 
+                              post.category?.translations?.[0];
+    
+    // Get featured image
+    const featuredImage = post.media.find((pm: any) => pm.media.type === MediaType.IMAGE)?.media;
+    const imageUrl = featuredImage ? featuredImage.url : '/images/default-post-image.svg';
+    
+    // Get author information
+    const author = (post as any).postAuthor;
+    const authorName = author ? `${author.firstName} ${author.lastName}`.trim() : 'Ektisadi.com';
+    
+    // Create description (first 160 characters of content or summary)
+    const description = postTranslation.summary || 
+                      postTranslation.content?.replace(/<[^>]*>/g, '').substring(0, 160) + '...' ||
+                      'Read the latest news and analysis from Ektisadi.com';
+    
+    // Create canonical URL
+    const canonicalUrl = `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}`;
+    
+    return {
+      title: `${postTranslation.title} | Ektisadi.com`,
+      description,
+      keywords: [
+        categoryTranslation?.name || 'News',
+        'Lebanon',
+        'Economy',
+        'Business',
+        'Politics',
+        'Technology',
+        'Ektisadi.com'
+      ].join(', '),
+      authors: [{ name: authorName }],
+      creator: 'Ektisadi.com',
+      publisher: 'Ektisadi.com',
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
+      openGraph: {
+        type: 'article',
+        title: postTranslation.title,
+        description,
+        url: canonicalUrl,
+        siteName: 'Ektisadi.com',
+        locale: locale === 'ar' ? 'ar_LB' : 'en_US',
+        images: [
+          {
+            url: imageUrl.startsWith('http') ? imageUrl : `https://ektisadi.com${imageUrl}`,
+            width: 1200,
+            height: 630,
+            alt: postTranslation.title,
+            type: 'image/jpeg',
+          },
+        ],
+        publishedTime: post.createdAt.toISOString(),
+        modifiedTime: post.updatedAt.toISOString(),
+        authors: [authorName],
+        section: categoryTranslation?.name || 'News',
+        tags: [categoryTranslation?.name || 'News', 'Lebanon', 'Economy'],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        site: '@ektisadi',
+        creator: '@ektisadi',
+        title: postTranslation.title,
+        description,
+        images: [imageUrl.startsWith('http') ? imageUrl : `https://ektisadi.com${imageUrl}`],
+      },
+      alternates: {
+        canonical: canonicalUrl,
+        languages: {
+          'ar-LB': `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}?locale=ar`,
+          'en-US': `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}?locale=en`,
+        },
+      },
+      other: {
+        'article:author': authorName,
+        'article:section': categoryTranslation?.name || 'News',
+        'article:tag': categoryTranslation?.name || 'News',
+      },
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Ektisadi.com - Latest News and Analysis',
+      description: 'Read the latest news and analysis from Ektisadi.com',
+    };
+  }
+}
+
 // Error boundary component
 function ErrorBoundary({ children }: { children: React.ReactNode }) {
   return (
@@ -424,6 +569,55 @@ export default async function PostPage(props: PageProps) {
     
     return (
       <MainLayout>
+        {/* Structured Data for SEO and Social Media */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "NewsArticle",
+              "headline": postTranslation.title,
+              "description": postTranslation.summary || postTranslation.content?.replace(/<[^>]*>/g, '').substring(0, 160),
+              "image": imageUrl.startsWith('http') ? imageUrl : `https://ektisadi.com${imageUrl}`,
+              "author": {
+                "@type": "Person",
+                "name": authorName,
+                "url": `https://ektisadi.com/authors/${author?.id || 'ektisadi'}`
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "Ektisadi.com",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://ektisadi.com/images/logo.png"
+                },
+                "url": "https://ektisadi.com"
+              },
+              "datePublished": post.createdAt.toISOString(),
+              "dateModified": post.updatedAt.toISOString(),
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}`
+              },
+              "articleSection": categoryTranslation?.name || "News",
+              "keywords": [
+                categoryTranslation?.name || "News",
+                "Lebanon",
+                "Economy",
+                "Business",
+                "Politics",
+                "Technology"
+              ],
+              "inLanguage": locale === 'ar' ? 'ar-LB' : 'en-US',
+              "isAccessibleForFree": true,
+              "copyrightYear": post.createdAt.getFullYear(),
+              "copyrightHolder": {
+                "@type": "Organization",
+                "name": "Ektisadi.com"
+              }
+            })
+          }}
+        />
         <div className={`container mx-auto px-8 lg:px-12 py-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
           <div className="max-w-3xl mx-auto lg:mb-4 mb-3">
             {/* Category Link */}
