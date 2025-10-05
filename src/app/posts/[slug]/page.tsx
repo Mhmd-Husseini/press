@@ -357,11 +357,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                       postTranslation.content?.replace(/<[^>]*>/g, '').substring(0, 160) + '...' ||
                       (locale === 'ar' ? 'اقرأ آخر الأخبار والتحليلات من إقتصادي' : 'Read the latest news and analysis from Ektisadi.com');
     
-    // Create canonical URL - don't double encode Arabic slugs
-    const canonicalUrl = `https://ektisadi.com/posts/${postTranslation.slug}`;
+    // Create canonical URL with properly decoded Arabic slug for social sharing
+    // The slug in DB might already be encoded, so decode it first, then create the URL
+    const decodedSlugForUrl = decodeURIComponent(postTranslation.slug);
+    const canonicalUrl = `https://ektisadi.com/posts/${decodedSlugForUrl}`;
+    
+    // Also create a clean display URL for sharing (without date prefix for cleaner appearance)
+    const displayTitle = postTranslation.title;
     
     return {
-      title: `${postTranslation.title} | Ektisadi.com`,
+      title: `${displayTitle} | Ektisadi.com`,
       description,
       keywords: [
         categoryTranslation?.name || 'News',
@@ -419,8 +424,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       alternates: {
         canonical: canonicalUrl,
         languages: {
-          'ar-LB': `https://ektisadi.com/posts/${postTranslation.slug}?locale=ar`,
-          'en-US': `https://ektisadi.com/posts/${postTranslation.slug}?locale=en`,
+          'ar-LB': `${canonicalUrl}?locale=ar`,
+          'en-US': `${canonicalUrl}?locale=en`,
         },
       },
       other: {
@@ -574,6 +579,10 @@ export default async function PostPage(props: PageProps) {
     const authorCountry = author?.country;
     const authorAvatar = author?.avatar;
     
+    // Create canonical URL for structured data
+    const decodedSlugForUrl = decodeURIComponent(postTranslation.slug);
+    const canonicalUrl = `https://ektisadi.com/posts/${decodedSlugForUrl}`;
+    
     return (
       <MainLayout>
         {/* Structured Data for SEO and Social Media */}
@@ -604,7 +613,7 @@ export default async function PostPage(props: PageProps) {
               "dateModified": post.updatedAt.toISOString(),
               "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": `https://ektisadi.com/posts/${postTranslation.slug}`
+                "@id": canonicalUrl
               },
               "articleSection": categoryTranslation?.name || "News",
               "keywords": [
