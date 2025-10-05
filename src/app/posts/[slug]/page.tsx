@@ -300,6 +300,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const cookieStore = await cookies();
     const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
     
+    // Debug logging for Arabic locale detection
+    console.log('Metadata generation - Locale:', locale, 'Slug:', decodedSlug);
+    
     // Find post by slug
     const post = await prisma.post.findFirst({
       where: {
@@ -352,10 +355,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Create description (first 160 characters of content or summary)
     const description = postTranslation.summary || 
                       postTranslation.content?.replace(/<[^>]*>/g, '').substring(0, 160) + '...' ||
-                      'Read the latest news and analysis from Ektisadi.com';
+                      (locale === 'ar' ? 'اقرأ آخر الأخبار والتحليلات من إقتصادي' : 'Read the latest news and analysis from Ektisadi.com');
     
-    // Create canonical URL
-    const canonicalUrl = `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}`;
+    // Create canonical URL - don't double encode Arabic slugs
+    const canonicalUrl = `https://ektisadi.com/posts/${postTranslation.slug}`;
     
     return {
       title: `${postTranslation.title} | Ektisadi.com`,
@@ -416,14 +419,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       alternates: {
         canonical: canonicalUrl,
         languages: {
-          'ar-LB': `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}?locale=ar`,
-          'en-US': `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}?locale=en`,
+          'ar-LB': `https://ektisadi.com/posts/${postTranslation.slug}?locale=ar`,
+          'en-US': `https://ektisadi.com/posts/${postTranslation.slug}?locale=en`,
         },
       },
       other: {
         'article:author': authorName,
         'article:section': categoryTranslation?.name || 'News',
         'article:tag': categoryTranslation?.name || 'News',
+        'og:locale:alternate': locale === 'ar' ? 'en_US' : 'ar_LB',
+        'og:locale': locale === 'ar' ? 'ar_LB' : 'en_US',
+        'twitter:app:country': 'LB',
+        'twitter:app:name': 'Ektisadi.com',
       },
     };
   } catch (error) {
@@ -597,7 +604,7 @@ export default async function PostPage(props: PageProps) {
               "dateModified": post.updatedAt.toISOString(),
               "mainEntityOfPage": {
                 "@type": "WebPage",
-                "@id": `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}`
+                "@id": `https://ektisadi.com/posts/${postTranslation.slug}`
               },
               "articleSection": categoryTranslation?.name || "News",
               "keywords": [
