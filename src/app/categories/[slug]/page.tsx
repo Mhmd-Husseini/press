@@ -8,6 +8,7 @@ import prisma from '@/lib/prisma';
 import { formatDateLocalized } from '@/lib/utils';
 import { MediaType } from '@prisma/client';
 import { PostStatus } from '@prisma/client';
+import InfiniteScrollPosts from '@/components/categories/InfiniteScrollPosts';
 
 type PageProps = {
   params: Promise<{
@@ -212,109 +213,28 @@ export default async function CategoryPage(props: PageProps) {
               )}
             </div>
             
-            {/* Posts Grid */}
-            {posts.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                  {posts.map((post: any) => (
-                    <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                      <Link href={`/posts/${encodeURIComponent(post.slug)}`}>
-                        <div className="relative h-48 w-full">
-                          <Image
-                            src={post.imageUrl}
-                            alt={post.title}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </div>
-                      </Link>
-                      <div className="p-6">
-                        <Link href={`/posts/${encodeURIComponent(post.slug)}`} className="block">
-                          <h2 className="text-lg font-semibold hover:text-primary-600 transition-colors line-clamp-2 leading-snug mb-1">
-                            {post.title}
-                          </h2>
-                        </Link>
-                        <p className="text-gray-500 text-xs mb-3">
-                          {formatDateLocalized(post.publishedAt.toISOString(), locale)}
-                        </p>
-                        <p className="text-gray-600 text-xs mb-2 line-clamp-3">
-                          {post.excerpt}
-                        </p>
-                        <Link 
-                          href={`/posts/${encodeURIComponent(post.slug)}`}
-                          className={`text-primary-600 hover:text-primary-700 font-medium transition-colors text-xs block ${isRTL ? 'text-left' : 'text-right'}`}
-                        >
-                          {isRTL ? 'اقرأ المزيد →' : 'Read More →'}
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center items-center space-x-2">
-                    {/* Previous Button */}
-                    {currentPage > 1 && (
-                      <Link
-                        href={generatePageUrl(currentPage - 1)}
-                        className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        {isRTL ? 'السابق' : 'Previous'}
-                      </Link>
-                    )}
-
-                    {/* Page Numbers */}
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      const page = Math.max(1, currentPage - 2) + i;
-                      if (page > totalPages) return null;
-                      
-                      return (
-                        <Link
-                          key={page}
-                          href={generatePageUrl(page)}
-                          className={`px-3 py-2 border rounded-md text-sm font-medium transition-colors ${
-                            page === currentPage
-                              ? 'border-primary-500 bg-primary-50 text-primary-700'
-                              : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-                          }`}
-                        >
-                          {page}
-                        </Link>
-                      );
-                    })}
-
-                    {/* Next Button */}
-                    {currentPage < totalPages && (
-                      <Link
-                        href={generatePageUrl(currentPage + 1)}
-                        className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        {isRTL ? 'التالي' : 'Next'}
-                      </Link>
-                    )}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-16">
-                <h2 className="text-2xl font-semibold text-gray-600 mb-4">
-                  {isRTL ? 'لا توجد منشورات' : 'No Posts Found'}
-                </h2>
-                <p className="text-gray-500 mb-8">
-                  {isRTL 
-                    ? 'لم يتم العثور على منشورات في هذه الفئة بعد.' 
-                    : 'No posts have been found in this category yet.'}
-                </p>
-                <Link 
-                  href="/"
-                  className="inline-block px-6 py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition"
-                >
-                  {isRTL ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home Page'}
-                </Link>
-              </div>
-            )}
+            {/* Infinite Scroll Posts */}
+            <InfiniteScrollPosts
+              initialPosts={posts.map((post: any) => ({
+                id: post.id,
+                slug: post.slug,
+                title: post.title,
+                excerpt: post.excerpt,
+                imageUrl: post.imageUrl,
+                publishedAt: post.publishedAt.toISOString(),
+                createdAt: post.publishedAt.toISOString(), // Use publishedAt as createdAt for consistency
+              }))}
+              initialPagination={{
+                page: currentPage,
+                limit: POSTS_PER_PAGE,
+                total,
+                totalPages,
+                hasMore: currentPage < totalPages,
+              }}
+              categorySlug={slug}
+              locale={locale}
+              isRTL={isRTL}
+            />
           </div>
         </div>
       </MainLayout>
