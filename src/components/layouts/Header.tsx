@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { setLanguage } from '@/app/actions';
 import { useCategories } from '@/hooks/useCategories';
 import { useBreakingNews } from '@/hooks/useBreakingNews';
@@ -14,6 +15,9 @@ export const Header = () => {
   const [currentDate, setCurrentDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  
+  // Get current pathname to determine active category
+  const pathname = usePathname();
   
   // Fetch categories from the API using our custom hook
   const { categories, loading, error } = useCategories(currentLocale);
@@ -91,6 +95,11 @@ export const Header = () => {
   // Use database categories or fallback if loading/error
   const displayCategories = categories.length > 0 ? categories : fallbackCategories;
 
+  // Helper function to check if a category is currently active
+  const isCategoryActive = (categorySlug: string) => {
+    return pathname === `/categories/${categorySlug}`;
+  };
+
   return (
     <header className="bg-white text-text-dark" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top Bar */}
@@ -120,19 +129,80 @@ export const Header = () => {
         <div className="container mx-auto md:px-6">
           <div className="flex justify-between items-center">
             {/* Logo */}
-                <Link href="/" className="flex items-center">
-                  {isRTL ? (
+            <Link href="/" className="flex items-center">
+              {isRTL ? (
+                <>
+                  <span className="text-lg md:text-xl font-bold text-primary-bg">إقتصادي</span>
+                  <span className="text-lg md:text-xl font-bold text-accent">.كوم</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-lg md:text-xl font-bold text-primary-bg">Ektisadi</span>
+                  <span className="text-lg md:text-xl font-bold text-accent">.com</span>
+                </>
+              )}
+            </Link>
+
+            {/* Categories - Desktop */}
+            <div className="hidden md:flex items-center">
+              <nav className="flex items-center">
+                <ul className={`flex ${isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'}`}>
+                  {loading ? (
+                    // Show skeleton loaders while categories are loading
                     <>
-                      <span className="text-lg md:text-xl font-bold text-primary-bg">إقتصادي</span>
-                      <span className="text-lg md:text-xl font-bold text-accent">.كوم</span>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <li key={i} className="animate-pulse">
+                          <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                        </li>
+                      ))}
                     </>
                   ) : (
-                    <>
-                      <span className="text-lg md:text-xl font-bold text-primary-bg">Ektisadi</span>
-                      <span className="text-lg md:text-xl font-bold text-accent">.com</span>
-                    </>
+                    // Show actual categories once loaded
+                    displayCategories.slice(0, 6).map((category) => (
+                      <li 
+                        key={category.slug} 
+                        className="relative group"
+                        onMouseEnter={() => setHoveredCategory(category.slug)}
+                        onMouseLeave={() => setHoveredCategory(null)}
+                      >
+                        <Link 
+                          href={`/categories/${category.slug}`}
+                          className={`transition-colors text-sm font-semibold py-2 px-2 rounded-md ${
+                            isCategoryActive(category.slug)
+                              ? 'text-accent bg-accent/10 border-b-2 border-accent'
+                              : 'text-text-dark hover:text-accent hover:bg-gray-50'
+                          }`}
+                        >
+                          {category.name[currentLocale as keyof typeof category.name] || category.name.en}
+                        </Link>
+                        
+                        {/* Dropdown for subcategories */}
+                        {category.children && category.children.length > 0 && (
+                          <div className={`absolute top-full ${isRTL ? 'right-0' : 'left-0'} mt-1 w-48 bg-white border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50`}>
+                            <ul className="py-2">
+                              {category.children.map((subcategory) => (
+                                <li key={subcategory.slug}>
+                                  <Link 
+                                    href={`/categories/${subcategory.slug}`}
+                                    className={`block px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                                      isCategoryActive(subcategory.slug)
+                                        ? 'text-accent bg-accent/10 border-l-2 border-accent'
+                                        : 'text-text-dark hover:bg-gray-50 hover:text-accent'
+                                    }`}
+                                  >
+                                    {subcategory.name[currentLocale as keyof typeof subcategory.name] || subcategory.name.en}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </li>
+                    ))
                   )}
-                </Link>
+                </ul>
+              </nav>
+            </div>
 
             {/* Search Bar - Desktop */}
             <div className="hidden md:flex items-center">
@@ -174,69 +244,6 @@ export const Header = () => {
           </div>
         </div>
       </div>
-
-      {/* Navigation */}
-      <nav className="w-full bg-white border-b border-border shadow-sm">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className={`hidden md:flex items-center justify-between h-10`}>
-            <ul className={`flex ${isRTL ? 'space-x-reverse space-x-8' : 'space-x-8'}`}>
-              {loading ? (
-                // Show skeleton loaders while categories are loading
-                <>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <li key={i} className="animate-pulse py-3">
-                      <div className="h-4 w-16 bg-gray-200 rounded"></div>
-                    </li>
-                  ))}
-                </>
-              ) : (
-                // Show actual categories once loaded
-                displayCategories.map((category) => (
-                  <li 
-                    key={category.slug} 
-                    className="relative group"
-                    onMouseEnter={() => setHoveredCategory(category.slug)}
-                    onMouseLeave={() => setHoveredCategory(null)}
-                  >
-                    <Link
-                      href={`/categories/${category.slug}`}
-                      className="text-text-dark font-medium hover:text-accent py-2 inline-block border-b-2 border-transparent group-hover:border-accent transition-colors"
-                    >
-                      {isRTL ? category.name.ar : category.name.en}
-                      {/* Show dropdown arrow if category has children */}
-                      {category.children && category.children.length > 0 && (
-                        <svg 
-                          className={`inline-block ml-1 h-4 w-4 transition-transform ${hoveredCategory === category.slug ? 'rotate-180' : ''}`} 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      )}
-                    </Link>
-                    
-                    {/* Dropdown for categories with children */}
-                    {category.children && category.children.length > 0 && hoveredCategory === category.slug && (
-                      <div className="absolute top-full left-0 z-50 min-w-48 bg-white border border-gray-200 rounded-md shadow-lg py-2">
-                        {category.children.map((child) => (
-                          <Link
-                            key={child.slug}
-                            href={`/categories/${child.slug}`}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-accent transition-colors"
-                          >
-                            {isRTL ? child.name.ar : child.name.en}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
-        </div>
-      </nav>
 
       {/* Breaking News Bar */}
       <div className="w-full bg-accent py-2 overflow-hidden" style={{ minHeight: '40px' }}>
@@ -362,7 +369,11 @@ export const Header = () => {
                   <li key={category.slug}>
                     <Link
                       href={`/categories/${category.slug}`}
-                      className="text-gray-700 hover:text-amber-600 transition-colors"
+                      className={`text-sm font-semibold py-2 px-3 rounded-md transition-colors ${
+                        isCategoryActive(category.slug)
+                          ? 'text-accent bg-accent/10 border-l-4 border-accent'
+                          : 'text-gray-700 hover:text-accent hover:bg-gray-50'
+                      }`}
                       onClick={toggleMobileMenu}
                     >
                       {isRTL ? category.name.ar : category.name.en}
@@ -374,7 +385,11 @@ export const Header = () => {
                           <li key={child.slug}>
                             <Link
                               href={`/categories/${child.slug}`}
-                              className="text-sm text-gray-500 hover:text-amber-600 transition-colors"
+                              className={`text-sm font-medium py-1 px-3 rounded-md transition-colors ${
+                                isCategoryActive(child.slug)
+                                  ? 'text-accent bg-accent/10 border-l-2 border-accent'
+                                  : 'text-gray-500 hover:text-accent hover:bg-gray-50'
+                              }`}
                               onClick={toggleMobileMenu}
                             >
                               {isRTL ? child.name.ar : child.name.en}

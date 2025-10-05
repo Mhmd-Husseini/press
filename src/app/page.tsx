@@ -67,7 +67,7 @@ export default async function Home() {
         deletedAt: null
       },
       orderBy: {
-        publishedAt: 'desc'
+        createdAt: 'desc'
       },
       take: 20, // Get more to account for filtering
       include: {
@@ -170,7 +170,7 @@ export default async function Home() {
           featuredPosts={featuredPosts}
         />
         
-        <div className="space-y-6 md:space-y-0 md:pb-6" dir={isRTL ? 'rtl' : 'ltr'}>          
+        <div className="space-y-6 md:space-y-0 md:pb-6 mt-6" dir={isRTL ? 'rtl' : 'ltr'}>          
           {/* Latest News Section */}
           <LatestPostsSection 
             posts={latestPosts as any[]} 

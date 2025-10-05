@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        publishedAt: { sort: 'desc', nulls: 'last' }
+        createdAt: { sort: 'desc', nulls: 'last' }
       },
       skip,
       take: limit,

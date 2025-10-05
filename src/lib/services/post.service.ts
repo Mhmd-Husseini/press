@@ -391,7 +391,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       take: limit,
       orderBy: [
         { featured: 'desc' },
-        { updatedAt: 'desc' }
+        { createdAt: 'desc' }
       ],
       include: {
         translations: locale ? { where: { locale } } : true,

@@ -56,7 +56,7 @@ async function fetchPosts(page: number, search: string = '', locale: string) {
           },
         },
         orderBy: {
-          publishedAt: 'desc',
+          createdAt: 'desc',
         },
         skip,
         take: POSTS_PER_PAGE,

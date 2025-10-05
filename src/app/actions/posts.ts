@@ -83,7 +83,7 @@ export async function fetchPublishedPosts({
     take: limit,
     orderBy: [
       { featured: 'desc' },
-      { publishedAt: 'desc' }
+      { createdAt: 'desc' }
     ],
     include: {
       translations: locale ? { where: { locale } } : true,

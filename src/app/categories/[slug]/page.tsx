@@ -71,7 +71,7 @@ async function fetchCategoryPosts(slug: string, locale: string, page: number = 1
           },
         },
         orderBy: {
-          publishedAt: 'desc', // Ensure newest posts appear first
+          createdAt: 'desc', // Order by creation date instead of publish date
         },
         skip,
         take: POSTS_PER_PAGE,
@@ -204,9 +204,9 @@ export default async function CategoryPage(props: PageProps) {
           <div className="max-w-7xl mx-auto">
             {/* Category Header */}
             <div className="mb-12 text-center">
-              <h1 className="text-4xl font-bold mb-4">{category.name}</h1>
+              <h1 className="text-2xl font-bold">{category.name}</h1>
               {category.description && (
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-4">
+                <p className="text-base text-gray-600 max-w-3xl mx-auto mb-4">
                   {category.description}
                 </p>
               )}
@@ -231,19 +231,19 @@ export default async function CategoryPage(props: PageProps) {
                       </Link>
                       <div className="p-6">
                         <Link href={`/posts/${encodeURIComponent(post.slug)}`} className="block">
-                          <h2 className="text-xl font-semibold mb-2 hover:text-primary-600 transition-colors line-clamp-2">
+                          <h2 className="text-lg font-semibold hover:text-primary-600 transition-colors line-clamp-2 leading-snug mb-1">
                             {post.title}
                           </h2>
                         </Link>
-                        <p className="text-gray-500 text-sm mb-3">
+                        <p className="text-gray-500 text-xs mb-3">
                           {formatDateLocalized(post.publishedAt.toISOString(), locale)}
                         </p>
-                        <p className="text-gray-600 mb-4 line-clamp-3">
+                        <p className="text-gray-600 text-xs mb-2 line-clamp-3">
                           {post.excerpt}
                         </p>
                         <Link 
                           href={`/posts/${encodeURIComponent(post.slug)}`}
-                          className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                          className={`text-primary-600 hover:text-primary-700 font-medium transition-colors text-xs block ${isRTL ? 'text-left' : 'text-right'}`}
                         >
                           {isRTL ? 'اقرأ المزيد →' : 'Read More →'}
                         </Link>

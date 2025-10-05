@@ -209,19 +209,16 @@ const HeroSection: React.FC<HeroProps> = ({
         </div>
       )}
 
-      {/* Al Arabiya style top categories navigation */}
-
-
       {/* Main hero layout - Al Arabiya style with 70/30 split */}
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 pt-4 ">
         <div className={`flex flex-col md:flex-row gap-6`}>
           {/* Featured story - Takes ~54% width (equivalent to 6.5/12) */}
-          <div className="md:w-[54%]">
+          <div className="md:w-[54%] flex flex-col">
             {/* Main featured story with navigation controls */}
-            <div className="relative overflow-hidden rounded-sm">
+            <div className="relative overflow-hidden rounded-sm flex-grow">
               {/* Full-width image */}
               <div 
-                className="relative h-[480px] w-full"
+                className="relative h-[70vh] w-full"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -328,7 +325,7 @@ const HeroSection: React.FC<HeroProps> = ({
             </div>
             
             {/* Fixed height container to prevent layout shifts */}
-            <div className="flex flex-col h-[480px] overflow-hidden">
+            <div className="flex flex-col flex-grow overflow-hidden">
               <div className="flex flex-col space-y-4 flex-grow">
                 {/* Side stories - Always show exactly 4 posts */}
                 {(() => {

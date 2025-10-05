@@ -308,7 +308,7 @@ function PostNotFound({ locale = 'en' }: { locale?: string }) {
   const isRTL = locale === 'ar';
   return (
     <MainLayout>
-      <div className={`container mx-auto py-16 px-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className={`container mx-auto py-4 px-8 lg:px-12 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-6">
             {isRTL ? 'المنشور غير موجود' : 'Post Not Found'}
@@ -424,8 +424,8 @@ export default async function PostPage(props: PageProps) {
     
     return (
       <MainLayout>
-        <div className={`container mx-auto px-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-          <div className="max-w-4xl mx-auto lg:mb-12 mb-8">
+        <div className={`container mx-auto px-8 lg:px-12 py-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="max-w-3xl mx-auto lg:mb-4 mb-3">
             {/* Category Link */}
             <Link 
               href={`/categories/${categoryTranslation.slug}`}
@@ -435,16 +435,16 @@ export default async function PostPage(props: PageProps) {
             </Link>
             
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">{postTranslation.title}</h1>
+            <h1 className="text-xl md:text-2xl font-bold mb-2">{postTranslation.title}</h1>
             
             {/* Author and Meta information */}
-            <div className="flex items-center text-gray-600 mb-6 gap-4">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center text-gray-600 mb-3 gap-3 text-sm">
+              <div className="flex items-center gap-2">
                 {authorAvatar && (
                   <img 
                     src={authorAvatar} 
                     alt={authorName}
-                    className="w-8 h-8 rounded-full object-cover"
+                    className="w-6 h-6 rounded-full object-cover"
                   />
                 )}
                 <div className="flex flex-col">
@@ -747,7 +747,7 @@ export default async function PostPage(props: PageProps) {
     return (
       <MainLayout>
         <ErrorBoundary>
-          <div className="container mx-auto py-8 px-4">
+          <div className="container mx-auto py-4 px-8 lg:px-12">
             <Link href="/" className="text-primary-600 hover:underline">
               ← Return to Home
             </Link>

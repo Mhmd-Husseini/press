@@ -91,7 +91,7 @@ export const LatestPostsSection = ({
   const remainingPosts = sortedPosts.slice(4); // Rest of the posts (starting from 5th)
 
   return (
-    <section className="bg-white py-6 border-t border-gray-200" dir={isRTL ? 'rtl' : 'ltr'}>
+    <section className="bg-white pt-6 pb-8 md:pt-8 md:pb-10 border-t border-gray-200" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4">
         {/* Section Header - Al Arabiya style with blue background */}
         <div className="mb-4 border-b-2 border-primary-bg pb-2 flex items-center justify-between">
