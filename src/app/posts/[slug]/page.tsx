@@ -296,12 +296,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { slug } = await params;
     const decodedSlug = decodeURIComponent(slug);
     
-    // Get the current locale from cookies
+    // Get the current locale from cookies, but also try to detect from slug
     const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+    let locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+    
+    // If no cookie locale, try to detect from slug (Arabic slugs contain Arabic characters)
+    if (locale === 'en') {
+      const hasArabicChars = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(decodedSlug);
+      if (hasArabicChars) {
+        locale = 'ar';
+      }
+    }
     
     // Debug logging for Arabic locale detection
-    console.log('Metadata generation - Locale:', locale, 'Slug:', decodedSlug);
+    console.log('Metadata generation - Locale:', locale, 'Slug:', decodedSlug, 'HasArabicChars:', /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(decodedSlug));
     
     // Find post by slug
     const post = await prisma.post.findFirst({
@@ -500,9 +508,17 @@ async function fetchPost(slug: string) {
     // Decode the URL slug to properly handle Arabic and special characters
     const decodedSlug = decodeURIComponent(slug);
     
-    // Get the current locale from cookies
+    // Get the current locale from cookies, but also try to detect from slug
     const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+    let locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+    
+    // If no cookie locale, try to detect from slug (Arabic slugs contain Arabic characters)
+    if (locale === 'en') {
+      const hasArabicChars = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(decodedSlug);
+      if (hasArabicChars) {
+        locale = 'ar';
+      }
+    }
     
     // Find post by slug through translations
     const post = await prisma.post.findFirst({
