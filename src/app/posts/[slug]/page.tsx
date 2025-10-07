@@ -585,6 +585,15 @@ export default async function PostPage(props: PageProps) {
     const authorCountry = author?.country;
     const authorAvatar = author?.avatar;
     
+    // Create optimized description for structured data (same as in generateMetadata)
+    const description = postTranslation.summary 
+      ? createSocialDescription(postTranslation.summary, 160)
+      : postTranslation.content 
+        ? createSocialDescription(postTranslation.content, 160)
+        : (locale === 'ar' 
+          ? 'اقرأ آخر الأخبار والتحليلات من إقتصادي' 
+          : 'Read the latest news and analysis from Ektisadi.com');
+    
     // Create canonical URL for structured data
     const decodedSlugForUrl = decodeURIComponent(postTranslation.slug);
     const canonicalUrl = `https://ektisadi.com/posts/${decodedSlugForUrl}`;
