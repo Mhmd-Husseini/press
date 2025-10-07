@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        createdAt: { sort: 'desc', nulls: 'last' }
+        createdAt: 'desc'
       },
       skip,
       take: limit,
@@ -166,8 +166,8 @@ export async function GET(request: NextRequest) {
         title: translation?.title || `Post ${post.id}`,
         slug: translation?.slug || post.id,
         excerpt,
-        createdAt: post.createdAt.toISOString(),
-        publishedAt: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
+        createdAt: (post.publishedAt || post.createdAt).toISOString(),
+        publishedAt: (post.publishedAt || post.createdAt).toISOString(),
         authorName,
         category: categoryName ? {
           name: categoryName,

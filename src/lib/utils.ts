@@ -187,6 +187,35 @@ export function generatePostSlug(title: string, locale: string, date: Date = new
 }
 
 /**
+ * Create optimized description for social media sharing
+ * @param content - The content to create description from
+ * @param maxLength - Maximum length (default 160 for Open Graph)
+ * @returns Optimized description string
+ */
+export const createSocialDescription = (content: string, maxLength: number = 160): string => {
+  if (!content) return '';
+  
+  // Remove HTML tags and clean up whitespace
+  const cleanContent = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  
+  if (cleanContent.length <= maxLength) {
+    return cleanContent;
+  }
+  
+  // Find the last complete word within the limit
+  const truncated = cleanContent.substring(0, maxLength - 3);
+  const lastSpace = truncated.lastIndexOf(' ');
+  
+  if (lastSpace > maxLength * 0.8) {
+    // If we can find a good breaking point, use it
+    return truncated.substring(0, lastSpace) + '...';
+  } else {
+    // Otherwise, just truncate and add ellipsis
+    return truncated + '...';
+  }
+};
+
+/**
  * Generate a unique slug by appending a counter if needed
  * @param baseSlug - The base slug to make unique
  * @param existingSlugs - Array of existing slugs to check against

@@ -206,7 +206,7 @@ export default async function NewsPage(props: PageProps) {
                           </h2>
                         </Link>
                         <p className="text-gray-500 text-sm mb-3">
-                          {formatDateLocalized(post.publishedAt.toISOString(), locale)}
+                          {formatDateLocalized((post.publishedAt || post.createdAt).toISOString(), locale)}
                         </p>
                         {post.summary && (
                           <p className="text-gray-600 mb-4 line-clamp-3">

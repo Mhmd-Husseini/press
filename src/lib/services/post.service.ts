@@ -939,7 +939,10 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
     // Set additional fields based on status
     switch (status) {
       case PostStatus.PUBLISHED:
-        updateData.publishedAt = new Date();
+        // Only set publishedAt if the post wasn't already published
+        if (post.status !== PostStatus.PUBLISHED) {
+          updateData.publishedAt = new Date();
+        }
         updateData.publishedById = userId;
         break;
       case PostStatus.UNPUBLISHED:

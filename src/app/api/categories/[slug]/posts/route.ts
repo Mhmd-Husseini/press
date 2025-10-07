@@ -83,8 +83,8 @@ export async function GET(
         title: postTranslation.title,
         excerpt: postTranslation.summary || postTranslation.content?.substring(0, 150) + '...',
         imageUrl,
-        publishedAt: post.createdAt,
-        createdAt: post.createdAt,
+        publishedAt: post.publishedAt || post.createdAt,
+        createdAt: post.publishedAt || post.createdAt,
       };
     }).filter(Boolean);
 

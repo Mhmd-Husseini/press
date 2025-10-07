@@ -104,7 +104,10 @@ export async function PUT(
         // Set the publisher or decliner ID
         if (data.status === 'PUBLISHED') {
           data.publishedById = user.id;
-          data.publishedAt = new Date();
+          // Only set publishedAt if the post wasn't already published
+          if (currentPost.status !== 'PUBLISHED') {
+            data.publishedAt = new Date();
+          }
         } else if (data.status === 'DECLINED') {
           data.declinedById = user.id;
         }

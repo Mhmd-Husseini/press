@@ -221,8 +221,8 @@ export default async function CategoryPage(props: PageProps) {
                 title: post.title,
                 excerpt: post.excerpt,
                 imageUrl: post.imageUrl,
-                publishedAt: post.publishedAt.toISOString(),
-                createdAt: post.publishedAt.toISOString(), // Use publishedAt as createdAt for consistency
+                publishedAt: (post.publishedAt || post.createdAt).toISOString(),
+                createdAt: (post.publishedAt || post.createdAt).toISOString(), // Use publishedAt as createdAt for consistency
               }))}
               initialPagination={{
                 page: currentPage,

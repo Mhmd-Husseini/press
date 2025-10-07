@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import { Post, PostTranslation, Category, CategoryTranslation, Tag, Media, MediaType, PostStatus } from '@prisma/client';
 import MainLayout from '@/components/layouts/MainLayout';
-import { formatDateLocalized } from '@/lib/utils';
+import { formatDateLocalized, createSocialDescription } from '@/lib/utils';
 import prisma from '@/lib/prisma';
 import HtmlFixer from '@/components/shared/HtmlFixer';
 
@@ -352,18 +352,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const author = (post as any).postAuthor;
     const authorName = author ? `${author.firstName} ${author.lastName}`.trim() : 'Ektisadi.com';
     
-    // Create description (first 160 characters of content or summary)
-    const description = postTranslation.summary || 
-                      postTranslation.content?.replace(/<[^>]*>/g, '').substring(0, 160) + '...' ||
-                      (locale === 'ar' ? 'اقرأ آخر الأخبار والتحليلات من إقتصادي' : 'Read the latest news and analysis from Ektisadi.com');
+    // Create optimized description for social media sharing
+    const description = postTranslation.summary 
+      ? createSocialDescription(postTranslation.summary, 160)
+      : postTranslation.content 
+        ? createSocialDescription(postTranslation.content, 160)
+        : (locale === 'ar' 
+          ? 'اقرأ آخر الأخبار والتحليلات من إقتصادي' 
+          : 'Read the latest news and analysis from Ektisadi.com');
     
     // Create canonical URL with properly decoded Arabic slug for social sharing
     // The slug in DB might already be encoded, so decode it first, then create the URL
     const decodedSlugForUrl = decodeURIComponent(postTranslation.slug);
     const canonicalUrl = `https://ektisadi.com/posts/${decodedSlugForUrl}`;
     
-    // Also create a clean display URL for sharing (without date prefix for cleaner appearance)
-    const displayTitle = postTranslation.title;
+    // Create optimized title for social media (max 60 characters for best display)
+    const displayTitle = postTranslation.title.length > 60 
+      ? postTranslation.title.substring(0, 57) + '...'
+      : postTranslation.title;
     
     return {
       title: `${displayTitle} | Ektisadi.com`,
@@ -393,7 +399,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
       openGraph: {
         type: 'article',
-        title: postTranslation.title,
+        title: displayTitle,
         description,
         url: canonicalUrl,
         siteName: 'Ektisadi.com',
@@ -417,7 +423,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         card: 'summary_large_image',
         site: '@ektisadi',
         creator: '@ektisadi',
-        title: postTranslation.title,
+        title: displayTitle,
         description,
         images: [imageUrl.startsWith('http') ? imageUrl : `https://ektisadi.com${imageUrl}`],
       },
@@ -593,7 +599,7 @@ export default async function PostPage(props: PageProps) {
               "@context": "https://schema.org",
               "@type": "NewsArticle",
               "headline": postTranslation.title,
-              "description": postTranslation.summary || postTranslation.content?.replace(/<[^>]*>/g, '').substring(0, 160),
+              "description": description,
               "image": imageUrl.startsWith('http') ? imageUrl : `https://ektisadi.com${imageUrl}`,
               "author": {
                 "@type": "Person",
@@ -664,7 +670,7 @@ export default async function PostPage(props: PageProps) {
                       <span className="text-gray-700"> - {authorCountry}</span>
                     )}
                   </span>
-                  <span className="text-sm text-gray-500">{formatDateLocalized(post.createdAt.toISOString(), locale)}</span>
+                  <span className="text-sm text-gray-500">{formatDateLocalized((post.publishedAt || post.createdAt).toISOString(), locale)}</span>
                 </div>
               </div>
             </div>
