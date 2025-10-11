@@ -50,7 +50,8 @@ export async function GET(request: NextRequest) {
       limit: limit || undefined,
       search: search || undefined,
       tag: tag || undefined,
-      featured: featured
+      featured: featured,
+      orderByFeatured: false // Admin page should only sort by createdAt
     });
 
     return NextResponse.json(result);

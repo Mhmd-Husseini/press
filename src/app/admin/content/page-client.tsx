@@ -178,6 +178,15 @@ export default function ContentPageClient() {
     return currentTranslation?.title || enTranslation?.title || firstTranslation?.title || 'Untitled Post';
   };
 
+  const getPostSlug = (post: Post) => {
+    // Look for current language translation first, then English, then first available
+    const currentTranslation = post.translations.find(t => t.locale === currentLanguage);
+    const enTranslation = post.translations.find(t => t.locale === 'en');
+    const firstTranslation = post.translations[0];
+    
+    return currentTranslation?.slug || enTranslation?.slug || firstTranslation?.slug || post.id;
+  };
+
   const getCategoryName = (category: Category): string => {
     const currentTranslation = category.translations.find(t => t.locale === currentLanguage);
     const enTranslation = category.translations.find(t => t.locale === 'en');
@@ -311,7 +320,7 @@ export default function ContentPageClient() {
             {getLocalizedText('تعديل', 'Edit')}
           </Link>
           <Link
-            href={`/posts/${(post.translations[0]?.slug || post.id)}`}
+            href={`/posts/${encodeURIComponent(getPostSlug(post))}`}
             className="text-gray-600 hover:text-gray-900 text-sm font-medium"
             target="_blank"
           >

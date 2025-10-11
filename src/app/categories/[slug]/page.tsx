@@ -53,6 +53,9 @@ async function fetchCategoryPosts(slug: string, locale: string, page: number = 1
       },
     });
 
+    // Find the translation for the current locale
+    const localizedTranslation = allCategoryTranslations.find(t => t.locale === locale) || allCategoryTranslations[0];
+
     const skip = (page - 1) * POSTS_PER_PAGE;
 
     // Find posts in this category with proper ordering and pagination
@@ -117,8 +120,9 @@ async function fetchCategoryPosts(slug: string, locale: string, page: number = 1
     return {
       category: {
         id: categoryTranslation.categoryId,
-        name: categoryTranslation.name,
-        description: categoryTranslation.description,
+        name: localizedTranslation.name,
+        description: localizedTranslation.description,
+        slug: localizedTranslation.slug,
         translations: allCategoryTranslations,
       },
       posts: formattedPosts,
@@ -205,9 +209,9 @@ export default async function CategoryPage(props: PageProps) {
           <div className="max-w-7xl mx-auto">
             {/* Category Header */}
             <div className="mb-12 text-center">
-              <h1 className="text-2xl font-bold">{category.name}</h1>
+              <h1 className="text-2xl font-bold" dir={isRTL ? 'rtl' : 'ltr'}>{category.name}</h1>
               {category.description && (
-                <p className="text-base text-gray-600 max-w-3xl mx-auto mb-4">
+                <p className="text-base text-gray-600 max-w-3xl mx-auto mb-4" dir={isRTL ? 'rtl' : 'ltr'}>
                   {category.description}
                 </p>
               )}

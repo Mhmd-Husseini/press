@@ -313,6 +313,7 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
     search?: string;
     page?: number;
     limit?: number;
+    orderByFeatured?: boolean; // If false, skip featured sorting (for admin)
   }): Promise<{ posts: PostWithRelations[]; total: number; pages: number }> {
     const { 
       status, 
@@ -324,7 +325,8 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       tag, 
       search, 
       page = 1, 
-      limit = 10 
+      limit = 10,
+      orderByFeatured = true // Default to true to maintain existing behavior
     } = options || {};
 
     // Build the where clause based on the filters
@@ -389,10 +391,14 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
       where,
       skip: (page - 1) * limit,
       take: limit,
-      orderBy: [
-        { featured: 'desc' },
-        { createdAt: 'desc' }
-      ],
+      orderBy: orderByFeatured 
+        ? [
+            { featured: 'desc' },
+            { createdAt: 'desc' }
+          ]
+        : [
+            { createdAt: 'desc' }
+          ],
       include: {
         translations: locale ? { where: { locale } } : true,
         category: {
