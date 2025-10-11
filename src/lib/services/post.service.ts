@@ -413,6 +413,8 @@ export class PostService extends BaseService<Prisma.PostDelegate<any>> {
         declinedBy: true,
         publishedBy: true,
         unpublishedBy: true,
+        createdBy: true,
+        updatedBy: true,
         media: {
           include: {
             media: true

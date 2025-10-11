@@ -288,7 +288,7 @@ export default function RolesPage() {
                     <div className="flex space-x-2">
                       <PermissionGuard permissions="edit_roles">
                         <a 
-                          href={`/admin/roles/edit/${role.id}`}
+                          href={`/admin/roles/${role.id}/edit`}
                           className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200"
                         >
                           Edit

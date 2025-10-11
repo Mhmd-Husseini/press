@@ -14,6 +14,7 @@
     "prisma:migrate:dev": "pnpm prisma migrate dev",
     "prisma:seed": "pnpm prisma db seed",
     "seed": "node seed-db.js",
+    "seed:permissions": "npx ts-node scripts/seed-permissions.ts",
     "fix-media": "node -r dotenv/config src/scripts/fix-media-associations.js"
   },
   "prisma": {

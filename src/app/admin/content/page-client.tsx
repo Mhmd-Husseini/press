@@ -41,6 +41,14 @@ interface Post {
     firstNameArabic?: string;
     lastNameArabic?: string;
   };
+  updatedBy?: {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    firstNameArabic?: string;
+    lastNameArabic?: string;
+  };
   translations: PostTranslation[];
 }
 
@@ -245,6 +253,18 @@ export default function ContentPageClient() {
     return `${firstName} ${lastName}`.trim();
   };
 
+  const getUpdatedByName = (post: Post) => {
+    // Check for updatedBy object
+    if (!post.updatedBy) return null;
+    
+    // Construct from firstName and lastName
+    const firstName = post.updatedBy.firstName || '';
+    const lastName = post.updatedBy.lastName || '';
+    
+    if (!firstName && !lastName) return post.updatedBy.email;
+    return `${firstName} ${lastName}`.trim();
+  };
+
   // Define table columns
   const columns: Column<Post>[] = [
     {
@@ -299,13 +319,21 @@ export default function ContentPageClient() {
     },
     {
       key: 'updatedAt',
-      label: getLocalizedText('التاريخ', 'Date'),
+      label: getLocalizedText('آخر تحديث', 'Last Updated'),
       sortable: true,
-      render: (updatedAt) => (
-        <span className="text-sm text-gray-500">
-          {formatDate(updatedAt as string)}
-        </span>
-      ),
+      render: (updatedAt, post) => {
+        const updatedByName = getUpdatedByName(post);
+        return (
+          <div className={`text-sm text-gray-500 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}>
+            <div>{formatDate(updatedAt as string)}</div>
+            {updatedByName && (
+              <div className="text-xs text-gray-400 mt-0.5">
+                {getLocalizedText('بواسطة', 'by')} {updatedByName}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: 'id',
