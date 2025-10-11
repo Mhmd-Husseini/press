@@ -90,7 +90,7 @@ async function main() {
 
     // Assign content permissions to editor
     console.log('✏️ Assigning content permissions to EDITOR...');
-    const editorPermissions = allPermissions.filter(p => 
+    const editorPermissions = allPermissions.filter((p: any) => 
       ['view_dashboard', 'view_content', 'create_content', 'update_content', 'view_categories', 'manage_media', 'manage_authors'].includes(p.name)
     );
     
