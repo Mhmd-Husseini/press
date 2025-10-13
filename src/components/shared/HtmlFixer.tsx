@@ -24,11 +24,9 @@ export default function HtmlFixer() {
         const content = element.innerHTML;
         const textContent = element.textContent || '';
         
-        // Check for escaped Twitter embeds
-        const hasEscapedTwitter = content.includes('&lt;blockquote class="twitter-tweet"&gt;') &&
-                                 content.includes('&lt;p lang="zxx"') &&
-                                 content.includes('&lt;a href="') &&
-                                 content.includes('&lt;/blockquote&gt;');
+        // Check for escaped Twitter embeds (multiple patterns)
+        const hasEscapedTwitter = (content.includes('&lt;blockquote') && content.includes('twitter-tweet') && content.includes('&lt;/blockquote&gt;')) ||
+                                 (content.includes('&lt;blockquote class="twitter-tweet"&gt;') && content.includes('&lt;/blockquote&gt;'));
         
         // Check for escaped Truth Social embeds
         const hasEscapedTruthSocial = content.includes('&lt;iframe src="https://truthsocial.com/') &&
@@ -121,6 +119,10 @@ export default function HtmlFixer() {
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
         .replace(/&amp;/g, '&');
+      
+      // Remove script tags from Twitter embeds (they'll be loaded separately)
+      decoded = decoded.replace(/<script[^>]*src="[^"]*platform\.twitter\.com\/widgets\.js"[^>]*><\/script>/gi, '');
+      decoded = decoded.replace(/<script async src="https:\/\/platform\.twitter\.com\/widgets\.js" charset="utf-8"><\/script>/gi, '');
       
       return decoded;
     };

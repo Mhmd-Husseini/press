@@ -14,6 +14,38 @@ import HtmlFixer from '@/components/shared/HtmlFixer';
 function processPostContent(content: string): string {
   let processedContent = content;
   
+  // Step 0: Convert new embed format to actual embeds
+  // This handles embeds created with the new Embed extension
+  processedContent = processedContent.replace(
+    /<div[^>]*data-embed="true"[^>]*data-embed-src="([^"]*)"[^>]*data-embed-type="([^"]*)"[^>]*>[\s\S]*?<\/div>/gi,
+    (match, src, type) => {
+      // Convert to actual embed based on type
+      if (type === 'twitter') {
+        // Check if it's a valid tweet URL (not a hashtag or other URL)
+        const isTweetUrl = /\/(twitter|x)\.com\/[^\/]+\/status\/\d+/.test(src);
+        if (isTweetUrl) {
+          return `<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${src}">View Tweet</a></p></blockquote>`;
+        } else {
+          // If it's not a tweet URL (e.g., hashtag), show a message
+          return `<div style="padding: 20px; background: #f0f0f0; border-radius: 8px; text-align: center; color: #666;">
+            <p>⚠️ Invalid Twitter embed URL. Please use a direct tweet URL like:</p>
+            <p style="font-family: monospace; font-size: 12px; margin-top: 8px;">https://twitter.com/username/status/123456789</p>
+          </div>`;
+        }
+      } else if (type === 'facebook') {
+        const encodedUrl = encodeURIComponent(src);
+        return `<iframe src="https://www.facebook.com/plugins/post.php?href=${encodedUrl}&show_text=true&width=500" width="500" height="709" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`;
+      } else if (type === 'youtube') {
+        return `<iframe width="560" height="315" src="${src}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      } else if (type === 'instagram') {
+        return `<blockquote class="instagram-media" data-instgrm-permalink="${src}" data-instgrm-version="14"></blockquote>`;
+      } else {
+        // Generic iframe
+        return `<iframe src="${src}" width="100%" height="500" frameborder="0" allowfullscreen></iframe>`;
+      }
+    }
+  );
+  
   
   // Step 1: Remove complex script tag patterns (wrapped in styled spans and links)
   // This handles patterns like: &lt;script async src="<a href="..."><span>...</span></a><span>..." charset="utf-8"&gt;&lt;/script&gt;</span>
@@ -76,20 +108,48 @@ function processPostContent(content: string): string {
   // Step 3: Remove Truth Social embed scripts (keep the iframe)
   processedContent = processedContent.replace(/<script[^>]*src="https:\/\/truthsocial\.com\/embed\.js"[^>]*><\/script>/gi, '');
   
-  // Step 4: Remove any other script tags that might be present (but preserve iframes)
+  // Step 4: Remove <pre><code> wrappers around Twitter embeds
+  // This fixes embeds that were inserted via the editor and got wrapped in code blocks
+  processedContent = processedContent.replace(
+    /<pre[^>]*><code[^>]*>(<blockquote[^>]*class="twitter-tweet"[^>]*>[\s\S]*?<\/blockquote>[\s\S]*?)<\/code><\/pre>/gi,
+    '$1'
+  );
+  
+  // Also handle escaped versions
+  processedContent = processedContent.replace(
+    /<pre[^>]*><code[^>]*>(&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;[\s\S]*?)<\/code><\/pre>/gi,
+    '$1'
+  );
+  
+  // Step 5: Remove any other script tags that might be present (but preserve iframes)
   processedContent = processedContent.replace(/&lt;script[^>]*&gt;[\s\S]*?&lt;\/script&gt;/gi, '');
   processedContent = processedContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
   
   // Step 5: Handle escaped Twitter embeds (convert to clean blockquotes)
-  // Only process if we find escaped content
+  // This handles multiple patterns of escaped Twitter embeds
   if (processedContent.includes('&lt;blockquote') && processedContent.includes('twitter-tweet')) {
+    // Pattern 1: Standard escaped blockquote
     processedContent = processedContent.replace(
       /&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;/gi,
       (match) => {
         // Extract Twitter URL from the escaped content
-        const urlMatch = match.match(/https:\/\/twitter\.com\/[^\s"'>]+/);
+        const urlMatch = match.match(/https:\/\/twitter\.com\/[^\s"'>&]+/);
         if (urlMatch) {
-          const tweetUrl = urlMatch[0].replace(/[">\s]+$/, '').trim();
+          const tweetUrl = urlMatch[0].replace(/[">\s&]+$/, '').trim();
+          return `<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${tweetUrl}">View Tweet</a></p></blockquote>`;
+        }
+        return match;
+      }
+    );
+    
+    // Pattern 2: Escaped blockquote with x.com URLs
+    processedContent = processedContent.replace(
+      /&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;/gi,
+      (match) => {
+        // Extract x.com URL from the escaped content
+        const urlMatch = match.match(/https:\/\/x\.com\/[^\s"'>&]+/);
+        if (urlMatch) {
+          const tweetUrl = urlMatch[0].replace(/[">\s&]+$/, '').trim();
           return `<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${tweetUrl}">View Tweet</a></p></blockquote>`;
         }
         return match;
@@ -233,14 +293,57 @@ function processPostContent(content: string): string {
     );
   }
   
-  // Step 12: Handle styled spans containing Twitter content
-  if (processedContent.includes('<span style="font-size: 12px') && processedContent.includes('&lt;blockquote')) {
+  // Step 12: Handle styled spans containing Twitter content (comprehensive patterns)
+  // First, handle the most complex pattern: spans with embedded links and escaped HTML
+  // This pattern matches: <span>...&lt;blockquote...&gt;...</span><a href="...">...</a><span>...</span>... (repeated)
+  if (processedContent.includes('&lt;blockquote') && processedContent.includes('twitter-tweet')) {
+    // Pattern 0: Ultra-complex multi-span with links pattern (most aggressive)
+    processedContent = processedContent.replace(
+      /<p>(?:<span[^>]*>)?&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;[\s\S]*?&lt;script[^>]*src="(?:<\/span>)?(?:<a[^>]*href=")?https:\/\/platform\.twitter\.com\/widgets\.js[\s\S]*?&lt;\/script&gt;(?:<\/span>)?<\/p>/gi,
+      (match) => {
+        // Extract all Twitter/X URLs from the match
+        const urlMatches = match.match(/https:\/\/(twitter|x)\.com\/[^\/]+\/status\/\d+/g);
+        if (urlMatches && urlMatches.length > 0) {
+          const tweetUrl = urlMatches[0];
+          return `<p><blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${tweetUrl}">View Tweet</a></p></blockquote></p>`;
+        }
+        return match;
+      }
+    );
+    
+    // Pattern 1: font-size: 12px with twitter.com
     processedContent = processedContent.replace(
       /<span[^>]*style="[^"]*font-size:\s*12px[^"]*"[^>]*>[\s\S]*?&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;[\s\S]*?<\/span>/gi,
       (match) => {
-        const urlMatch = match.match(/https:\/\/twitter\.com\/[^\s"'>]+/);
+        const urlMatch = match.match(/https:\/\/(twitter|x)\.com\/[^\s"'>&]+/);
         if (urlMatch) {
-          const tweetUrl = urlMatch[0].replace(/[">\s]+$/, '').trim();
+          const tweetUrl = urlMatch[0].replace(/[">\s&]+$/, '').trim();
+          return `<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${tweetUrl}">View Tweet</a></p></blockquote>`;
+        }
+        return match;
+      }
+    );
+    
+    // Pattern 2: font-size: small with twitter.com or x.com
+    processedContent = processedContent.replace(
+      /<span[^>]*style="[^"]*font-size:\s*small[^"]*"[^>]*>[\s\S]*?&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;[\s\S]*?<\/span>/gi,
+      (match) => {
+        const urlMatch = match.match(/https:\/\/(twitter|x)\.com\/[^\s"'>&]+/);
+        if (urlMatch) {
+          const tweetUrl = urlMatch[0].replace(/[">\s&]+$/, '').trim();
+          return `<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${tweetUrl}">View Tweet</a></p></blockquote>`;
+        }
+        return match;
+      }
+    );
+    
+    // Pattern 3: Any span with escaped blockquote (catch-all)
+    processedContent = processedContent.replace(
+      /<span[^>]*>[\s\S]*?&lt;blockquote[^>]*class="twitter-tweet"[^>]*&gt;[\s\S]*?&lt;\/blockquote&gt;[\s\S]*?<\/span>/gi,
+      (match) => {
+        const urlMatch = match.match(/https:\/\/(twitter|x)\.com\/[^\s"'>&]+/);
+        if (urlMatch) {
+          const tweetUrl = urlMatch[0].replace(/[">\s&]+$/, '').trim();
           return `<blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="${tweetUrl}">View Tweet</a></p></blockquote>`;
         }
         return match;

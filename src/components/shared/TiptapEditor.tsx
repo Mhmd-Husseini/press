@@ -33,15 +33,114 @@ import {
   Image as ImageIcon,
   Table as TableIcon,
   Minus,
-  Code as CodeIcon
+  Code as CodeIcon,
+  Video
 } from 'lucide-react';
 import HtmlInsertModal from './HtmlInsertModal';
+import EmbedModal from './EmbedModal';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { FontFamily } from '@tiptap/extension-font-family';
 import { Color } from '@tiptap/extension-color';
 import { Highlight } from '@tiptap/extension-highlight';
 import { Extension } from '@tiptap/core';
 import { Node } from '@tiptap/core';
+
+// Custom Embed Node for Social Media Embeds
+// This extension stores embeds in a clean format that won't be mangled by the editor
+const Embed = Node.create({
+  name: 'embed',
+  
+  group: 'block',
+  
+  atom: true,
+  
+  addAttributes() {
+    return {
+      src: {
+        default: '',
+      },
+      type: {
+        default: 'twitter', // twitter, facebook, instagram, youtube, iframe
+      },
+    };
+  },
+  
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-embed]',
+        getAttrs: (dom) => {
+          if (dom instanceof HTMLElement) {
+            return {
+              src: dom.getAttribute('data-embed-src') || '',
+              type: dom.getAttribute('data-embed-type') || 'twitter',
+            };
+          }
+          return null;
+        },
+      },
+    ];
+  },
+  
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'div',
+      {
+        'data-embed': 'true',
+        'data-embed-src': HTMLAttributes.src,
+        'data-embed-type': HTMLAttributes.type,
+        'class': 'embed-placeholder',
+        'style': 'border: 2px dashed #ccc; padding: 20px; margin: 1rem 0; border-radius: 8px; background: #f9f9f9; text-align: center; color: #666;'
+      },
+      `📱 ${HTMLAttributes.type.toUpperCase()} Embed: ${HTMLAttributes.src.substring(0, 50)}...`
+    ];
+  },
+  
+  addNodeView() {
+    return ({ node }) => {
+      const dom = document.createElement('div');
+      dom.setAttribute('data-embed', 'true');
+      dom.setAttribute('data-embed-src', node.attrs.src);
+      dom.setAttribute('data-embed-type', node.attrs.type);
+      dom.className = 'embed-placeholder';
+      dom.style.cssText = 'border: 2px dashed #3b82f6; padding: 20px; margin: 1rem 0; border-radius: 8px; background: #eff6ff; text-align: center; color: #1e40af; font-size: 14px;';
+      
+      const icon = document.createElement('span');
+      icon.textContent = '📱 ';
+      icon.style.fontSize = '24px';
+      
+      const text = document.createElement('span');
+      text.textContent = `${node.attrs.type.toUpperCase()} Embed`;
+      text.style.fontWeight = 'bold';
+      
+      const url = document.createElement('div');
+      url.textContent = node.attrs.src.substring(0, 60) + (node.attrs.src.length > 60 ? '...' : '');
+      url.style.fontSize = '12px';
+      url.style.marginTop = '8px';
+      url.style.color = '#6b7280';
+      
+      dom.appendChild(icon);
+      dom.appendChild(text);
+      dom.appendChild(url);
+      
+      return {
+        dom,
+        contentDOM: null,
+      };
+    };
+  },
+  
+  addCommands() {
+    return {
+      setEmbed: (src: string, type: string) => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: { src, type },
+        });
+      },
+    };
+  },
+});
 
 // Custom Font Size Extension
 const FontSize = Extension.create({
@@ -118,6 +217,7 @@ export default function TiptapEditor({
   const [customColor, setCustomColor] = useState('#000000');
   const [customHighlight, setCustomHighlight] = useState('#ffff00');
   const [isHtmlModalOpen, setIsHtmlModalOpen] = useState(false);
+  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
   
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const highlightPickerRef = useRef<HTMLDivElement>(null);
@@ -125,6 +225,7 @@ export default function TiptapEditor({
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Embed,
       TextAlign.configure({
         types: ['heading', 'paragraph'],
         alignments: ['left', 'center', 'right', 'justify'],
@@ -257,14 +358,16 @@ export default function TiptapEditor({
     }
   };
 
+  const insertEmbed = (src: string, type: string) => {
+    if (editor) {
+      editor.chain().focus().setEmbed(src, type).run();
+    }
+  };
+
   const insertHtml = (html: string) => {
-    // Get current content
+    // For regular HTML, insert it normally
     const currentContent = editor.getHTML();
-    
-    // Insert HTML at the end of current content
     const newContent = currentContent + html;
-    
-    // Set the new content directly
     editor.commands.setContent(newContent);
   };
 
@@ -623,6 +726,13 @@ export default function TiptapEditor({
             <TableIcon size={16} />
           </button>
           <button
+            onClick={() => setIsEmbedModalOpen(true)}
+            className="p-2 rounded hover:bg-gray-100 text-blue-600"
+            title="Insert Social Media Embed"
+          >
+            <Video size={16} />
+          </button>
+          <button
             onClick={() => setIsHtmlModalOpen(true)}
             className="p-2 rounded hover:bg-gray-100 text-gray-600"
             title="Insert HTML / Embed Code"
@@ -685,6 +795,11 @@ export default function TiptapEditor({
       )}
 
       {/* HTML Insert Modal */}
+      <EmbedModal
+        isOpen={isEmbedModalOpen}
+        onClose={() => setIsEmbedModalOpen(false)}
+        onInsert={insertEmbed}
+      />
       <HtmlInsertModal
         isOpen={isHtmlModalOpen}
         onClose={() => setIsHtmlModalOpen(false)}
