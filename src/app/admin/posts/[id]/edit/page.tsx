@@ -7,6 +7,7 @@ import PostForm from '@/components/admin/posts/PostForm';
 import Skeleton from '@/components/shared/Skeleton';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import PostEditGuard from '@/components/admin/posts/PostEditGuard';
+import PostLockGuard from '@/components/admin/posts/PostLockGuard';
 import { PostWithRelations } from '@/lib/services/post.service';
 
 export default function EditPostPage() {
@@ -67,7 +68,9 @@ export default function EditPostPage() {
         <ErrorMessage message={error} />
       ) : (
         <PostEditGuard authorId={post?.authorId || undefined} postId={post?.id}>
-          <PostForm post={post || undefined} isEdit={true} />
+          <PostLockGuard postId={postId}>
+            <PostForm post={post || undefined} isEdit={true} />
+          </PostLockGuard>
         </PostEditGuard>
       )}
     </div>
