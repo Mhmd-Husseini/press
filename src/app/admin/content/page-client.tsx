@@ -339,23 +339,41 @@ export default function ContentPageClient() {
       key: 'id',
       label: getLocalizedText('الإجراءات', 'Actions'),
       className: currentLanguage === 'ar' ? 'text-left' : 'text-right',
-      render: (_, post) => (
-        <div className={`flex gap-2 ${currentLanguage === 'ar' ? 'justify-start' : 'justify-end'}`}>
-          <Link
-            href={`/admin/posts/${post.id}/edit`}
-            className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
-          >
-            {getLocalizedText('تعديل', 'Edit')}
-          </Link>
-          <Link
-            href={`/posts/${encodeURIComponent(getPostSlug(post))}`}
-            className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-            target="_blank"
-          >
-            {getLocalizedText('عرض', 'View')}
-          </Link>
-        </div>
-      ),
+      render: (_, post) => {
+        const isPublished = post.status === PostStatus.PUBLISHED;
+        const viewHref = isPublished 
+          ? `/posts/${encodeURIComponent(getPostSlug(post))}`
+          : `/admin/posts/preview/${encodeURIComponent(getPostSlug(post))}`;
+        const viewLabel = isPublished 
+          ? getLocalizedText('عرض', 'View')
+          : getLocalizedText('معاينة', 'Preview');
+        
+        return (
+          <div className={`flex gap-2 ${currentLanguage === 'ar' ? 'justify-start' : 'justify-end'}`}>
+            <Link
+              href={`/admin/posts/${post.id}/edit`}
+              className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+            >
+              {getLocalizedText('تعديل', 'Edit')}
+            </Link>
+            <Link
+              href={viewHref}
+              className={`text-sm font-medium ${
+                isPublished 
+                  ? 'text-gray-600 hover:text-gray-900' 
+                  : 'text-yellow-600 hover:text-yellow-900'
+              }`}
+              target="_blank"
+              title={isPublished 
+                ? getLocalizedText('عرض المنشور المنشور', 'View published post')
+                : getLocalizedText('معاينة المنشور غير المنشور', 'Preview unpublished post')
+              }
+            >
+              {viewLabel}
+            </Link>
+          </div>
+        );
+      },
     },
   ];
 
