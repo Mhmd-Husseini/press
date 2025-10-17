@@ -42,33 +42,33 @@ export default async function CareerPage() {
     <MainLayout locale={locale}>
       <div className={`container mx-auto px-4 py-12 ${isRTL ? 'text-right' : 'text-left'}`}>
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
             {isRTL ? content.ar.title : content.en.title}
           </h1>
           
-          <h2 className="text-xl md:text-2xl font-semibold text-blue-600 mb-6">
+          <h2 className="text-lg font-semibold text-blue-600 mb-6">
             {isRTL ? content.ar.subtitle : content.en.subtitle}
           </h2>
           
           <div className="prose max-w-none mb-8">
-            <p className="text-gray-700 mb-4">
+            <p className="text-sm text-gray-700 mb-4">
               {isRTL ? content.ar.description : content.en.description}
             </p>
             
             <div className={`bg-gray-100 ${isRTL ? 'border-r-4' : 'border-l-4'} border-yellow-500 p-5 my-8`}>
-              <p className="font-bold text-lg mb-2">
+              <p className="font-bold text-base mb-2">
                 {isRTL ? content.ar.noVacancies : content.en.noVacancies}
               </p>
-              <p>
+              <p className="text-sm">
                 {isRTL ? content.ar.checkLater : content.en.checkLater}
               </p>
             </div>
             
-            <p className="mb-2">
+            <p className="text-sm mb-2">
               {isRTL ? content.ar.contactUs : content.en.contactUs}
             </p>
             
-            <p className="font-semibold text-blue-600 mb-8">
+            <p className="font-semibold text-sm text-blue-600 mb-8">
               <a href="mailto:contact@ektisadi.com" className="hover:underline">
                 {isRTL ? content.ar.emailAddress : content.en.emailAddress}
               </a>

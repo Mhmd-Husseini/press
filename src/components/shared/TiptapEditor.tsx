@@ -218,7 +218,6 @@ export default function TiptapEditor({
   const [customHighlight, setCustomHighlight] = useState('#ffff00');
   const [isHtmlModalOpen, setIsHtmlModalOpen] = useState(false);
   const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
-  const [showFloatingToolbar, setShowFloatingToolbar] = useState(false);
   const [isEditorFocused, setIsEditorFocused] = useState(false);
   
   const colorPickerRef = useRef<HTMLDivElement>(null);
@@ -283,59 +282,16 @@ export default function TiptapEditor({
     }
   }, [value, editor]);
 
-  // Scroll detection for floating toolbar
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!editorRef.current) return;
-      
-      const editorRect = editorRef.current.getBoundingClientRect();
-      
-      // Show floating toolbar when the main toolbar is out of view AND editor is focused
-      const shouldShow = editorRect.top < -50 && isEditorFocused;
-      
-      console.log('Scroll detection:', { 
-        editorTop: editorRect.top, 
-        isEditorFocused,
-        shouldShow, 
-        currentState: showFloatingToolbar 
-      });
-      
-      setShowFloatingToolbar(shouldShow);
-    };
-
-    // Add scroll listener to window (most common case)
-    window.addEventListener('scroll', handleScroll);
-    
-    // Also listen to editor container scroll
-    const editorElement = editorRef.current;
-    if (editorElement) {
-      editorElement.addEventListener('scroll', handleScroll);
-    }
-    
-    // Initial check
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (editorElement) {
-        editorElement.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, [showFloatingToolbar, isEditorFocused]);
-
   // Track editor focus state
   useEffect(() => {
     if (!editor) return;
 
     const handleFocus = () => {
       setIsEditorFocused(true);
-      console.log('Editor focused');
     };
 
     const handleBlur = () => {
       setIsEditorFocused(false);
-      setShowFloatingToolbar(false); // Hide floating toolbar when editor loses focus
-      console.log('Editor blurred');
     };
 
     // Listen to editor focus/blur events
@@ -483,343 +439,6 @@ export default function TiptapEditor({
     { name: 'Red', value: '#fee2e2', color: '#fee2e2' },
   ];
 
-  // Floating Toolbar Component - Enhanced version with all essential tools
-  const FloatingToolbar = () => (
-    <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-3 transition-all duration-300 ${
-      showFloatingToolbar ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
-    }`}>
-      <div className="flex flex-wrap gap-1 max-w-4xl">
-        {/* Text Formatting */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('bold') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Bold"
-          >
-            <Bold size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('italic') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Italic"
-          >
-            <Italic size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('underline') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Underline"
-          >
-            <Underline size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('strike') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Strikethrough"
-          >
-            <Strikethrough size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleCode().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('code') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Code"
-          >
-            <Code size={16} />
-          </button>
-        </div>
-        
-        {/* Separator */}
-        <div className="w-px h-8 bg-gray-300 mx-1" />
-        
-        {/* Text Alignment */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => setTextAlign('left')}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive({ textAlign: 'left' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Align Left"
-          >
-            <AlignLeft size={16} />
-          </button>
-          <button
-            onClick={() => setTextAlign('center')}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive({ textAlign: 'center' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Align Center"
-          >
-            <AlignCenter size={16} />
-          </button>
-          <button
-            onClick={() => setTextAlign('right')}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive({ textAlign: 'right' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Align Right"
-          >
-            <AlignRight size={16} />
-          </button>
-          <button
-            onClick={() => setTextAlign('justify')}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Justify"
-          >
-            <AlignJustify size={16} />
-          </button>
-        </div>
-        
-        {/* Separator */}
-        <div className="w-px h-8 bg-gray-300 mx-1" />
-        
-        {/* Headings */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('heading', { level: 1 }) ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Heading 1"
-          >
-            <Heading1 size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('heading', { level: 2 }) ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Heading 2"
-          >
-            <Heading2 size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('heading', { level: 3 }) ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Heading 3"
-          >
-            <Heading3 size={16} />
-          </button>
-        </div>
-        
-        {/* Separator */}
-        <div className="w-px h-8 bg-gray-300 mx-1" />
-        
-        {/* Lists */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('bulletList') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Bullet List"
-          >
-            <List size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('orderedList') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Ordered List"
-          >
-            <ListOrdered size={16} />
-          </button>
-        </div>
-        
-        {/* Separator */}
-        <div className="w-px h-8 bg-gray-300 mx-1" />
-        
-        {/* Block Elements */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('blockquote') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Blockquote"
-          >
-            <Quote size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('codeBlock') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Code Block"
-          >
-            <Code2 size={16} />
-          </button>
-          <button
-            onClick={addHorizontalRule}
-            className="p-2 rounded hover:bg-gray-100 text-gray-600"
-            title="Horizontal Rule"
-          >
-            <Minus size={16} />
-          </button>
-        </div>
-        
-        {/* Separator */}
-        <div className="w-px h-8 bg-gray-300 mx-1" />
-        
-        {/* Color Controls */}
-        <div className="flex gap-1">
-          {/* Text Color */}
-          <div className="relative">
-            <button
-              onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
-              className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('textStyle', { color: true }) ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-              title="Text Color"
-            >
-              <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: editor.getAttributes('textStyle').color || '#000000' }} />
-            </button>
-            
-            {isColorPickerOpen && (
-              <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-3 z-50 min-w-[200px]">
-                <div className="grid grid-cols-5 gap-2 mb-3">
-                  {colorPresets.map((preset) => (
-                    <button
-                      key={preset.value}
-                      onClick={() => {
-                        setTextColor(preset.value);
-                        setIsColorPickerOpen(false);
-                      }}
-                      className="w-8 h-8 rounded border border-gray-300 hover:border-gray-400 flex items-center justify-center text-xs"
-                      style={{ backgroundColor: preset.color }}
-                      title={preset.name}
-                    >
-                      {preset.value === 'inherit' && 'D'}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={customColor}
-                    onChange={(e) => setCustomColor(e.target.value)}
-                    className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
-                    title="Custom Color"
-                  />
-                  <button
-                    onClick={() => {
-                      setTextColor(customColor);
-                      setIsColorPickerOpen(false);
-                    }}
-                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Apply
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Text Highlight */}
-          <div className="relative">
-            <button
-              onClick={() => setIsHighlightPickerOpen(!isHighlightPickerOpen)}
-              className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('highlight') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-              title="Text Highlight"
-            >
-              <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: editor.getAttributes('highlight')?.color || 'transparent' }} />
-            </button>
-            
-            {isHighlightPickerOpen && (
-              <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-3 z-50 min-w-[200px]">
-                <div className="grid grid-cols-4 gap-2 mb-3">
-                  {highlightPresets.map((preset) => (
-                    <button
-                      key={preset.value}
-                      onClick={() => {
-                        setTextHighlight(preset.value);
-                        setIsHighlightPickerOpen(false);
-                      }}
-                      className="w-8 h-8 rounded border border-gray-300 hover:border-gray-400 flex items-center justify-center text-xs"
-                      style={{ backgroundColor: preset.color }}
-                      title={preset.name}
-                    >
-                      {preset.value === 'inherit' && 'D'}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={customHighlight}
-                    onChange={(e) => setCustomHighlight(e.target.value)}
-                    className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
-                    title="Custom Highlight"
-                  />
-                  <button
-                    onClick={() => {
-                      setTextHighlight(customHighlight);
-                      setIsHighlightPickerOpen(false);
-                    }}
-                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Apply
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Separator */}
-        <div className="w-px h-8 bg-gray-300 mx-1" />
-        
-        {/* Media & Links */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => setIsLinkModalOpen(true)}
-            className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('link') ? 'bg-blue-100 text-blue-600' : 'text-gray-600'}`}
-            title="Add Link"
-          >
-            <LinkIcon size={16} />
-          </button>
-          {editor.isActive('link') && (
-            <button
-              onClick={removeLink}
-              className="p-2 rounded hover:bg-gray-100 text-red-600"
-              title="Remove Link"
-            >
-              <LinkIcon size={16} />
-            </button>
-          )}
-          <button
-            onClick={addImage}
-            className="p-2 rounded hover:bg-gray-100 text-gray-600"
-            title="Add Image"
-          >
-            <ImageIcon size={16} />
-          </button>
-          <button
-            onClick={addTable}
-            className="p-2 rounded hover:bg-gray-100 text-gray-600"
-            title="Add Table"
-          >
-            <TableIcon size={16} />
-          </button>
-          <button
-            onClick={() => setIsEmbedModalOpen(true)}
-            className="p-2 rounded hover:bg-gray-100 text-blue-600"
-            title="Insert Social Media Embed"
-          >
-            <Video size={16} />
-          </button>
-          <button
-            onClick={() => setIsHtmlModalOpen(true)}
-            className="p-2 rounded hover:bg-gray-100 text-gray-600"
-            title="Insert HTML / Embed Code"
-          >
-            <CodeIcon size={16} />
-          </button>
-        </div>
-        
-        {/* Separator */}
-        <div className="w-px h-8 bg-gray-300 mx-1" />
-        
-        {/* History */}
-        <div className="flex gap-1">
-          <button
-            onClick={() => editor.chain().focus().undo().run()}
-            className="p-2 rounded hover:bg-gray-100 text-gray-600"
-            title="Undo"
-          >
-            <Undo size={16} />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().redo().run()}
-            className="p-2 rounded hover:bg-gray-100 text-gray-600"
-            title="Redo"
-          >
-            <Redo size={16} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   const MenuBar = () => (
     <div className="border-b border-gray-200 bg-white p-3">
@@ -1227,11 +846,20 @@ export default function TiptapEditor({
 
   return (
     <div className={`border border-gray-300 rounded-lg overflow-hidden ${className}`} dir={dir}>
-      <MenuBar />
-      <div className="p-4 min-h-[300px]" ref={editorRef}>
+      {/* Fixed Toolbar */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+        <MenuBar />
+      </div>
+      
+      {/* Scrollable Content Area */}
+      <div 
+        className="p-4 max-h-[600px] overflow-y-auto" 
+        ref={editorRef}
+        style={{ scrollBehavior: 'smooth' }}
+      >
         <EditorContent 
           editor={editor} 
-          className="min-h-[250px] focus:outline-none"
+          className="min-h-[400px] focus:outline-none"
           onClick={() => {
             // Ensure editor gets focus when clicked
             if (editor) {
@@ -1244,19 +872,6 @@ export default function TiptapEditor({
             {placeholder}
           </div>
         )}
-      </div>
-      
-      {/* Floating Toolbar */}
-      <FloatingToolbar />
-      
-      {/* Debug button - remove this in production */}
-      <div className="fixed bottom-4 right-4 z-[9999]">
-        <button
-          onClick={() => setShowFloatingToolbar(!showFloatingToolbar)}
-          className="bg-blue-600 text-white px-3 py-2 rounded text-sm"
-        >
-          Toggle Toolbar ({showFloatingToolbar ? 'ON' : 'OFF'}) | Focus: {isEditorFocused ? 'YES' : 'NO'}
-        </button>
       </div>
       
       {/* Custom Styles for Headings and Colors */}

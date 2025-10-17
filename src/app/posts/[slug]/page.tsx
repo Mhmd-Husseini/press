@@ -773,12 +773,21 @@ export default async function PostPage(props: PageProps) {
                   />
                 )}
                 <div className="flex flex-col">
-                  <span className="font-medium text-gray-900">
-                    {authorName}
+                  <div className="font-medium text-gray-900">
+                    {author ? (
+                      <Link 
+                        href={`/authors/${author.id}`}
+                        className="hover:text-blue-600 transition-colors"
+                      >
+                        {authorName}
+                      </Link>
+                    ) : (
+                      <span>{authorName}</span>
+                    )}
                     {authorCountry && (
                       <span className="text-gray-700"> - {authorCountry}</span>
                     )}
-                  </span>
+                  </div>
                   <span className="text-sm text-gray-500">{formatDateLocalized((post.publishedAt || post.createdAt).toISOString(), locale)}</span>
                 </div>
               </div>

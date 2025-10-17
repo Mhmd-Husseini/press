@@ -113,13 +113,13 @@ export default function ContactPage() {
       >
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-6xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900">
               {c.title}
             </h1>
-            <h2 className="text-xl text-amber-600 mt-2">
+            <h2 className="text-base text-amber-600 mt-2">
               {c.subtitle}
             </h2>
-            <p className="mt-4 text-gray-600 max-w-2xl">
+            <p className="mt-4 text-sm text-gray-600 max-w-2xl">
               {c.description}
             </p>
 
@@ -136,7 +136,7 @@ export default function ContactPage() {
                   <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="w-full">
-                        <label className="block text-gray-700 font-medium mb-2" htmlFor="name">
+                        <label className="block text-xs text-gray-700 font-medium mb-2" htmlFor="name">
                           {c.nameLabel}
                         </label>
                         <input
@@ -151,7 +151,7 @@ export default function ContactPage() {
                         />
                       </div>
                       <div className="w-full">
-                        <label className="block text-gray-700 font-medium mb-2" htmlFor="email">
+                        <label className="block text-xs text-gray-700 font-medium mb-2" htmlFor="email">
                           {c.emailLabel}
                         </label>
                         {/* Email addresses are always LTR */}
@@ -169,7 +169,7 @@ export default function ContactPage() {
                       </div>
                     </div>
                     <div className="mt-6">
-                      <label className="block text-gray-700 font-medium mb-2" htmlFor="subject">
+                      <label className="block text-xs text-gray-700 font-medium mb-2" htmlFor="subject">
                         {c.subjectLabel}
                       </label>
                       <input
@@ -184,7 +184,7 @@ export default function ContactPage() {
                       />
                     </div>
                     <div className="mt-6">
-                      <label className="block text-gray-700 font-medium mb-2" htmlFor="message">
+                      <label className="block text-xs text-gray-700 font-medium mb-2" htmlFor="message">
                         {c.messageLabel}
                       </label>
                       <textarea
@@ -213,7 +213,7 @@ export default function ContactPage() {
               {/* Contact Information */}
               <div>
                 <div className="bg-white rounded-lg p-6 shadow-md">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     {c.contactInformation}
                   </h3>
 
@@ -223,7 +223,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       {/* Phone numbers are always LTR */}
-                      <p className="text-gray-900 font-medium" dir="ltr">
+                      <p className="text-sm text-gray-900 font-medium" dir="ltr">
                         {c.phoneNumber}
                       </p>
                     </div>
@@ -235,7 +235,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       {/* Email addresses are always LTR */}
-                      <p className="text-gray-900 font-medium" dir="ltr">
+                      <p className="text-sm text-gray-900 font-medium" dir="ltr">
                         {c.emailAddress}
                       </p>
                     </div>
@@ -246,13 +246,13 @@ export default function ContactPage() {
                       🕒
                     </div>
                     <div>
-                      <p className="text-gray-900 font-medium mb-1">
+                      <p className="text-sm text-gray-900 font-medium mb-1">
                         {c.hoursTitle}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-xs text-gray-600">
                         {c.hours}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-xs text-gray-600">
                         {c.weekend}
                       </p>
                     </div>
@@ -263,16 +263,16 @@ export default function ContactPage() {
                       📍
                     </div>
                     <div>
-                      <p className="text-gray-900 font-medium mb-1">
+                      <p className="text-sm text-gray-900 font-medium mb-1">
                         {c.addressTitle}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-xs text-gray-600">
                         {c.address}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-xs text-gray-600">
                         {c.cityState}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-xs text-gray-600">
                         {c.country}
                       </p>
                     </div>
@@ -281,8 +281,8 @@ export default function ContactPage() {
 
                 {/* Company Div */}
                 <div className="mt-6 bg-white p-4 rounded-lg shadow-md text-center">
-                  <h3 className="text-xl font-bold text-gray-900">إقتصادي.كوم</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg font-semibold text-gray-900">إقتصادي.كوم</h3>
+                  <p className="text-sm text-gray-600">
                     {isRTL ? 'أخبار الاقتصاد بلغة الناس' : 'Economic News in People\'s Language'}
                   </p>
                 </div>

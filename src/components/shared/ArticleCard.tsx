@@ -13,6 +13,7 @@ interface ArticleCardProps {
   imageUrl?: string;
   media?: { id: string; url: string; title: string | null; caption: string | null; type: string; mimeType: string | null; }[];
   authorName?: string;
+  authorId?: string;
   category?: {
     name: string;
     slug: string;
@@ -33,6 +34,7 @@ export const ArticleCard = ({
   imageUrl,
   media,
   authorName,
+  authorId,
   category,
   publishedAt,
   featured = false,
@@ -176,7 +178,16 @@ export const ArticleCard = ({
         )}
         
         <div className="flex justify-between items-center text-xs text-gray-500">
-          <span>{authorName || 'Ektisadi Staff'}</span>
+          {authorId && authorName ? (
+            <Link 
+              href={`/authors/${authorId}`}
+              className="hover:text-blue-600 transition-colors"
+            >
+              {authorName}
+            </Link>
+          ) : (
+            <span>{authorName || 'Ektisadi Staff'}</span>
+          )}
           <span className={`text-gray-500 text-xs ${isRTL ? 'text-right' : 'text-left'}`}>
             {formatDateLocalized(publishedAt, locale)}
           </span>

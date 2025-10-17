@@ -471,7 +471,16 @@ export default async function AdminPostPreviewPage(props: PageProps) {
                       className="w-8 h-8 rounded-full"
                     />
                   )}
-                  <span>{authorName}</span>
+                  {author ? (
+                    <Link 
+                      href={`/authors/${author.id}`}
+                      className="hover:text-blue-600 transition-colors"
+                    >
+                      {authorName}
+                    </Link>
+                  ) : (
+                    <span>{authorName}</span>
+                  )}
                   {authorCountry && (
                     <span className="text-gray-400">• {authorCountry}</span>
                   )}

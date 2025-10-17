@@ -130,23 +130,23 @@ export default async function CookiesPage() {
     <MainLayout>
       <div className={`container mx-auto py-12 px-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-4">{pageContent.title}</h1>
-          <p className="text-gray-500 mb-4">{pageContent.lastUpdated}</p>
-          <p className="text-gray-700 mb-8">{pageContent.introduction}</p>
+          <h1 className="text-2xl font-bold mb-4">{pageContent.title}</h1>
+          <p className="text-xs text-gray-500 mb-4">{pageContent.lastUpdated}</p>
+          <p className="text-sm text-gray-700 mb-8">{pageContent.introduction}</p>
 
           <div className="prose max-w-none">
             {pageContent.sections.map((section, index) => (
               <div key={index} className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">{section.heading}</h2>
+                <h2 className="text-lg font-semibold mb-4">{section.heading}</h2>
                 
-                {section.text && <p className="text-gray-700 mb-4">{section.text}</p>}
+                {section.text && <p className="text-sm text-gray-700 mb-4">{section.text}</p>}
                 
                 {section.subsections && (
                   <div className="ml-4 mt-4">
                     {section.subsections.map((subsection, subIndex) => (
                       <div key={subIndex} className="mb-4">
-                        <h3 className="text-xl font-medium mb-2">{subsection.title}</h3>
-                        <p className="text-gray-700">{subsection.description}</p>
+                        <h3 className="text-base font-medium mb-2">{subsection.title}</h3>
+                        <p className="text-sm text-gray-700">{subsection.description}</p>
                       </div>
                     ))}
                   </div>

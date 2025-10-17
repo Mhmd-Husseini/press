@@ -54,6 +54,12 @@ export default function EditAuthorPage({ params }: { params: Promise<{ id: strin
     socialLinks: {}
   });
   const [errors, setErrors] = useState<Partial<AuthorFormData>>({});
+  
+  // Avatar upload states
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null);
 
   // Load author data
   useEffect(() => {
@@ -78,6 +84,11 @@ export default function EditAuthorPage({ params }: { params: Promise<{ id: strin
             isActive: authorData.isActive !== false,
             socialLinks: authorData.socialLinks || {}
           });
+          
+          // Set avatar preview if author has existing avatar
+          if (authorData.avatar) {
+            setAvatarPreview(authorData.avatar);
+          }
         } else if (response.status === 404) {
           // Author not found
           return notFound();
@@ -123,6 +134,63 @@ export default function EditAuthorPage({ params }: { params: Promise<{ id: strin
     }));
   };
 
+  // Avatar upload handlers
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    const file = e.target.files[0];
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setAvatarUploadError('Please select an image file');
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarUploadError('File size must be less than 5MB');
+      return;
+    }
+    
+    setAvatarFile(file);
+    setAvatarUploadError(null);
+    
+    // Create preview
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+  };
+
+  const uploadAvatar = async (): Promise<string | null> => {
+    if (!avatarFile) return null;
+    
+    setIsUploadingAvatar(true);
+    setAvatarUploadError(null);
+    
+    try {
+      const formData = new FormData();
+      formData.append('avatar', avatarFile);
+      
+      const response = await fetch('/api/authors/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to upload avatar');
+      }
+      
+      const result = await response.json();
+      return result.url;
+    } catch (err) {
+      console.error('Error uploading avatar:', err);
+      setAvatarUploadError(err instanceof Error ? err.message : 'Failed to upload avatar');
+      return null;
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   // Validate form
   const validateForm = (): boolean => {
     const newErrors: Partial<AuthorFormData> = {};
@@ -150,6 +218,18 @@ export default function EditAuthorPage({ params }: { params: Promise<{ id: strin
     setLoading(true);
     
     try {
+      // Upload avatar first if a new file is selected
+      let avatarUrl = formData.avatar;
+      if (avatarFile) {
+        const uploadedUrl = await uploadAvatar();
+        if (uploadedUrl) {
+          avatarUrl = uploadedUrl;
+        } else {
+          // If avatar upload failed, don't proceed with form submission
+          return;
+        }
+      }
+
       const response = await fetch(`/api/admin/authors/${authorId}`, {
         method: 'PUT',
         headers: {
@@ -157,6 +237,7 @@ export default function EditAuthorPage({ params }: { params: Promise<{ id: strin
         },
         body: JSON.stringify({
           ...formData,
+          avatar: avatarUrl,
           socialLinks: Object.keys(formData.socialLinks).length > 0 ? formData.socialLinks : undefined
         })
       });
@@ -330,26 +411,63 @@ export default function EditAuthorPage({ params }: { params: Promise<{ id: strin
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Settings</h3>
             <div className="space-y-4">
+              {/* Avatar Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Avatar URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.avatar}
-                  onChange={(e) => handleInputChange('avatar', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/avatar.jpg"
-                />
-                {formData.avatar && (
-                  <div className="mt-2">
-                    <img 
-                      src={formData.avatar} 
-                      alt="Author avatar" 
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
+                <h4 className="text-md font-medium text-gray-900 mb-3">Avatar</h4>
+                <div className="flex items-start space-x-6">
+                  {/* Avatar Preview */}
+                  <div className="flex-shrink-0">
+                    {avatarPreview ? (
+                      <img 
+                        src={avatarPreview} 
+                        alt="Author avatar preview" 
+                        className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center border-2 border-gray-200">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                    )}
                   </div>
-                )}
+                  
+                  {/* Upload Controls */}
+                  <div className="flex-1">
+                    <div>
+                      <label htmlFor="avatar" className="block text-sm font-medium text-gray-700 mb-2">
+                        Upload Avatar
+                      </label>
+                      <input
+                        type="file"
+                        id="avatar"
+                        name="avatar"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                      <p className="mt-1 text-sm text-gray-500">
+                        PNG, JPG, GIF up to 5MB
+                      </p>
+                    </div>
+                    
+                    {avatarUploadError && (
+                      <div className="mt-2 text-sm text-red-500 p-2 bg-red-50 rounded">
+                        {avatarUploadError}
+                      </div>
+                    )}
+                    
+                    {isUploadingAvatar && (
+                      <div className="mt-2 text-sm text-blue-600 p-2 bg-blue-50 rounded flex items-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Uploading avatar...
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center">
@@ -377,10 +495,10 @@ export default function EditAuthorPage({ params }: { params: Promise<{ id: strin
             </Link>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isUploadingAvatar}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Updating...' : 'Update Author'}
+              {loading ? 'Updating...' : isUploadingAvatar ? 'Uploading Avatar...' : 'Update Author'}
             </button>
           </div>
         </form>

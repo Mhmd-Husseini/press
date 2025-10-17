@@ -102,23 +102,23 @@ export default function AboutPage() {
     <MainLayout>
       <div className={`container mx-auto px-4 py-12 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t.title}</h1>
-          <h2 className="text-xl text-gray-600 mb-8">{t.subtitle}</h2>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t.title}</h1>
+          <h2 className="text-base text-gray-600 mb-8">{t.subtitle}</h2>
 
           {/* Mission Section */}
           <section className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">{t.mission.title}</h3>
-            <p className="text-gray-700 leading-relaxed">{t.mission.text}</p>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.mission.title}</h3>
+            <p className="text-sm text-gray-700 leading-relaxed">{t.mission.text}</p>
           </section>
 
           {/* Values Section */}
           <section className="mb-12">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">{t.values.title}</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-6">{t.values.title}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {t.values.items.map((value, index) => (
                 <div key={index} className="bg-white p-6 rounded-lg shadow-md">
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">{value.title}</h4>
-                  <p className="text-gray-700">{value.text}</p>
+                  <h4 className="text-base font-semibold text-gray-900 mb-2">{value.title}</h4>
+                  <p className="text-sm text-gray-700">{value.text}</p>
                 </div>
               ))}
             </div>
@@ -128,14 +128,14 @@ export default function AboutPage() {
           <section className="mb-12">
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <div className="md:w-1/2">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">{t.history.title}</h3>
-                <p className="text-gray-700 leading-relaxed">{t.history.text}</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.history.title}</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">{t.history.text}</p>
               </div>
               <div className="md:w-1/2">
                 <div className="relative h-72 w-full rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-6xl font-bold text-red-600 mb-4">E</div>
-                    <p className="text-red-700 font-semibold text-lg">Ektisadi.com</p>
+                    <p className="text-red-700 font-semibold text-base">Ektisadi.com</p>
                     <p className="text-red-600 text-sm mt-2">Economic News & Analysis</p>
                   </div>
                 </div>
@@ -145,8 +145,8 @@ export default function AboutPage() {
 
           {/* Team Section */}
           <section>
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">{t.team.title}</h3>
-            <p className="text-gray-700 leading-relaxed">{t.team.text}</p>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">{t.team.title}</h3>
+            <p className="text-sm text-gray-700 leading-relaxed">{t.team.text}</p>
           </section>
         </div>
       </div>

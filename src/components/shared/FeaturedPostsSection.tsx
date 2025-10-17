@@ -119,6 +119,7 @@ export const FeaturedPostsSection = ({
                 imageUrl={mainFeaturedPost.media && mainFeaturedPost.media[0]?.url}
                 media={mainFeaturedPost.media}
                 authorName={mainFeaturedPost.authorName || getCategoryName(mainFeaturedPost)}
+                authorId={mainFeaturedPost.postAuthor?.id}
                 category={mainFeaturedPost.category ? {
                   name: getCategoryName(mainFeaturedPost),
                   slug: getCategorySlug(mainFeaturedPost)
@@ -144,6 +145,7 @@ export const FeaturedPostsSection = ({
                 imageUrl={post.media && post.media[0]?.media?.url}
                 media={post.media.map(pm => pm.media)}
                 authorName={post.authorName || getCategoryName(post)}
+                authorId={post.postAuthor?.id}
                 category={post.category ? {
                   name: getCategoryName(post),
                   slug: getCategorySlug(post)
@@ -167,6 +169,7 @@ export const FeaturedPostsSection = ({
                   imageUrl={post.media && post.media[0]?.media?.url}
                   media={post.media.map(pm => pm.media)}
                   authorName={post.authorName || getCategoryName(post)}
+                  authorId={post.postAuthor?.id}
                   category={post.category ? {
                     name: getCategoryName(post),
                     slug: getCategorySlug(post)
