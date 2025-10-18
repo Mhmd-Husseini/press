@@ -462,10 +462,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           ? 'اقرأ آخر الأخبار والتحليلات من إقتصادي' 
           : 'Read the latest news and analysis from Ektisadi.com');
     
-    // Create canonical URL with encoded slug for sharing (to avoid long character display)
-    // For Arabic slugs, we use the encoded version to keep URLs short and manageable
-    const encodedSlugForUrl = encodeURIComponent(postTranslation.slug);
-    const canonicalUrl = `https://ektisadi.com/posts/${encodedSlugForUrl}`;
+    // Create canonical URL with decoded slug for better display in sharing
+    // The browser will automatically encode it when needed, but it displays nicely in Arabic
+    const decodedSlugForUrl = decodeURIComponent(postTranslation.slug);
+    const canonicalUrl = `https://ektisadi.com/posts/${decodedSlugForUrl}`;
+    
+    // Also create an encoded version for programmatic sharing (WhatsApp API)
+    const encodedCanonicalUrl = `https://ektisadi.com/posts/${encodeURIComponent(postTranslation.slug)}`;
     
     // Create optimized title for social media (max 60 characters for best display)
     const displayTitle = postTranslation.title.length > 60 
