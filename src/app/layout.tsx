@@ -62,12 +62,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ar" dir="rtl">
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${cairoFont.variable} antialiased bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} ${cairoFont.variable} antialiased bg-gray-50 font-arabic`}
       >
         {children}
       </body>

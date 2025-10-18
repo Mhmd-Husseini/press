@@ -40,7 +40,7 @@ export const Header = () => {
     const locale = document.cookie
       .split('; ')
       .find(row => row.startsWith('NEXT_LOCALE='))
-      ?.split('=')[1] || 'en';
+      ?.split('=')[1] || 'ar';
     
     setCurrentLocale(locale);
 

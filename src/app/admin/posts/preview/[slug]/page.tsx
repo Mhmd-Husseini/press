@@ -67,8 +67,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const decodedSlug = decodeURIComponent(slug);
     
     // Get the current locale from cookies
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     
     // Find post by slug (including unpublished posts for admin preview)
     const post = await prisma.post.findFirst({
@@ -234,8 +234,8 @@ async function fetchPost(slug: string) {
     const decodedSlug = decodeURIComponent(slug);
     
     // Get the current locale from cookies
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     
     // Find post by slug through translations (including unpublished posts for admin preview)
     const post = await prisma.post.findFirst({
@@ -289,8 +289,8 @@ async function fetchPost(slug: string) {
 export default async function AdminPostPreviewPage(props: PageProps) {
   try {
     // First, await cookies to get the locale before accessing props.params.slug
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     const isRTL = locale === 'ar';
     
     // IMPORTANT: In Next.js 15, await the params object before accessing its properties
@@ -591,8 +591,8 @@ export default async function AdminPostPreviewPage(props: PageProps) {
     );
   } catch (error) {
     console.error('Error rendering admin post preview:', error);
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     return <PostNotFound locale={locale} />;
   }
 }

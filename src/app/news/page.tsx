@@ -123,7 +123,7 @@ export const dynamic = 'force-dynamic';
 export default async function NewsPage(props: PageProps) {
   try {
     const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     const isRTL = locale === 'ar';
     
     const searchParams = await props.searchParams;

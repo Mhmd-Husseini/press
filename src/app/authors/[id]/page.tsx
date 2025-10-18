@@ -132,8 +132,8 @@ export default async function AuthorProfilePage({ params }: AuthorPageProps) {
     const authorId = resolvedParams.id;
 
     // Get locale from cookies
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     const isRTL = locale === 'ar';
 
     const authorData = await fetchAuthorData(authorId);

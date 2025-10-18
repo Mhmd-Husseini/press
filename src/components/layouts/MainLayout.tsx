@@ -5,14 +5,14 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 
 export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentLocale, setCurrentLocale] = useState('en');
+  const [currentLocale, setCurrentLocale] = useState('ar');
 
   useEffect(() => {
     // Get current locale from cookie
     const locale = document.cookie
       .split('; ')
       .find(row => row.startsWith('NEXT_LOCALE='))
-      ?.split('=')[1] || 'en';
+      ?.split('=')[1] || 'ar';
     
     setCurrentLocale(locale);
     

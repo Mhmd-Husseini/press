@@ -139,8 +139,8 @@ async function fetchCategoryPosts(slug: string, locale: string, page: number = 1
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   try {
     const slug = params.slug;
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     
     // Find category translation by slug
     const categoryTranslation = await prisma.categoryTranslation.findUnique({
@@ -177,8 +177,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function CategoryPage(props: PageProps) {
   try {
     // Get cookies first (Next.js 15 requirement)
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     const isRTL = locale === 'ar';
     
     // IMPORTANT: In Next.js 15, await the params object before accessing its properties

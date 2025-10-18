@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function CareerPage() {
   // Get current locale from cookies
   const cookieStore = await cookies();
-  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
   const isRTL = locale === 'ar';
 
   // Bilingual content

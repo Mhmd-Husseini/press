@@ -400,8 +400,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const decodedSlug = decodeURIComponent(slug);
     
     // Get the current locale from cookies
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     
     // Find post by slug
     const post = await prisma.post.findFirst({
@@ -601,8 +601,8 @@ async function fetchPost(slug: string) {
     const decodedSlug = decodeURIComponent(slug);
     
     // Get the current locale from cookies
-    const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     
     // Find post by slug through translations
     const post = await prisma.post.findFirst({
@@ -652,7 +652,7 @@ export default async function PostPage(props: PageProps) {
   try {
     // First, await cookies to get the locale before accessing props.params.slug
     const cookieStore = await cookies();
-    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+    const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
     const isRTL = locale === 'ar';
     
     // IMPORTANT: In Next.js 15, await the params object before accessing its properties

@@ -5,14 +5,14 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import Image from 'next/image';
 
 export default function AboutPage() {
-  const [currentLocale, setCurrentLocale] = useState('en');
+  const [currentLocale, setCurrentLocale] = useState('ar');
 
   useEffect(() => {
     // Get current locale from cookie
     const locale = document.cookie
       .split('; ')
       .find(row => row.startsWith('NEXT_LOCALE='))
-      ?.split('=')[1] || 'en';
+      ?.split('=')[1] || 'ar';
     
     setCurrentLocale(locale);
   }, []);

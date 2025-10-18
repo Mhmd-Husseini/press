@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layouts/MainLayout';
 
 export default function ContactPage() {
-  const [currentLocale, setCurrentLocale] = useState('en');
+  const [currentLocale, setCurrentLocale] = useState('ar');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,11 +18,9 @@ export default function ContactPage() {
     const cookieLocale = document.cookie
       .split('; ')
       .find(row => row.startsWith('NEXT_LOCALE='))
-      ?.split('=')[1];
+      ?.split('=')[1] || 'ar';
     
-    if (cookieLocale) {
-      setCurrentLocale(cookieLocale);
-    }
+    setCurrentLocale(cookieLocale);
   }, []);
 
   const isRTL = currentLocale === 'ar';

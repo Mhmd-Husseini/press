@@ -10,7 +10,7 @@ import { getTypographyClasses } from '@/lib/typography';
 
 export default async function Home() {
   const cookieStore = await cookies();
-  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'ar';
   const isRTL = locale === 'ar';
   
   // Get typography classes for consistent font usage

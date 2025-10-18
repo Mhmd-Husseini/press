@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useCategories } from '@/hooks/useCategories';
 
 export const Footer = () => {
-  const [currentLocale, setCurrentLocale] = useState('en');
+  const [currentLocale, setCurrentLocale] = useState('ar');
   
   // Fetch categories from the API using our custom hook
   const { categories, loading, error } = useCategories(currentLocale);
@@ -16,7 +16,7 @@ export const Footer = () => {
     const locale = document.cookie
       .split('; ')
       .find(row => row.startsWith('NEXT_LOCALE='))
-      ?.split('=')[1] || 'en';
+      ?.split('=')[1] || 'ar';
     
     setCurrentLocale(locale);
   }, []);

@@ -20,7 +20,7 @@ interface SearchResult {
 function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
-  const locale = searchParams.get('locale') || 'en';
+  const locale = searchParams.get('locale') || 'ar';
   const isRTL = locale === 'ar';
   
   const [results, setResults] = useState<SearchResult[]>([]);
