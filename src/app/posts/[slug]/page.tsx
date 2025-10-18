@@ -9,6 +9,7 @@ import MainLayout from '@/components/layouts/MainLayout';
 import { formatDateLocalized, createSocialDescription } from '@/lib/utils';
 import prisma from '@/lib/prisma';
 import HtmlFixer from '@/components/shared/HtmlFixer';
+import ShareButtons from '@/components/shared/ShareButtons';
 
 // Robust function to process post content - only removes script tags and fixes Twitter embeds
 function processPostContent(content: string): string {
@@ -461,15 +462,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           ? 'اقرأ آخر الأخبار والتحليلات من إقتصادي' 
           : 'Read the latest news and analysis from Ektisadi.com');
     
-    // Create canonical URL with properly decoded Arabic slug for social sharing
-    // The slug in DB might already be encoded, so decode it first, then create the URL
-    const decodedSlugForUrl = decodeURIComponent(postTranslation.slug);
-    const canonicalUrl = `https://ektisadi.com/posts/${decodedSlugForUrl}`;
+    // Create canonical URL with encoded slug for sharing (to avoid long character display)
+    // For Arabic slugs, we use the encoded version to keep URLs short and manageable
+    const encodedSlugForUrl = encodeURIComponent(postTranslation.slug);
+    const canonicalUrl = `https://ektisadi.com/posts/${encodedSlugForUrl}`;
     
     // Create optimized title for social media (max 60 characters for best display)
     const displayTitle = postTranslation.title.length > 60 
       ? postTranslation.title.substring(0, 57) + '...'
       : postTranslation.title;
+    
+    // Ensure image URL is absolute for social media sharing
+    const absoluteImageUrl = imageUrl.startsWith('http') 
+      ? imageUrl 
+      : `https://ektisadi.com${imageUrl}`;
     
     return {
       title: `${displayTitle} | Ektisadi.com`,
@@ -499,18 +505,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
       openGraph: {
         type: 'article',
-        title: displayTitle,
+        title: postTranslation.title, // Use full title for Open Graph
         description,
         url: canonicalUrl,
         siteName: 'Ektisadi.com',
         locale: locale === 'ar' ? 'ar_LB' : 'en_US',
         images: [
           {
-            url: imageUrl.startsWith('http') ? imageUrl : `https://ektisadi.com${imageUrl}`,
+            url: absoluteImageUrl,
             width: 1200,
             height: 630,
             alt: postTranslation.title,
             type: 'image/jpeg',
+            secureUrl: absoluteImageUrl, // Add secure URL for better compatibility
           },
         ],
         publishedTime: post.createdAt.toISOString(),
@@ -523,9 +530,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         card: 'summary_large_image',
         site: '@ektisadi',
         creator: '@ektisadi',
-        title: displayTitle,
+        title: postTranslation.title, // Use full title for Twitter
         description,
-        images: [imageUrl.startsWith('http') ? imageUrl : `https://ektisadi.com${imageUrl}`],
+        images: [absoluteImageUrl],
       },
       alternates: {
         canonical: canonicalUrl,
@@ -749,15 +756,18 @@ export default async function PostPage(props: PageProps) {
             })
           }}
         />
-        <div className={`container mx-auto px-8 lg:px-12 py-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-          <div className="max-w-3xl mx-auto lg:mb-4 mb-3">
-            {/* Category Link */}
-            <Link 
-              href={`/categories/${categoryTranslation.slug}`}
-              className="inline-block px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition"
-            >
-              {categoryTranslation.name}
-            </Link>
+        <div className={`container mx-auto px-4 lg:px-12 py-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-8">
+              <div className="max-w-3xl mx-auto lg:mb-4 mb-3">
+                {/* Category Link */}
+                <Link 
+                  href={`/categories/${categoryTranslation.slug}`}
+                  className="inline-block px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition"
+                >
+                  {categoryTranslation.name}
+                </Link>
             
             {/* Title */}
             <h1 className="text-xl md:text-2xl font-bold mb-2">{postTranslation.title}</h1>
@@ -1073,6 +1083,17 @@ export default async function PostPage(props: PageProps) {
                 }
               `
             }} />
+              </div>
+            </div>
+
+            {/* Sidebar with Share Buttons */}
+            <div className="lg:col-span-4">
+              <ShareButtons 
+                title={postTranslation.title}
+                url={canonicalUrl}
+                locale={locale}
+              />
+            </div>
           </div>
         </div>
       </MainLayout>
