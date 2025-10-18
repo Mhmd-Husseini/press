@@ -549,6 +549,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         'og:locale': locale === 'ar' ? 'ar_LB' : 'en_US',
         'twitter:app:country': 'LB',
         'twitter:app:name': 'Ektisadi.com',
+        // Additional metadata for better WhatsApp sharing
+        'og:image:width': '1200',
+        'og:image:height': '630',
+        'og:image:type': 'image/jpeg',
+        'og:image:secure_url': absoluteImageUrl,
+        'og:site_name': 'Ektisadi.com',
       },
     };
   } catch (error) {
