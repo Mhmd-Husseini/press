@@ -766,9 +766,9 @@ export default async function PostPage(props: PageProps) {
           }}
         />
         <div className={`container mx-auto px-4 lg:px-12 py-4 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Main Content */}
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-9">
               <div className="max-w-3xl mx-auto lg:mb-4 mb-3">
                 {/* Category Link */}
                 <Link 
@@ -1096,7 +1096,7 @@ export default async function PostPage(props: PageProps) {
             </div>
 
             {/* Sidebar with Share Buttons */}
-            <div className="lg:col-span-4">
+            <div className="lg:col-span-3">
               <ShareButtons 
                 title={postTranslation.title}
                 url={canonicalUrl}
